@@ -7,7 +7,6 @@ from flask import request
 app = Flask(__name__)
 app.config.from_file('config.json', load=json.load)
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
   body = request.data

@@ -1,3 +1,4 @@
+import os from pml
 import hmac
 import hashlib
 import json
@@ -30,6 +31,7 @@ def _prepare_response(body):
    comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
    return "{{ \"text\":\"{}\", \"reassign_to\":{{ \"id\":{} }} }}".format(comment_text, comment_author["id"])
 
+port = int(os.environ.get('PORT', 5000))
 
 if __name__ == "__main__":
-   app.run()
+   app.run(host="0.0.0.0", port)

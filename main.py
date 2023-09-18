@@ -19,22 +19,22 @@ def index():
 
     if "X-Custom-Header" in request.headers:
         signature = request.headers["x-pyrus-sig"]
-        print("The request has the x-pyrus-sig.")
+        print("✅ The request has the x-pyrus-sig.")
     else:
-        print("The request does not have the x-pyrus-sig.")
-        return "Access Denied"
+        print("⛔ The request does not have the x-pyrus-sig.")
+        return "🚫 Access Denied"
 
     secret = str.encode(SECRET_KEY)
 
     if secret is None or len(secret) == 0 or body is None or len(body) == 0:
-        print(f"Body is {'set ✅' if body != None else 'not set ⛔'}")
-        print(f"Secret is {'set ✅' if secret != None else 'not set ⛔'}")
-        return format("Access Denied")
+        print(f"Body is {'set ✅' if body != None else 'not set ❌'}")
+        print(f"Secret is {'set ✅' if secret != None else 'not set ❌'}")
+        return format("🚫 Access Denied")
     if _is_signature_correct(body, secret, signature):
         print("✅ Signature_correct")
         return _prepare_response(body.decode("utf-8"))
     else:
-        return "Access Denied"
+        return "🚫 Access Denied"
 
 
 def _is_signature_correct(message, secret, signature):

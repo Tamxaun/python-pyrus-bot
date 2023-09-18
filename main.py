@@ -13,19 +13,31 @@ port = int(os.environ.get("PORT", 5000))
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    print("🔗 enter to index route")
     body = request.data
     signature = request.headers["x-pyrus-sig"]
     secret = str.encode(SECRET_KEY)
-    if secret is None:
-        return "Access Denied (the secret key is not set)"
+    if (
+        secret is None
+        or len(secret) == 0
+        or signature is None
+        or len(signature) == 0
+        or body is None
+        or len(body) == 0
+    ):
+        print(f"Body is {'set ✅' if body != None else 'not set ⛔'}")
+        print(f"Signature is {'set ✅' if signature != None else 'not set ⛔'}")
+        print(f"Secret is {'set ✅' if secret != None else 'not set ⛔'}")
+        return format("Access Denied")
     if _is_signature_correct(body, secret, signature):
         print("✅ signature_correct")
-        print("⌛ preparing response")
         return _prepare_response(body.decode("utf-8"))
-    return "Access Denied"
+    else:
+        return "Access Denied"
 
 
 def _is_signature_correct(message, secret, signature):
+    print("⌛ preparing response")
     digest = hmac.new(secret, msg=message, digestmod=hashlib.sha1).hexdigest()
     return hmac.compare_digest(digest, signature.lower())
 
@@ -43,5 +55,5 @@ def _prepare_response(body):
 
 
 if __name__ == "__main__":
-    print("✅ server is ready")
     app.run(host="0.0.0.0", port=port)
+    print("✅ server is ready")

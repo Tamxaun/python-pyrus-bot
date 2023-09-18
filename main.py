@@ -23,14 +23,13 @@ def index():
 
 
 def _prepare_response(body):
-  task = json.loads(body)["task"]
-  comment = task["comments"][-1]
-  comment_author = comment["author"]
-  author_name = comment_author["first_name"] + " " + comment_author["last_name"]
-  comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
-  return "{{ \"text\":\"{}\", \"reassign_to\":{{ \"id\":{} }} }}".format(
-      comment_text, comment_author["id"])
+   task = json.loads(body)["task"]
+   comment = task["comments"][-1]
+   comment_author = comment["author"]
+   author_name = comment_author["first_name"] + " " + comment_author["last_name"]
+   comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
+   return "{{ \"text\":\"{}\", \"reassign_to\":{{ \"id\":{} }} }}".format(comment_text, comment_author["id"])
 
 
 if __name__ == "__main__":
-  app.run()
+   app.run()

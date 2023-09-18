@@ -1,18 +1,21 @@
-import os from pml
+import os
 import hmac
 import hashlib
 import json
 from flask import Flask
 from flask import request
 
+
 app = Flask(__name__)
 app.config.from_file('config.json', load=json.load)
+port = int(os.environ.get('PORT', 5000))
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
    body = request.data
    signature = request.headers['x-pyrus-sig']
-   secret = str.encode(app.config['SECRET_KEY'])
+   secret = str.encode(SECRET_KEY)
    if _is_signature_correct(body, secret, signature):
       return _prepare_response(body.decode('utf-8'))
    return "Access Denied"
@@ -31,7 +34,6 @@ def _prepare_response(body):
    comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
    return "{{ \"text\":\"{}\", \"reassign_to\":{{ \"id\":{} }} }}".format(comment_text, comment_author["id"])
 
-port = int(os.environ.get('PORT', 5000))
 
 if __name__ == "__main__":
    app.run(host="0.0.0.0", port)

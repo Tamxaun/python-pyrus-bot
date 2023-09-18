@@ -20,6 +20,9 @@ def index():
     # print(signature)
     # print(secret)
     print(request)
+    print(request.data)
+    print(request.headers)
+    print(request.headers["x-pyrus-sig"])
     # if (
     #     secret is None
     #     or len(secret) == 0

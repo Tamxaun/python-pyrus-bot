@@ -8,7 +8,6 @@ from flask import request
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 app = Flask(__name__)
-app.config.from_file("config.json", load=json.load)
 port = int(os.environ.get("PORT", 5000))
 
 

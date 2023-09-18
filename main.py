@@ -17,7 +17,7 @@ def index():
 
     body = request.data
 
-    if "X-Custom-Header" in request.headers:
+    if "x-pyrus-sig" in request.headers:
         signature = request.headers["x-pyrus-sig"]
         print("✅ The request has the x-pyrus-sig.")
     else:

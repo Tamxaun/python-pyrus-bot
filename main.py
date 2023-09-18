@@ -51,6 +51,7 @@ def _prepare_response(body):
     comment = task["comments"][-1]
 
     if "text" not in comment:
+        print("❌ There is no text in comment")
         return "{}"
 
     comment_author = comment["author"]

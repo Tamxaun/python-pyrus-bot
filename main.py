@@ -16,6 +16,8 @@ def index():
    body = request.data
    signature = request.headers['x-pyrus-sig']
    secret = str.encode(SECRET_KEY)
+   if secret is None:
+      return "Access Denied (the secret key is not set)"
    if _is_signature_correct(body, secret, signature):
       return _prepare_response(body.decode('utf-8'))
    return "Access Denied"

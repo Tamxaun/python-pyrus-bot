@@ -49,22 +49,23 @@ def _prepare_response(body):
     print("⌛ Preparing response")
     task = json.loads(body)["task"]
     print("✅ Task is ready", task)
-    comment = task["comments"][-1]
+    # comment = task["comments"][-1]
 
-    if "text" not in comment:
-        print("❌ There is no text in comment")
-        return "{}", 200
+    # if "text" not in comment:
+    #     print("❌ There is no text in comment")
+    #     return "{}", 200
 
-    comment_author = comment["author"]
-    author_name = comment_author["first_name"] + " " + comment_author["last_name"]
-    comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
+    # comment_author = comment["author"]
+    # author_name = comment_author["first_name"] + " " + comment_author["last_name"]
+    # comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
     print("✅ Response is ready")
-    return (
-        '{{ "text":"{}", "reassign_to":{{ "id":{} }} }}'.format(
-            comment_text, comment_author["id"]
-        ),
-        200,
-    )
+    return "{}", 200
+    # return (
+    #     '{{ "text":"{}", "reassign_to":{{ "id":{} }} }}'.format(
+    #         comment_text, comment_author["id"]
+    #     ),
+    #     200,
+    # )
 
 
 if __name__ == "__main__":

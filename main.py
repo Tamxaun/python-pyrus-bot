@@ -23,20 +23,20 @@ def index():
     else:
         print("⛔ The request does not have the X-Pyrus-Sig.")
         print(request.headers)
-        return "🚫 Access Denied", 200
+        return "🚫 Access Denied", 403
 
     secret = str.encode(SECRET_KEY)
 
     if secret is None or len(secret) == 0 or body is None or len(body) == 0:
         print(f"Body is {'set ✅' if body != None else 'not set ❌'}")
         print(f"Secret is {'set ✅' if secret != None else 'not set ❌'}")
-        return "🚫 Access Denied", 200
+        return "🚫 Access Denied", 403
 
     if _is_signature_correct(body, secret, signature):
         print("✅ Signature_correct")
         return _prepare_response(body.decode("utf-8"))
     else:
-        return "🚫 Access Denied", 200
+        return "🚫 Access Denied", 403
 
 
 def _is_signature_correct(message, secret, signature):

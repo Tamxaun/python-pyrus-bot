@@ -9,17 +9,17 @@ app.config.from_file('config.json', load=json.load)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-  body = request.data
-  signature = request.headers['x-pyrus-sig']
-  secret = str.encode(app.config['SECRET_KEY'])
-  if _is_signature_correct(body, secret, signature):
-    return _prepare_response(body.decode('utf-8'))
-  return "Access Denied"
+   body = request.data
+   signature = request.headers['x-pyrus-sig']
+   secret = str.encode(app.config['SECRET_KEY'])
+   if _is_signature_correct(body, secret, signature):
+      return _prepare_response(body.decode('utf-8'))
+   return "Access Denied"
 
 
-def _is_signature_correct(message, secret, signature):
-  digest = hmac.new(secret, msg=message, digestmod=hashlib.sha1).hexdigest()
-  return hmac.compare_digest(digest, signature.lower())
+   def _is_signature_correct(message, secret, signature):
+   digest = hmac.new(secret, msg=message, digestmod=hashlib.sha1).hexdigest()
+   return hmac.compare_digest(digest, signature.lower())
 
 
 def _prepare_response(body):

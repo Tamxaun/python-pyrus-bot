@@ -14,19 +14,14 @@ port = int(os.environ.get("PORT", 5000))
 @app.route("/", methods=["GET", "POST"])
 def index():
     print("🔗 Enter to index route")
-    # body = request.data
-    # signature = request.headers["x-pyrus-sig"]
-    secret = str.encode(SECRET_KEY)
-    # print(signature)
-    print(secret)
-    print(request)
-    print(request.data)
-    print(request.headers)
-    # print(request.headers["x-pyrus-sig"])
-    if request.headers.has_header("x-pyrus-sig"):
+    body = request.data
+    if "X-Custom-Header" in request.headers:
+        signature = request.headers["x-pyrus-sig"]
         print("The request has the x-pyrus-sig.")
     else:
         print("The request does not have the x-pyrus-sig.")
+    secret = str.encode(SECRET_KEY)
+
     # if (
     #     secret is None
     #     or len(secret) == 0

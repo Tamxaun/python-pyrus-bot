@@ -22,6 +22,7 @@ def index():
         print("✅ The request has the x-pyrus-sig.")
     else:
         print("⛔ The request does not have the x-pyrus-sig.")
+        print(request.headers)
         return "🚫 Access Denied"
 
     secret = str.encode(SECRET_KEY)

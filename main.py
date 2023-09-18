@@ -23,7 +23,7 @@ def index():
     else:
         print("⛔ The request does not have the X-Pyrus-Sig.")
         print(request.headers)
-        return "🚫 Access Denied", 403
+        return 403
 
     secret = str.encode(SECRET_KEY)
 

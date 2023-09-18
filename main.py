@@ -38,12 +38,13 @@ def index():
 
 
 def _is_signature_correct(message, secret, signature):
-    print("⌛ Preparing response")
+    print("⌛ Checking signature")
     digest = hmac.new(secret, msg=message, digestmod=hashlib.sha1).hexdigest()
     return hmac.compare_digest(digest, signature.lower())
 
 
 def _prepare_response(body):
+    print("⌛ Preparing response")
     task = json.loads(body)["task"]
     comment = task["comments"][-1]
     comment_author = comment["author"]

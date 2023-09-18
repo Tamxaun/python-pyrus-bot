@@ -17,11 +17,11 @@ def index():
 
     body = request.data
 
-    if "x-pyrus-sig" in request.headers:
-        signature = request.headers["x-pyrus-sig"]
-        print("✅ The request has the x-pyrus-sig.")
+    if "X-Pyrus-Sig" in request.headers:
+        signature = request.headers["X-Pyrus-Sig"]
+        print("✅ The request has the X-Pyrus-Sig.")
     else:
-        print("⛔ The request does not have the x-pyrus-sig.")
+        print("⛔ The request does not have the X-Pyrus-Sig.")
         print(request.headers)
         return "🚫 Access Denied"
 

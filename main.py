@@ -21,7 +21,7 @@ def index():
    return "Access Denied"
 
 
-   def _is_signature_correct(message, secret, signature):
+def _is_signature_correct(message, secret, signature):
    digest = hmac.new(secret, msg=message, digestmod=hashlib.sha1).hexdigest()
    return hmac.compare_digest(digest, signature.lower())
 

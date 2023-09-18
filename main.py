@@ -47,7 +47,12 @@ def _is_signature_correct(message, secret, signature):
 def _prepare_response(body):
     print("⌛ Preparing response")
     task = json.loads(body)["task"]
+    print("✅ Task is ready", task)
     comment = task["comments"][-1]
+
+    if "text" not in comment:
+        return "{}"
+
     comment_author = comment["author"]
     author_name = comment_author["first_name"] + " " + comment_author["last_name"]
     comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])

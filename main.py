@@ -61,6 +61,7 @@ def _prepare_response(body):
     approval_choice = None
     approvals_added = None
     approvals_rerequested = None
+    approvals_removed = None
 
     if "approval_choice" in comment:
         approval_choice = comment["approval_choice"]
@@ -68,11 +69,14 @@ def _prepare_response(body):
         approvals_added = comment["approvals_added"]
     if "approvals_rerequested" in comment:
         approvals_rerequested = comment["approvals_rerequested"]
+    if "approvals_removed" in comment:
+        approvals_removed = comment["approvals_removed"]
 
     if (
         approval_choice is not None
         or approvals_added is not None
         or approvals_rerequested is not None
+        or approvals_removed is not None
     ):
         approvalNames = [
             "@"

@@ -84,7 +84,7 @@ def _prepare_response(body):
         or approvals_removed is not None
     ):
         approvalNames = [
-            "<a href='https://pyrus.com/t#"
+            "<a href='https://pyrus.com/t#pp"
             + str(approval["person"]["id"])
             + "'>"
             + " ".join(

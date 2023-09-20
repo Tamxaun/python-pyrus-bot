@@ -49,7 +49,7 @@ def _prepare_response(body):
     print("⌛ Preparing response")
 
     task = json.loads(body)["task"]
-    current_step = task["current_step"]
+    current_step = int(task["current_step"])
     step = task["steps"][current_step - 1]
     approvals = task["approvals"][current_step - 1]
     comment = task["comments"][-1]
@@ -67,8 +67,9 @@ def _prepare_response(body):
         approval_choice = comment["approval_choice"]
     if "approvals_added" in comment:
         approvals_added = comment["approvals_added"]
+        approved_step = int(approvals_added[-1]["step"])
 
-        if approvals_added[0]["step"] != current_step:
+        if approved_step != current_step:
             print("⚠️ No response")
             return "{}", 200
     if "approvals_rerequested" in comment:

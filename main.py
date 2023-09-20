@@ -46,20 +46,38 @@ def _is_signature_correct(message, secret, signature):
 
 
 def _prepare_response(body):
-    print("ℹ️ Body", body)
     print("⌛ Preparing response")
-    task = json.loads(body)["task"]
-    print("✅ Task is ready", task)
-    # comment = task["comments"][-1]
 
-    # if "text" not in comment:
-    #     print("❌ There is no text in comment")
-    #     return "{}", 200
+    task = json.loads(body)["task"]
+    current_step = task["current_step"]
+    step = task["steps"][current_step - 1]
+    approvals = task["approvals"][current_step - 1]
+    comment = task["comments"][-1]
+    print("✅ Task is ready", task)
+    print("✅ current_step is ready", current_step)
+    print("✅ step is ready", step)
+    print("✅ approvals is ready", approvals)
+    approval_choice = comment["approval_choice"]
+    approvals_added = comment["approvals_added"]
+    approvals_rerequested = comment["approvals_rerequested"]
+
+    print("✅ approvals is ready", approvals)
+
+    # if (
+    #     approval_choice is not None
+    #     or approvals_added is not None
+    #     or approvals_rerequested is not None
+    # ):
+    #     print("✅ Response is ready")
+    #     comment_text = "{'Роман Ерошин, Александр Андреевич'}. /n Приступить к исполнению следующего этапа {}!".format(
+    #         approvals, step["name"]
+    #     )
+    #     return ('{{ "text":"{}", "reassign_to":{{ "id":{} }} }}'.format(), 200)
 
     # comment_author = comment["author"]
     # author_name = comment_author["first_name"] + " " + comment_author["last_name"]
     # comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
-    print("✅ Response is ready")
+    print("⚠️ No response")
     return "{}", 200
     # return (
     #     '{{ "text":"{}", "reassign_to":{{ "id":{} }} }}'.format(

@@ -85,7 +85,7 @@ def _prepare_response(body):
     ):
         approvalNames = [
             "<a href='https://pyrus.com/t#"
-            + str({approval["person"]["id"]})
+            + str(approval["person"]["id"])
             + "'>"
             + " ".join(
                 [approval["person"]["first_name"], approval["person"]["last_name"]]

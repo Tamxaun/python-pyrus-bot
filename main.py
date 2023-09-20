@@ -68,7 +68,7 @@ def _prepare_response(body):
     if "approvals_added" in comment:
         approvals_added = comment["approvals_added"]
 
-        if approvals_added[0]["step"] == current_step:
+        if approvals_added[0]["step"] != current_step:
             print("⚠️ No response")
             return "{}", 200
     if "approvals_rerequested" in comment:

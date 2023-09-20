@@ -67,28 +67,25 @@ def _prepare_response(body):
 
     print("✅ approvals is ready", approvals)
 
-    # if (
-    #     approval_choice is not None
-    #     or approvals_added is not None
-    #     or approvals_rerequested is not None
-    # ):
-    #     print("✅ Response is ready")
-    #     comment_text = "{'Роман Ерошин, Александр Андреевич'}. /n Приступить к исполнению следующего этапа {}!".format(
-    #         approvals, step["name"]
-    #     )
-    #     return ('{{ "text":"{}" }}'.format(comment_text), 200)
+    if (
+        approval_choice is not None
+        or approvals_added is not None
+        or approvals_rerequested is not None
+    ):
+        approvalNames = [
+            " ".join(
+                [approval["person"]["first_name"], approval["person"]["last_name"]]
+            )
+            for approval in approvals
+        ]
+        comment_text = "{}. /n Приступить к исполнению следующего этапа {}!".format(
+            ", ".join(approvalNames), step["name"]
+        )
+        print("✅ Response is ready")
+        return ('{{ "text":"{}" }}'.format(comment_text), 200)
 
-    # comment_author = comment["author"]
-    # author_name = comment_author["first_name"] + " " + comment_author["last_name"]
-    # comment_text = "Hello, {}! You said: {}".format(author_name, comment["text"])
     print("⚠️ No response")
     return "{}", 200
-    # return (
-    #     '{{ "text":"{}", "reassign_to":{{ "id":{} }} }}'.format(
-    #         comment_text, comment_author["id"]
-    #     ),
-    #     200,
-    # )
 
 
 if __name__ == "__main__":

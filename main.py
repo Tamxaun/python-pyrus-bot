@@ -57,9 +57,13 @@ def _prepare_response(body):
     print("✅ current_step is ready", current_step)
     print("✅ step is ready", step)
     print("✅ approvals is ready", approvals)
-    approval_choice = comment["approval_choice"]
-    approvals_added = comment["approvals_added"]
-    approvals_rerequested = comment["approvals_rerequested"]
+
+    if "approval_choice" in comment:
+        approval_choice = comment["approval_choice"]
+    if "approvals_added" in comment:
+        approvals_added = comment["approvals_added"]
+    if "approvals_rerequested" in comment:
+        approvals_rerequested = comment["approvals_rerequested"]
 
     print("✅ approvals is ready", approvals)
 
@@ -72,7 +76,7 @@ def _prepare_response(body):
     #     comment_text = "{'Роман Ерошин, Александр Андреевич'}. /n Приступить к исполнению следующего этапа {}!".format(
     #         approvals, step["name"]
     #     )
-    #     return ('{{ "text":"{}", "reassign_to":{{ "id":{} }} }}'.format(), 200)
+    #     return ('{{ "text":"{}" }}'.format(comment_text), 200)
 
     # comment_author = comment["author"]
     # author_name = comment_author["first_name"] + " " + comment_author["last_name"]

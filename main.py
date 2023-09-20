@@ -46,10 +46,9 @@ def _is_signature_correct(message, secret, signature):
 
 
 def _prepare_response(body):
+    print("ℹ️ Body", body)
     print("⌛ Preparing response")
-    body = json.loads(body)
     task = json.loads(body)["task"]
-    print("✅ Body is ready", body)
     print("✅ Task is ready", task)
     # comment = task["comments"][-1]
 

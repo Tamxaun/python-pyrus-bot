@@ -58,14 +58,16 @@ def _prepare_response(body):
     print("✅ step is ready", step)
     print("✅ approvals is ready", approvals)
 
+    approval_choice = None
+    approvals_added = None
+    approvals_rerequested = None
+
     if "approval_choice" in comment:
         approval_choice = comment["approval_choice"]
     if "approvals_added" in comment:
         approvals_added = comment["approvals_added"]
     if "approvals_rerequested" in comment:
         approvals_rerequested = comment["approvals_rerequested"]
-
-    print("✅ approvals is ready", approvals)
 
     if (
         approval_choice is not None

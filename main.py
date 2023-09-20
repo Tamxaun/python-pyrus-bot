@@ -75,16 +75,19 @@ def _prepare_response(body):
         or approvals_rerequested is not None
     ):
         approvalNames = [
-            " ".join(
+            "@"
+            + " ".join(
                 [approval["person"]["first_name"], approval["person"]["last_name"]]
             )
             for approval in approvals
         ]
-        comment_text = "{}. /n Приступить к исполнению следующего этапа {}!".format(
-            ", ".join(approvalNames), step["name"]
+        comment_text = (
+            "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!".format(
+                ", ".join(approvalNames), step["name"]
+            )
         )
         print("✅ Response is ready")
-        return ('{{ "text":"{}" }}'.format(comment_text), 200)
+        return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
     print("⚠️ No response")
     return "{}", 200

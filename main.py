@@ -84,10 +84,13 @@ def _prepare_response(body):
         or approvals_removed is not None
     ):
         approvalNames = [
-            "@"
+            "<a href='https://pyrus.com/t#"
+            + {approval["person"]["id"]}
+            + "'>"
             + " ".join(
                 [approval["person"]["first_name"], approval["person"]["last_name"]]
             )
+            + "</a>"
             for approval in approvals
         ]
         comment_text = (

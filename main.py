@@ -69,6 +69,13 @@ def _prepare_response(body):
         approvals_added = comment["approvals_added"]
         approved_step = int(approvals_added[-1]["step"])
 
+        print("approvals_added", approvals_added)
+        print("approvals_added[-1]", approvals_added[-1])
+        print("approvals_added[0]", approvals_added[0])
+        print("approvals_added[-1]", approvals_added[-1]["step"])
+        print("type(approvals_added)", type(approvals_added))
+        print("type(approved_step)", type(approved_step))
+
         if approved_step != current_step:
             print("⚠️ No response")
             return "{}", 200

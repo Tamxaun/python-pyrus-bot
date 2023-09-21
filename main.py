@@ -53,6 +53,7 @@ def _prepare_response(body):
     step = task["steps"][current_step - 1]
     approvals = task["approvals"][current_step - 1]
     comment = task["comments"][-1]
+
     print("✅ Task is ready", task)
     print("✅ current_step is ready", current_step)
     print("✅ step is ready", step)
@@ -84,14 +85,12 @@ def _prepare_response(body):
         or approvals_removed is not None
     ):
         approvalNames = [
-            "<a href='https://pyrus.com/t#pp"
-            + str(approval["person"]["id"])
-            + "'>"
-            + " ".join(
-                [approval["person"]["first_name"], approval["person"]["last_name"]]
-            )
+            "<a href='https://pyrus.com/t#pp{}'>".format(
+                str(approval["person"]["id"])
+            ).join([approval["person"]["first_name"], approval["person"]["last_name"]])
             + "</a>"
             for approval in approvals
+            if str(approval["approval_choice"]) == "waiting"
         ]
         comment_text = (
             "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!".format(

@@ -113,18 +113,23 @@ def _prepare_response(body):
 
 def _make_api_request(url):
     print("⌛ Making API request")
+
     secret = str.encode(SECRET_KEY)
     login = str.encode(LOGIN)
-    print("✅ Secret is ready", secret)
-    print("✅ Login is ready", login)
+
     auth = requests.get(
-        "https://api.pyrus.com/v4/auth", data={"login": login, "security_key": secret}
+        "https://api.pyrus.com/v4/auth", params={"login": login, "security_key": secret}
     ).text
+
     print("✅ Auth is ready", auth)
+
     access_token = json.loads(auth)["access_token"]
+
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = json.loads(r.text)
+
     print("✅ API request is ready", data)
+
     return data
 
 

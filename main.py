@@ -92,7 +92,9 @@ def _prepare_response(body):
             if str(approval["approval_choice"]) == "waiting"
         ]
 
-        form_fields = _make_api_request("https://api.pyrus.com/v4/forms")
+        form_fields = _make_api_request(
+            f"https://api.pyrus.com/v4/forms/{int(task['form_id'])}"
+        )
         comment_text = str(
             (
                 "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br><code>{}</code>".format(
@@ -116,6 +118,7 @@ def _make_api_request(url):
     auth = requests.get(
         "https://api.pyrus.com/v4/auth", data={"security_key": secret, "login": login}
     ).text
+    print("✅ Auth is ready", auth)
     access_token = json.loads(auth)["access_token"]
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = json.loads(r.text)

@@ -85,7 +85,7 @@ def _prepare_response(body):
         or approvals_removed is not None
     ):
         approvalNames = [
-            f'<a href="https://pyrus.com/t#pp{approval["person"]["id"]}">{approval["person"]["first_name"]} {approval["person"]["last_name"]}</a>'
+            f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
             for approval in approvals
             if str(approval["approval_choice"]) == "waiting"
         ]
@@ -96,11 +96,10 @@ def _prepare_response(body):
                 )
             )
         )
-        print("✅ Text of the Comment is ready", comment_text)
-        print("✅ Responce is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))
-        print("✅ Response is ready")
 
-        return json.dumps('{{ "formatted_text":"{}" }}'.format(comment_text)), 200
+        print("✅ Response is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))
+
+        return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
     print("⚠️ No response")
     return "{}", 200

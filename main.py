@@ -89,9 +89,11 @@ def _prepare_response(body):
             for approval in approvals
             if str(approval["approval_choice"]) == "waiting"
         ]
-        comment_text = (
-            "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!".format(
-                ", ".join(approvalNames), step["name"]
+        comment_text = str(
+            (
+                "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!".format(
+                    ", ".join(approvalNames), step["name"]
+                )
             )
         )
         print("✅ Text of the Comment is ready", comment_text)

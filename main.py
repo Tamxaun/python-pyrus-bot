@@ -85,10 +85,7 @@ def _prepare_response(body):
         or approvals_removed is not None
     ):
         approvalNames = [
-            "<a href='https://pyrus.com/t#pp{}'>".format(
-                str(approval["person"]["id"])
-            ).join([approval["person"]["first_name"], approval["person"]["last_name"]])
-            + "</a>"
+            f'<a href="https://pyrus.com/t#pp{str(approval["person"]["id"])}">{str(approval["person"]["first_name"])} {str(approval["person"]["last_name"])}</a>'
             for approval in approvals
             if str(approval["approval_choice"]) == "waiting"
         ]

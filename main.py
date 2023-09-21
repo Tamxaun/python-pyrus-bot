@@ -115,8 +115,10 @@ def _make_api_request(url):
     print("⌛ Making API request")
     secret = str.encode(SECRET_KEY)
     login = str.encode(LOGIN)
+    print("✅ Secret is ready", auth)
+    print("✅ Login is ready", login)
     auth = requests.get(
-        "https://api.pyrus.com/v4/auth", data={"security_key": secret, "login": login}
+        "https://api.pyrus.com/v4/auth", data={"login": login, "security_key": secret}
     ).text
     print("✅ Auth is ready", auth)
     access_token = json.loads(auth)["access_token"]

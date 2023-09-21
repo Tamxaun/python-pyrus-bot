@@ -97,6 +97,7 @@ def _prepare_response(body):
             )
         )
         print("✅ Text of the Comment is ready", comment_text)
+        print("✅ Responce is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))
         print("✅ Response is ready")
         return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 

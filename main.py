@@ -2,10 +2,12 @@ import os
 import hmac
 import hashlib
 import json
+import requests
 from flask import Flask
 from flask import request
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+LOGIN = os.getenv("LOGIN")
 
 app = Flask(__name__)
 port = int(os.environ.get("PORT", 5000))
@@ -89,10 +91,12 @@ def _prepare_response(body):
             for approval in approvals
             if str(approval["approval_choice"]) == "waiting"
         ]
+
+        form_fields = _make_api_request("https://api.pyrus.com/v4/forms")
         comment_text = str(
             (
-                "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!".format(
-                    ", ".join(approvalNames), step["name"]
+                "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br><code>{}</code>".format(
+                    ", ".join(approvalNames), step["name"], form_fields
                 )
             )
         )
@@ -103,6 +107,20 @@ def _prepare_response(body):
 
     print("⚠️ No response")
     return "{}", 200
+
+
+def _make_api_request(url):
+    print("⌛ Making API request")
+    secret = str.encode(SECRET_KEY)
+    login = str.encode(LOGIN)
+    auth = requests.get(
+        "https://api.pyrus.com/v4/auth", data={"security_key": secret, "login": login}
+    ).text
+    access_token = json.loads(auth)["access_token"]
+    r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
+    data = json.loads(r.text)
+    print("✅ API request is ready", data)
+    return data
 
 
 if __name__ == "__main__":

@@ -94,6 +94,7 @@ def _prepare_response(body):
                 ", ".join(approvalNames), step["name"]
             )
         )
+        print("✅ Text of the Comment is ready", comment_text)
         print("✅ Response is ready")
         return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 

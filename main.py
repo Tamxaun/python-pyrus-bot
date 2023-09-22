@@ -67,6 +67,7 @@ def _prepare_response(body):
     has_approvals_rerequested = "approvals_rerequested" in comment
     has_approvals_removed = "approvals_removed" in comment
     has_approvals_removed = "approvals_removed" in comment
+    is_changed_step = "changed_step" in comment
 
     if (
         has_approval_choice

@@ -102,17 +102,19 @@ def _prepare_response(body):
                 form["fields"],
             )
         )
-        comment_fields = [
+        fields = [
             f'{"✅" if task_field["value"] else "❌"}{form_field["name"]}'
             for form_field in form_fields
             for task_field in task_fields
             if form_field["id"] == task_field["id"]
         ]
 
-        print("✅ comment_fields is ready", comment_fields)
+        formatted_fields = [f"<li>{field}</li>" for field in fields]
+
+        print("✅ formatted_fields is ready", formatted_fields)
 
         comment_text = "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br><ul>{}</ul>".format(
-            ", ".join(approvalNames), step["name"]
+            ", ".join(approvalNames), step["name"], formatted_fields
         )
 
         print("✅ Response is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))

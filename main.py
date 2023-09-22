@@ -62,30 +62,17 @@ def _prepare_response(body):
     print("✅ step is ready", step)
     print("✅ approvals is ready", approvals)
 
-    approval_choice = None
-    approvals_added = None
-    approvals_rerequested = None
-    approvals_removed = None
-
-    if "approval_choice" in comment:
-        approval_choice = comment["approval_choice"]
-    if "approvals_added" in comment:
-        approvals_added = comment["approvals_added"]
-        approved_step = int(approvals_added[-1][-1]["step"])
-
-        if approved_step != current_step:
-            print("⚠️ No response")
-            return "{}", 200
-    if "approvals_rerequested" in comment:
-        approvals_rerequested = comment["approvals_rerequested"]
-    if "approvals_removed" in comment:
-        approvals_removed = comment["approvals_removed"]
+    has_approval_choice = "approval_choice" in comment
+    has_approvals_added = "approvals_added" in comment
+    has_approvals_rerequested = "approvals_rerequested" in comment
+    has_approvals_removed = "approvals_removed" in comment
+    has_approvals_removed = "approvals_removed" in comment
 
     if (
-        approval_choice is not None
-        or approvals_added is not None
-        or approvals_rerequested is not None
-        or approvals_removed is not None
+        has_approval_choice
+        or has_approvals_added
+        or has_approvals_rerequested
+        or has_approvals_removed
     ):
         approvalNames = [
             f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
@@ -114,7 +101,7 @@ def _prepare_response(body):
         print("✅ formatted_fields is ready", formatted_fields)
 
         comment_text = "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br><ul>{}</ul>".format(
-            ", ".join(approvalNames), step["name"], "".join(formatted_fields)
+            "<br>".join(approvalNames), step["name"], "".join(formatted_fields)
         )
 
         print("✅ Response is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))

@@ -96,9 +96,7 @@ def _prepare_response(body):
         form = _make_api_request(
             f"https://api.pyrus.com/v4/forms/{int(task['form_id'])}"
         )
-        form_fields = list(
-            filter(_filter_required_fields(current_step), form["fields"])
-        )
+        form_fields = list(filter(_filter_required_fields, form["fields"]))
         comment_fields = [
             f'{"✅" if task_field["value"] else "❌"}{form_field["name"]}'
             for form_field in form_fields
@@ -108,10 +106,8 @@ def _prepare_response(body):
 
         print("✅ comment_fields is ready", comment_fields)
 
-        comment_text = (
-            "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br>".format(
-                ", ".join(approvalNames), step["name"]
-            )
+        comment_text = "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br><ul>{}</ul>".format(
+            ", ".join(approvalNames), step["name"]
         )
 
         print("✅ Response is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))
@@ -144,7 +140,8 @@ def _make_api_request(url):
     return data
 
 
-def _filter_required_fields(field, current_step):
+def _filter_required_fields(field):
+    global current_step
     if "info" in field and "required_step" in field["info"]:
         return int(field["info"]["required_step"]) == current_step
     else:

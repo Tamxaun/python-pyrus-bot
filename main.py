@@ -114,7 +114,7 @@ def _prepare_response(body):
         print("✅ formatted_fields is ready", formatted_fields)
 
         comment_text = "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br><ul>{}</ul>".format(
-            ", ".join(approvalNames), step["name"], formatted_fields
+            ", ".join(approvalNames), step["name"], "".join(formatted_fields)
         )
 
         print("✅ Response is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))

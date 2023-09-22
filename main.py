@@ -103,7 +103,7 @@ def _prepare_response(body):
             )
         )
         fields = [
-            f'{"✅" if task_field["value"] else "❌"}{form_field["name"]}'
+            f'{"✅" if "value" in task_field else "❌"}{form_field["name"]}'
             for form_field in form_fields
             for task_field in task_fields
             if form_field["id"] == task_field["id"]

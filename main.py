@@ -52,32 +52,33 @@ def _prepare_response(body):
 
     task = json.loads(body)["task"]
     task_fields = task["fields"]
-    current_step = int(task["current_step"])
-    step = task["steps"][current_step - 1]
-    approvals = task["approvals"][current_step - 1]
+    current_step_num = int(task["current_step"])
+    current_step = task["steps"][current_step_num - 1]
+    prev_step = task["steps"][current_step_num - 2]
+    current_approvals = task["approvals"][current_step_num - 1]
+    prev_approvals = task["approvals"][current_step_num - 2]
     comment = task["comments"][-1]
 
     print("✅ Task is ready", task)
-    print("✅ current_step is ready", current_step)
-    print("✅ step is ready", step)
-    print("✅ approvals is ready", approvals)
+    print("✅ current_step is ready", current_step_num)
+    print("✅ step is ready", current_step)
+    print("✅ approvals is ready", current_approvals)
 
     has_approval_choice = "approval_choice" in comment
     has_approvals_added = "approvals_added" in comment
     has_approvals_rerequested = "approvals_rerequested" in comment
     has_approvals_removed = "approvals_removed" in comment
-    has_approvals_removed = "approvals_removed" in comment
     is_changed_step = "changed_step" in comment
 
-    if (
-        has_approval_choice
-        or has_approvals_added
-        or has_approvals_rerequested
-        or has_approvals_removed
-    ):
-        approvalNames = [
+    if has_approval_choice or is_changed_step:
+        not_approved_names = [
             f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
-            for approval in approvals
+            for approval in current_approvals
+            if str(approval["approval_choice"]) == "waiting"
+        ]
+        approved_names = [
+            f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
+            for approval in prev_approvals
             if str(approval["approval_choice"]) == "waiting"
         ]
 
@@ -86,7 +87,7 @@ def _prepare_response(body):
         )
         form_fields = list(
             filter(
-                lambda field: _filter_required_fields(field, current_step),
+                lambda field: _filter_required_fields(field, current_step_num),
                 form["fields"],
             )
         )
@@ -96,14 +97,25 @@ def _prepare_response(body):
             for task_field in task_fields
             if form_field["id"] == task_field["id"]
         ]
-
         formatted_fields = [f"<li>{field}</li>" for field in fields]
-
         print("✅ formatted_fields is ready", formatted_fields)
 
-        comment_text = "{}<br>Приступить к исполнению следующего этапа <b>{}</b>!<br><ul>{}</ul>".format(
-            "<br>".join(approvalNames), step["name"], "".join(formatted_fields)
-        )
+        if comment["approval_choice"] == "approved" and is_changed_step:  # step changed
+            comment_text = "{}<br>Отличная работа! 👍<br>Этап {} завершен ✅<br><br>{}<br>{}</b>Приступить к исполнению следующего этапа <b>{}</b><br><ul>{}</ul>".format(
+                "<br>".join(approved_names),
+                prev_step["name"],
+                "<br>".join(not_approved_names),
+                current_step["name"],
+                "".join(formatted_fields),
+            )
+        elif comment["approval_choice"] == "approved":  # step not changed
+            comment_text = "{} выполнил свою часть работы на этапе {}<br><br><b>{}</b><br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению<br><ul>{}</ul>".format(
+                ", ".join(approved_names),
+                current_step["name"],
+                "<br>".join(not_approved_names),
+                current_step["name"],
+                "".join(formatted_fields),
+            )
 
         print("✅ Response is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))
 
@@ -135,9 +147,9 @@ def _make_api_request(url):
     return data
 
 
-def _filter_required_fields(field, current_step):
+def _filter_required_fields(field, current_step_num):
     if "info" in field and "required_step" in field["info"]:
-        return int(field["info"]["required_step"]) == current_step
+        return int(field["info"]["required_step"]) == current_step_num
     else:
         return False
 

@@ -133,9 +133,6 @@ def _make_api_request(url):
     auth = requests.get(
         "https://api.pyrus.com/v4/auth", params={"login": login, "security_key": secret}
     ).text
-
-    print("✅ Auth is ready", auth)
-
     access_token = json.loads(auth)["access_token"]
 
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})

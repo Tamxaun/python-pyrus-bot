@@ -79,7 +79,7 @@ def _prepare_response(body):
         approved_names = [
             f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
             for approval in prev_approvals
-            if str(approval["approval_choice"]) == "waiting"
+            if str(approval["approval_choice"]) == "approved"
         ]
 
         form = _make_api_request(

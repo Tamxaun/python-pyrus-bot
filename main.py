@@ -104,13 +104,6 @@ def _prepare_response(body):
 
         comment_text = ""
         if is_changed_step:  # step changed
-            # comment_text = "{}<br>Отличная работа! 👍<br>Этап <b>{}</b> завершен ✅<br><br>{}<br>{}</b>Приступить к исполнению следующего этапа <b>{}</b><br><ul>{}</ul>".format(
-            #     "<br>".join(approved_names),
-            #     prev_step["name"],
-            #     "<br>".join(not_approved_names),
-            #     current_step["name"],
-            #     "".join(formatted_fields),
-            # )
             comment_text = f"{'{}<br>Отличная работа! 👍<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(approved_names), prev_step['name']) if prev_step else ''}{'<br>'.join(not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
         elif (
             comment["approval_choice"] == "approved" and not is_changed_step

@@ -54,9 +54,11 @@ def _prepare_response(body):
     task_fields = task["fields"]
     current_step_num = int(task["current_step"])
     current_step = task["steps"][current_step_num - 1]
-    prev_step = task["steps"][current_step_num - 2]
+    prev_step = task["steps"][current_step_num - 2] if current_step_num > 1 else []
     current_approvals = task["approvals"][current_step_num - 1]
-    prev_approvals = task["approvals"][current_step_num - 2]
+    prev_approvals = (
+        task["approvals"][current_step_num - 2] if current_step_num > 1 else []
+    )
     comment = task["comments"][-1]
 
     print("✅ Task is ready", task)
@@ -102,13 +104,14 @@ def _prepare_response(body):
 
         comment_text = ""
         if is_changed_step:  # step changed
-            comment_text = "{}<br>Отличная работа! 👍<br>Этап <b>{}</b> завершен ✅<br><br>{}<br>{}</b>Приступить к исполнению следующего этапа <b>{}</b><br><ul>{}</ul>".format(
-                "<br>".join(approved_names),
-                prev_step["name"],
-                "<br>".join(not_approved_names),
-                current_step["name"],
-                "".join(formatted_fields),
-            )
+            # comment_text = "{}<br>Отличная работа! 👍<br>Этап <b>{}</b> завершен ✅<br><br>{}<br>{}</b>Приступить к исполнению следующего этапа <b>{}</b><br><ul>{}</ul>".format(
+            #     "<br>".join(approved_names),
+            #     prev_step["name"],
+            #     "<br>".join(not_approved_names),
+            #     current_step["name"],
+            #     "".join(formatted_fields),
+            # )
+            comment_text = f"{'{}<br>Отличная работа! 👍<br>Этап <b>{}</b> завершен ✅<br>'.format('<br>'.join(approved_names), prev_step['name']) if prev_step else ''}Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
         elif (
             comment["approval_choice"] == "approved" and not is_changed_step
         ):  # step not changed

@@ -110,7 +110,7 @@ def _prepare_response(body):
                 "".join(formatted_fields),
             )
         elif comment["approval_choice"] == "approved":  # step not changed
-            comment_text = "{} выполнил свою часть работы на этапе {}<br><br><b>{}</b><br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению<br><ul>{}</ul>".format(
+            comment_text = "{} выполнил свою часть работы на этапе {}<br><br>{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению<br><ul>{}</ul>".format(
                 ", ".join(approved_names),
                 current_step["name"],
                 "<br>".join(not_approved_names),

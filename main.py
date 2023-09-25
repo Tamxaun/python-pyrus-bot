@@ -101,7 +101,7 @@ def _prepare_response(body):
         print("✅ formatted_fields is ready", formatted_fields)
 
         comment_text = ""
-        if comment["approval_choice"] == "approved" and is_changed_step:  # step changed
+        if is_changed_step:  # step changed
             comment_text = "{}<br>Отличная работа! 👍<br>Этап <b>{}</b> завершен ✅<br><br>{}<br>{}</b>Приступить к исполнению следующего этапа <b>{}</b><br><ul>{}</ul>".format(
                 "<br>".join(approved_names),
                 prev_step["name"],
@@ -109,7 +109,9 @@ def _prepare_response(body):
                 current_step["name"],
                 "".join(formatted_fields),
             )
-        elif comment["approval_choice"] == "approved":  # step not changed
+        elif (
+            comment["approval_choice"] == "approved" and not is_changed_step
+        ):  # step not changed
             comment_text = "{} выполнил свою часть работы на этапе <b>{}</b><br><br>{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению<br><ul>{}</ul>".format(
                 ", ".join(approved_names),
                 current_step["name"],

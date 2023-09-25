@@ -100,6 +100,7 @@ def _prepare_response(body):
         formatted_fields = [f"<li>{field}</li>" for field in fields]
         print("✅ formatted_fields is ready", formatted_fields)
 
+        comment_text = ""
         if comment["approval_choice"] == "approved" and is_changed_step:  # step changed
             comment_text = "{}<br>Отличная работа! 👍<br>Этап {} завершен ✅<br><br>{}<br>{}</b>Приступить к исполнению следующего этапа <b>{}</b><br><ul>{}</ul>".format(
                 "<br>".join(approved_names),

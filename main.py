@@ -3,6 +3,7 @@ import hmac
 import hashlib
 import json
 import requests
+import random
 from flask import Flask
 from flask import request
 
@@ -102,9 +103,20 @@ def _prepare_response(body):
         formatted_fields = [f"<li>{field}</li>" for field in fields]
         print("✅ formatted_fields is ready", formatted_fields)
 
+        welcome_text_list = [
+            "Отличная работа! 👍",
+            "Так держать! 🙏",
+            "Огонь 🔥",
+            "Терпение и труд всё перетрут 💪",
+            "Дай пять 🙏",
+            "Супер",
+            "Отпад 😎",
+        ]
+        welcome_text_random = random.choice(welcome_text_list)
+
         comment_text = ""
         if is_changed_step:  # step changed
-            comment_text = f"{'{}<br>Отличная работа! 👍<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(approved_names), prev_step['name']) if prev_step else ''}{'<br>'.join(not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
+            comment_text = f"{'{}<br>{}<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(approved_names), welcome_text_random, prev_step['name']) if prev_step else ''}{'<br>'.join(not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
         elif (
             comment["approval_choice"] == "approved" and not is_changed_step
         ):  # step not changed

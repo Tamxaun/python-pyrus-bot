@@ -74,12 +74,17 @@ def _prepare_response(body):
     is_changed_step = "changed_step" in comment
 
     if has_approval_choice or is_changed_step:
-        not_approved_names = [
+        current_not_approved_names = [
             f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
             for approval in current_approvals
             if str(approval["approval_choice"]) == "waiting"
         ]
-        approved_names = [
+        current_approved_names = [
+            f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
+            for approval in current_approvals
+            if str(approval["approval_choice"]) == "approved"
+        ]
+        prev_approved_names = [
             f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
             for approval in prev_approvals
             if str(approval["approval_choice"]) == "approved"
@@ -116,14 +121,14 @@ def _prepare_response(body):
 
         comment_text = ""
         if is_changed_step:  # step changed
-            comment_text = f"{'{}<br>{}<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(approved_names), welcome_text_random, prev_step['name']) if prev_step else ''}{'<br>'.join(not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
+            comment_text = f"{'{}<br>{}<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(prev_approved_names), welcome_text_random, prev_step['name']) if prev_step else ''}{'<br>'.join(current_not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
         elif (
             comment["approval_choice"] == "approved" and not is_changed_step
         ):  # step not changed
             comment_text = "{} выполнил свою часть работы на этапе <b>{}</b><br><br>{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению ⏳<br><ul>{}</ul>".format(
-                ", ".join(approved_names),
+                ", ".join(current_approved_names),
                 current_step["name"],
-                "<br>".join(not_approved_names),
+                "<br>".join(current_not_approved_names),
                 current_step["name"],
                 "".join(formatted_fields),
             )

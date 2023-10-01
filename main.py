@@ -141,7 +141,7 @@ def _prepare_response(body):
                 current_step["name"],
                 "".join(formatted_fields),
             )
-        elif current_visible_steps == 1:  # step not changed
+        elif current_visible_steps == 1:  # task was created
             comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
                 "<br>".join(current_not_approved_names),
                 current_step["name"],

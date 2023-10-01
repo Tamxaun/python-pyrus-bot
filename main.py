@@ -132,6 +132,14 @@ def _prepare_response(body):
                 current_step["name"],
                 "".join(formatted_fields),
             )
+        elif (
+            comment["approval_choice"] == "revoked" and not is_changed_step
+        ):  # step not changed
+            comment_text = "{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению ⏳<br><ul>{}</ul>".format(
+                "<br>".join(current_not_approved_names),
+                current_step["name"],
+                "".join(formatted_fields),
+            )
 
         print("✅ Response is ready", '{{ "formatted_text":"{}" }}'.format(comment_text))
 

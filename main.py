@@ -56,6 +56,7 @@ def _prepare_response(body):
     current_step_num = int(task["current_step"])
     current_step = task["steps"][current_step_num - 1]
     prev_step = task["steps"][current_step_num - 2] if current_step_num > 1 else []
+    current_visible_steps = len(task["steps"])
     current_approvals = task["approvals"][current_step_num - 1]
     prev_approvals = (
         task["approvals"][current_step_num - 2] if current_step_num > 1 else []
@@ -136,6 +137,12 @@ def _prepare_response(body):
             comment["approval_choice"] == "revoked" and not is_changed_step
         ):  # step not changed
             comment_text = "{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению ⏳<br><ul>{}</ul>".format(
+                "<br>".join(current_not_approved_names),
+                current_step["name"],
+                "".join(formatted_fields),
+            )
+        elif current_visible_steps == 1:  # step not changed
+            comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
                 "<br>".join(current_not_approved_names),
                 current_step["name"],
                 "".join(formatted_fields),

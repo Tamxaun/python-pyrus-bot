@@ -56,7 +56,9 @@ def _prepare_response(body):
     current_step_num = int(task["current_step"])
     current_step = task["steps"][current_step_num - 1]
     prev_step = task["steps"][current_step_num - 2] if current_step_num > 1 else []
-    current_visible_steps = len(task["steps"])
+    task_was_created = (
+        task["create_date"] == task["last_modified_date"] and len(task["steps"]) == 1
+    )
     current_approvals = task["approvals"][current_step_num - 1]
     prev_approvals = (
         task["approvals"][current_step_num - 2] if current_step_num > 1 else []
@@ -74,7 +76,7 @@ def _prepare_response(body):
     has_approvals_removed = "approvals_removed" in comment
     is_changed_step = "changed_step" in comment
 
-    if has_approval_choice or is_changed_step:
+    if has_approval_choice or is_changed_step or task_was_created:
         current_not_approved_names = [
             f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
             for approval in current_approvals
@@ -141,7 +143,7 @@ def _prepare_response(body):
                 current_step["name"],
                 "".join(formatted_fields),
             )
-        elif current_visible_steps == 1:  # task was created
+        elif task_was_created:  # task was created
             comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
                 "<br>".join(current_not_approved_names),
                 current_step["name"],

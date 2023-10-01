@@ -76,7 +76,7 @@ def _prepare_response(body):
     has_approvals_removed = "approvals_removed" in comment
     is_changed_step = "changed_step" in comment
 
-    if has_approval_choice or is_changed_step or task_was_created:
+    if has_approval_choice or task_was_created or is_changed_step:
         current_not_approved_names = [
             f"<a href='https://pyrus.com/t#pp{approval['person']['id']}'>{approval['person']['first_name']} {approval['person']['last_name']}</a>"
             for approval in current_approvals
@@ -125,6 +125,12 @@ def _prepare_response(body):
         comment_text = ""
         if is_changed_step:  # step changed
             comment_text = f"{'{}<br>{}<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(prev_approved_names), welcome_text_random, prev_step['name']) if prev_step else ''}{'<br>'.join(current_not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
+        elif task_was_created:  # task was created
+            comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
+                "<br>".join(current_not_approved_names),
+                current_step["name"],
+                "".join(formatted_fields),
+            )
         elif (
             comment["approval_choice"] == "approved" and not is_changed_step
         ):  # step not changed
@@ -139,12 +145,6 @@ def _prepare_response(body):
             comment["approval_choice"] == "revoked" and not is_changed_step
         ):  # step not changed
             comment_text = "{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению ⏳<br><ul>{}</ul>".format(
-                "<br>".join(current_not_approved_names),
-                current_step["name"],
-                "".join(formatted_fields),
-            )
-        elif task_was_created:  # task was created
-            comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
                 "<br>".join(current_not_approved_names),
                 current_step["name"],
                 "".join(formatted_fields),

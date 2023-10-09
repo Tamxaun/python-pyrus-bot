@@ -97,7 +97,9 @@ def _prepare_response(body):
             f"https://api.pyrus.com/v4/forms/{int(task['form_id'])}"
         )
 
-        formatted_fields = _formatFields(form["fields"], task_fields, current_step_num)
+        formatted_fields = _formatFields(
+            form["fields"], task_fields, current_step_num, "<li>", "</li>"
+        )
         print("✅ formatted_fields is ready", formatted_fields)
 
         welcome_text_list = [
@@ -174,7 +176,13 @@ def _filter_required_fields(field, current_step_num):
         return False
 
 
-def _formatFields(form_fields, task_fields, required_step):
+def _formatFields(
+    form_fields,
+    task_fields,
+    required_step,
+    field_html_tag_begin="<li>",
+    field_html_tag_end="</li>",
+):
     filtered_fields_list = []
 
     for field in form_fields:
@@ -206,7 +214,7 @@ def _formatFields(form_fields, task_fields, required_step):
             else:
                 if filtered_field["id"] == task_field["id"]:
                     formated_fields_list.append(
-                        f'{"✅" if "value" in task_field else "❌"}{filtered_field["name"]}'
+                        f'{field_html_tag_begin}{"✅" if "value" in task_field else "❌"}{filtered_field["name"]}{field_html_tag_end}'
                     )
 
     return formated_fields_list

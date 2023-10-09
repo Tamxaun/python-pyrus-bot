@@ -96,20 +96,8 @@ def _prepare_response(body):
         form = _make_api_request(
             f"https://api.pyrus.com/v4/forms/{int(task['form_id'])}"
         )
-        form_fields = list(
-            filter(
-                lambda field: _filter_required_fields(field, current_step_num),
-                form["fields"],
-            )
-        )
-        print("✅ form['fields'] is ready", form["fields"])
-        fields = [
-            f'{"✅" if "value" in task_field else "❌"}{form_field["name"]}'
-            for form_field in form_fields
-            for task_field in task_fields
-            if form_field["id"] == task_field["id"]
-        ]
-        formatted_fields = [f"<li>{field}</li>" for field in fields]
+
+        formatted_fields = _formatFields(form["fields"], task_fields, current_step_num)
         print("✅ formatted_fields is ready", formatted_fields)
 
         welcome_text_list = [
@@ -184,6 +172,44 @@ def _filter_required_fields(field, current_step_num):
         return int(field["info"]["required_step"]) == current_step_num
     else:
         return False
+
+
+def _formatFields(form_fields, task_fields, required_step):
+    filtered_fields_list = []
+
+    for field in form_fields:
+        if (
+            "info" in field
+            and "required_step" in field["info"]
+            and field["info"]["required_step"] == required_step
+        ):
+            filtered_fields_list.append(field)
+        elif "info" in field and "fields" in field["info"]:
+            for field_lv_two in field["info"]["fields"]:
+                if (
+                    "info" in field_lv_two
+                    and "required_step" in field_lv_two["info"]
+                    and field_lv_two["info"]["required_step"] == required_step
+                ):
+                    filtered_fields_list.append(field_lv_two)
+
+    formated_fields_list = []
+
+    for filtered_field in filtered_fields_list:
+        for task_field in task_fields:
+            if "fields" in task_field["value"]:
+                for task_field_lv_2 in task_field["value"]["fields"]:
+                    if filtered_field["id"] == task_field_lv_2["id"]:
+                        formated_fields_list.append(
+                            f'{"✅" if "value" in task_field_lv_2 else "❌"}{filtered_field["name"]}'
+                        )
+            else:
+                if filtered_field["id"] == task_field["id"]:
+                    formated_fields_list.append(
+                        f'{"✅" if "value" in task_field else "❌"}{filtered_field["name"]}'
+                    )
+
+    return formated_fields_list
 
 
 if __name__ == "__main__":

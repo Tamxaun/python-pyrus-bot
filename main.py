@@ -209,7 +209,7 @@ def _formatFields(
                 for task_field_lv_2 in task_field["value"]["fields"]:
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(
-                            f'{"✅" if "value" in task_field_lv_2 else "❌"}{filtered_field["name"]}'
+                            f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 else "❌"}{filtered_field["name"]}{field_html_tag_end}'
                         )
             else:
                 if filtered_field["id"] == task_field["id"]:

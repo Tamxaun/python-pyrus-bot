@@ -102,6 +102,7 @@ def _prepare_response(body):
                 form["fields"],
             )
         )
+        print("✅ form['fields'] is ready", form["fields"])
         fields = [
             f'{"✅" if "value" in task_field else "❌"}{form_field["name"]}'
             for form_field in form_fields
@@ -123,6 +124,7 @@ def _prepare_response(body):
         welcome_text_random = random.choice(welcome_text_list)
 
         comment_text = ""
+
         if is_changed_step:  # step changed
             comment_text = f"{'{}<br>{}<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(prev_approved_names), welcome_text_random, prev_step['name']) if prev_step else ''}{'<br>'.join(current_not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
         elif task_was_created:  # task was created

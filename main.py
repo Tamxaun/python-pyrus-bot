@@ -133,7 +133,7 @@ def _prepare_response(body):
             )
         elif (
             comment["approval_choice"] == "approved" and not is_changed_step
-        ):  # step not changed
+        ):  # step not changed but was approved
             comment_text = "{} выполнил свою часть работы на этапе <b>{}</b><br><br>{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению ⏳<br><ul>{}</ul>".format(
                 ", ".join(current_approved_names),
                 current_step["name"],

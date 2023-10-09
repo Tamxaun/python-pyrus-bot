@@ -116,7 +116,7 @@ def _prepare_response(body):
         comment_text = ""
 
         if is_changed_step:  # step changed
-            comment_text = f"{'{}<br>{}<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(prev_approved_names), welcome_text_random, prev_step['name']) if prev_step else ''}{'<br>'.join(current_not_approved_names)}<br> Приступить к исполнению следующего этапа <b>{current_step['name']}</b><br><ul>{''.join(formatted_fields)}</ul>"
+            comment_text = f"{'{}<br>{}<br>Этап <b>{}</b> завершен ✅<br><br>'.format('<br>'.join(prev_approved_names), welcome_text_random, prev_step['name']) if prev_step else ''}{'<br>'.join(current_not_approved_names)}<br>Приступить к исполнению следующего этапа <b>{current_step['name']}</b><ul>{''.join(formatted_fields)}</ul>"
         elif task_was_created:  # task was created
             comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
                 "<br>".join(current_not_approved_names),

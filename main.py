@@ -143,7 +143,7 @@ def _prepare_response(body):
             )
         elif (
             comment["approval_choice"] == "revoked" and not is_changed_step
-        ):  # step not changed
+        ):  # step not changed and was revoked
             comment_text = "{}<br>Ваша часть работы на этапе <b>{}</b> не завершена, приступите к её исполнению ⏳<br><ul>{}</ul>".format(
                 "<br>".join(current_not_approved_names),
                 current_step["name"],

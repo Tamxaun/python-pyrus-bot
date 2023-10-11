@@ -205,7 +205,7 @@ def _formatFields(
 
     for filtered_field in filtered_fields_list:
         for task_field in task_fields:
-            if "fields" in task_field["value"]:
+            if "value" in task_field and "fields" in task_field["value"]:
                 for task_field_lv_2 in task_field["value"]["fields"]:
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(

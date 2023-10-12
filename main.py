@@ -213,7 +213,7 @@ def _formatFields(
                         formated_fields_list.append(
                             f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 and task_field_lv_2["value"] != "unchecked" or "value" in task_field_lv_2 and task_field_lv_2["value"] == "checked" else "✔️" if "value" in task_field_lv_2 and task_field_lv_2["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'
                         )
-            elif "value" in task_field:
+            else:
                 if filtered_field["id"] == task_field["id"]:
                     formated_fields_list.append(
                         f'{field_html_tag_begin}{"✅" if "value" in task_field and task_field["value"] != "unchecked" or "value" in task_field and task_field["value"] == "checked" else "✔️" if "value" in task_field and task_field["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'

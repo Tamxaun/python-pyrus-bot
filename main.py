@@ -205,16 +205,18 @@ def _formatFields(
 
     for filtered_field in filtered_fields_list:
         for task_field in task_fields:
-            if "value" in task_field and "fields" in task_field["value"]:
+            if (
+                "value" in task_field and "fields" in task_field["value"]
+            ):  # field has second level of fields
                 for task_field_lv_2 in task_field["value"]["fields"]:
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(
-                            f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 else "❌"}{filtered_field["name"]}{field_html_tag_end}'
+                            f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 or "value" in task_field_lv_2 and task_field_lv_2["value"] == "checked" else "✔️" if task_field_lv_2["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'
                         )
-            else:
+            elif "value" in task_field:
                 if filtered_field["id"] == task_field["id"]:
                     formated_fields_list.append(
-                        f'{field_html_tag_begin}{"✅" if "value" in task_field else "❌"}{filtered_field["name"]}{field_html_tag_end}'
+                        f'{field_html_tag_begin}{"✅" if "value" in task_field or "value" in task_field and task_field["value"] == "checked" else "✔️" if task_field["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'
                     )
 
     return formated_fields_list

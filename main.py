@@ -122,7 +122,7 @@ def _prepare_response(body):
                     url=f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments",
                     data=json.dumps(
                         {
-                            "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
+                            "formatted_text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
                         }
                     ),
                 )

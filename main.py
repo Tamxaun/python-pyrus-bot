@@ -120,9 +120,11 @@ def _prepare_response(body):
                 post_success_comment = _pyrus_post_api_request(
                     # https://api.pyrus.com/v4/tasks/11613/comments
                     url=f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments",
-                    data={
-                        "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
-                    },
+                    data=json.dumps(
+                        {
+                            "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
+                        }
+                    ),
                 )
                 print("task['id']", task["id"])
                 print(

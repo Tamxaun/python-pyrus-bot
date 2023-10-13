@@ -202,12 +202,15 @@ def _pyrus_post_api_request(url, data):
 
     access_token = _auth_pyrus()
 
-    r = requests.post(
-        url=url, data=data, headers={"Authorization": f"Bearer {access_token}"}
-    )
-    data = json.loads(r.text)
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
 
-    print("✅ API POST request is ready", data)
+    r = requests.post(url=url, data=data, headers=headers)
+    data = r.json()
+
+    print("✅ API POST request is ready", data, r.status_code)
 
     return data
 

@@ -117,13 +117,24 @@ def _prepare_response(body):
 
         if is_changed_step:  # step changed
             if prev_step:  # create success next stage message
-                post = _pyrus_post_api_request(
+                post_success_comment = _pyrus_post_api_request(
+                    # https://api.pyrus.com/v4/tasks/11613/comments
                     url=f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments",
                     data={
                         "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
                     },
                 )
-                print("post", post)
+                print("task['id']", task["id"])
+                print(
+                    "url", f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments"
+                )
+                print(
+                    "data",
+                    data={
+                        "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
+                    },
+                )
+                print("post_success_comment", post_success_comment)
             comment_text = f"{'<br>'.join(current_not_approved_names)}<br>Приступить к исполнению следующего этапа <b>{current_step['name']}</b><ul>{''.join(formatted_fields)}</ul>"
         elif task_was_created:  # task was created
             comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
@@ -191,7 +202,9 @@ def _pyrus_post_api_request(url, data):
 
     access_token = _auth_pyrus()
 
-    r = requests.post(url, data, headers={"Authorization": f"Bearer {access_token}"})
+    r = requests.post(
+        url=url, data=data, headers={"Authorization": f"Bearer {access_token}"}
+    )
     data = json.loads(r.text)
 
     print("✅ API POST request is ready", data)

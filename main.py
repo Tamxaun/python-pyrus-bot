@@ -130,7 +130,7 @@ def _prepare_response(body):
                 )
                 print(
                     "data",
-                    data={
+                    {
                         "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
                     },
                 )

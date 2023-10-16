@@ -274,6 +274,10 @@ def _formatFields(
                 "value" in task_field and "fields" in task_field["value"]
             ):  # field has second level of fields
                 for task_field_lv_2 in task_field["value"]["fields"]:
+                    if "visibility_condition" in task_field_lv_2:
+                        if not _chech_visiability(task_field_lv_2, form_fields):
+                            print("task_field_lv_2", task_field_lv_2)
+                            break
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(
                             f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 and task_field_lv_2["value"] != "unchecked" or "value" in task_field_lv_2 and task_field_lv_2["value"] == "checked" else "✔️" if "value" in task_field_lv_2 and task_field_lv_2["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'

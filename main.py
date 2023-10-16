@@ -251,8 +251,25 @@ def _formatFields(
 
     formated_fields_list = []
 
+    def _chech_visiability(task_field, form_fields):
+        if "children" in task_field and "children" in task_field["children"]:
+            field_id = task_field["children"]["children"]["field_id"]
+            field_value = task_field["children"]["children"]["value"]
+            for form_field in form_fields:
+                if (
+                    form_field["id"] == field_id
+                    and field_value in form_field["value"]["choice_ids"]
+                ):
+                    return True
+        else:
+            return False
+
     for filtered_field in filtered_fields_list:
         for task_field in task_fields:
+            if "visibility_condition" in task_field:
+                if not _chech_visiability(task_field, form_fields):
+                    print("task_field", task_field)
+                    break
             if (
                 "value" in task_field and "fields" in task_field["value"]
             ):  # field has second level of fields

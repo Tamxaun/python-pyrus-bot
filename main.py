@@ -261,6 +261,8 @@ def _formatFields(
                         for form_field in form_fields:
                             if (
                                 form_field["id"] == field_id
+                                and "value" in form_field
+                                and "choice_ids" in form_field["value"]
                                 and field_value in form_field["value"]["choice_ids"]
                             ):
                                 return True

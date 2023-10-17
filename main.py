@@ -272,23 +272,26 @@ def _formatFields(
 
     for filtered_field in filtered_fields_list:
         for task_field in task_fields:
-            if "visibility_condition" in task_field:
-                if not _chech_visiability(task_field, task_fields):
-                    # print("task_field", task_field)
-                    break
             if (
                 "value" in task_field and "fields" in task_field["value"]
             ):  # field has second level of fields
                 for task_field_lv_2 in task_field["value"]["fields"]:
-                    if "visibility_condition" in task_field_lv_2:
-                        if not _chech_visiability(task_field_lv_2, task_fields):
-                            # print("task_field_lv_2", task_field_lv_2)
-                            break
+                    if (
+                        "visibility_condition" in task_field_lv_2
+                        and not _chech_visiability(task_field_lv_2, task_fields)
+                    ):
+                        # print("task_field_lv_2", task_field_lv_2)
+                        break
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(
                             f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 and task_field_lv_2["value"] != "unchecked" or "value" in task_field_lv_2 and task_field_lv_2["value"] == "checked" else "✔️" if "value" in task_field_lv_2 and task_field_lv_2["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'
                         )
             else:
+                if "visibility_condition" in task_field and not _chech_visiability(
+                    task_field, task_fields
+                ):
+                    # print("task_field", task_field)
+                    break
                 if filtered_field["id"] == task_field["id"]:
                     formated_fields_list.append(
                         f'{field_html_tag_begin}{"✅" if "value" in task_field and task_field["value"] != "unchecked" or "value" in task_field and task_field["value"] == "checked" else "✔️" if "value" in task_field and task_field["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'

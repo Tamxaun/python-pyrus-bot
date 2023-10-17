@@ -97,10 +97,12 @@ def _prepare_response(body):
             f"https://api.pyrus.com/v4/forms/{int(task['form_id'])}"
         )
 
+        print("form", form)
+
         formatted_fields = _formatFields(
             form["fields"], task_fields, current_step_num, "<li>", "</li>"
         )
-        print("✅ formatted_fields is ready", formatted_fields)
+        # print("✅ formatted_fields is ready", formatted_fields)
 
         welcome_text_list = [
             "Отличная работа! 👍",
@@ -117,7 +119,7 @@ def _prepare_response(body):
 
         if is_changed_step:  # step changed
             if prev_step:  # create success next stage message
-                post_success_comment = _pyrus_post_api_request(
+                _pyrus_post_api_request(
                     # https://api.pyrus.com/v4/tasks/11613/comments
                     url=f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments",
                     data=json.dumps(
@@ -126,17 +128,17 @@ def _prepare_response(body):
                         }
                     ),
                 )
-                print("task['id']", task["id"])
-                print(
-                    "url", f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments"
-                )
-                print(
-                    "data",
-                    {
-                        "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
-                    },
-                )
-                print("post_success_comment", post_success_comment)
+                # print("task['id']", task["id"])
+                # print(
+                #     "url", f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments"
+                # )
+                # print(
+                #     "data",
+                #     {
+                #         "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
+                #     },
+                # )
+                # print("post_success_comment", post_success_comment)
             comment_text = f"{'<br>'.join(current_not_approved_names)}<br>Приступить к исполнению следующего этапа <b>{current_step['name']}</b><ul>{''.join(formatted_fields)}</ul>"
         elif task_was_created:  # task was created
             comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(
@@ -251,19 +253,19 @@ def _formatFields(
 
     formated_fields_list = []
 
-    def _chech_visiability(task_field, form_fields):
+    def _chech_visiability(task_field, task_fields):
         if "children" in task_field["visibility_condition"]:
             for child in task_field["visibility_condition"]["children"]:
                 if "children" in child:
                     for child_lv_2 in child["children"]:
                         field_id = child_lv_2["field_id"]
                         field_value = int(child_lv_2["value"])
-                        for form_field in form_fields:
+                        for field in task_fields:
                             if (
-                                form_field["id"] == field_id
-                                and "value" in form_field
-                                and "choice_ids" in form_field["value"]
-                                and field_value in form_field["value"]["choice_ids"]
+                                field["id"] == field_id
+                                and "value" in field
+                                and "choice_ids" in field["value"]
+                                and field_value in field["value"]["choice_ids"]
                             ):
                                 return True
         return False
@@ -271,16 +273,16 @@ def _formatFields(
     for filtered_field in filtered_fields_list:
         for task_field in task_fields:
             if "visibility_condition" in task_field:
-                if not _chech_visiability(task_field, form_fields):
-                    print("task_field", task_field)
+                if not _chech_visiability(task_field, task_fields):
+                    # print("task_field", task_field)
                     break
             if (
                 "value" in task_field and "fields" in task_field["value"]
             ):  # field has second level of fields
                 for task_field_lv_2 in task_field["value"]["fields"]:
                     if "visibility_condition" in task_field_lv_2:
-                        if not _chech_visiability(task_field_lv_2, form_fields):
-                            print("task_field_lv_2", task_field_lv_2)
+                        if not _chech_visiability(task_field_lv_2, task_fields):
+                            # print("task_field_lv_2", task_field_lv_2)
                             break
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(

@@ -253,45 +253,73 @@ def _formatFields(
 
     formated_fields_list = []
 
-    def _chech_visiability(task_field, task_fields):
-        if "children" in task_field["visibility_condition"]:
-            for child in task_field["visibility_condition"]["children"]:
-                if "children" in child:
-                    for child_lv_2 in child["children"]:
-                        field_id = child_lv_2["field_id"]
-                        field_value = int(child_lv_2["value"])
-                        for field in task_fields:
-                            if (
-                                field["id"] == field_id
-                                and "value" in field
-                                and "choice_ids" in field["value"]
-                                and field_value in field["value"]["choice_ids"]
-                            ):
-                                return True
-        return False
+    def _check_visibility_condition(task_field, task_fields):
+        # Check if field has visibility_condition
+        visibility_condition = task_field.get("visibility_condition")
+        if visibility_condition is None:
+            return True
 
-    for filtered_field in filtered_fields_list:
-        for task_field in task_fields:
+        # Check if field has children (conditions) lv 1
+        conditions = visibility_condition.get("children")
+        if conditions is None:
+            return False
+
+        # Loop over conditions (children - lv 1)
+        for condition in conditions:
+            has_correct_value = (
+                False  # Flag for checking if in one condition has correct value
+            )
+            # print("conditions", conditions)
+
+            # Get options of the current conditon (children - lv 2 - options))
+            condition_options = condition.get("children")
+            if condition_options is None:
+                return False
+
+            # Loop over options (children - lv 2)
+            for option in condition_options:
+                option_id = option["field_id"]
+                option_value = int(option["value"])
+                option_field = [
+                    field for field in task_fields if field["id"] == option_id
+                ][-1]
+
+                # Check to find corrent field and if it has correct value
+                if (
+                    "value" in option_field
+                    and "choice_ids" in option_field["value"]
+                    and option_value in option_field["value"]["choice_ids"]
+                ):
+                    has_correct_value = True
+                    break
+
+            if not has_correct_value:
+                return False
+
+        return True
+
+    for (
+        filtered_field
+    ) in filtered_fields_list:  # loop over filtered fields from form API
+        for task_field in task_fields:  # loop over fields from task API
+            if not _check_visibility_condition(task_field, task_fields):
+                break
             if (
                 "value" in task_field and "fields" in task_field["value"]
             ):  # field has second level of fields
                 for task_field_lv_2 in task_field["value"]["fields"]:
                     if (
                         "visibility_condition" in task_field_lv_2
-                        and not _chech_visiability(task_field_lv_2, task_fields)
+                        and not _check_visibility_condition(
+                            task_field_lv_2, task_fields
+                        )
                     ):
-                        # print("task_field_lv_2", task_field_lv_2)
                         break
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(
                             f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 and task_field_lv_2["value"] != "unchecked" or "value" in task_field_lv_2 and task_field_lv_2["value"] == "checked" else "✔️" if "value" in task_field_lv_2 and task_field_lv_2["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'
                         )
             else:
-                if "visibility_condition" in task_field and not _chech_visiability(
-                    task_field, task_fields
-                ):
-                    # print("task_field", task_field)
-                    break
                 if filtered_field["id"] == task_field["id"]:
                     formated_fields_list.append(
                         f'{field_html_tag_begin}{"✅" if "value" in task_field and task_field["value"] != "unchecked" or "value" in task_field and task_field["value"] == "checked" else "✔️" if "value" in task_field and task_field["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'

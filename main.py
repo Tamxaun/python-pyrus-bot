@@ -97,7 +97,7 @@ def _prepare_response(body):
             f"https://api.pyrus.com/v4/forms/{int(task['form_id'])}"
         )
 
-        print("form", form)
+        # print("form", form)
 
         formatted_fields = _formatFields(
             form["fields"], task_fields, current_step_num, "<li>", "</li>"
@@ -128,17 +128,6 @@ def _prepare_response(body):
                         }
                     ),
                 )
-                # print("task['id']", task["id"])
-                # print(
-                #     "url", f"https://api.pyrus.com/v4/tasks/{int(task['id'])}/comments"
-                # )
-                # print(
-                #     "data",
-                #     {
-                #         "text": f"{'<br>'.join(prev_approved_names)}<br>{welcome_text_random}<br>Этап <b>{prev_step['name']}</b> завершен ✅<br><br>"
-                #     },
-                # )
-                # print("post_success_comment", post_success_comment)
             comment_text = f"{'<br>'.join(current_not_approved_names)}<br>Приступить к исполнению следующего этапа <b>{current_step['name']}</b><ul>{''.join(formatted_fields)}</ul>"
         elif task_was_created:  # task was created
             comment_text = "{}<br>Приступить к исполнению первого этапа <b>{}</b> 🏁<br><ul>{}</ul>".format(

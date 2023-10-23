@@ -223,24 +223,31 @@ def _formatFields(
     field_html_tag_end="</li>",
 ):
     filtered_fields_list = []
-
-    for field in form_fields:
-        if (
-            "info" in field
-            and "required_step" in field["info"]
-            and field["info"]["required_step"] == required_step
-        ):
-            filtered_fields_list.append(field)
-        elif "info" in field and "fields" in field["info"]:
-            for field_lv_two in field["info"]["fields"]:
-                if (
-                    "info" in field_lv_two
-                    and "required_step" in field_lv_two["info"]
-                    and field_lv_two["info"]["required_step"] == required_step
-                ):
-                    filtered_fields_list.append(field_lv_two)
-
     formated_fields_list = []
+
+    def _filtered_field(field_id, fields_list):
+        found_field = {}
+
+        for fields_from_list in fields_list:
+            # if second level
+            if "value" in fields_from_list and "fields" in fields_from_list["value"]:
+                # if this is group check visiability
+                if not _check_visibility_condition(fields_from_list, fields_list):
+                    continue
+
+            # find field in group by id
+            for fields_from_list_lv_2 in fields_from_list["value"]["fields"]:
+                if fields_from_list_lv_2["id"] == field_id:
+                    found_field = fields_from_list_lv_2
+
+            # if one level
+            if fields_from_list["id"] == field_id:
+                found_field = fields_from_list
+
+        if not _check_visibility_condition(found_field, fields_list):
+            return None
+
+        return found_field
 
     def _check_visibility_condition(task_field, task_fields):
         # Check if field has visibility_condition
@@ -258,7 +265,6 @@ def _formatFields(
             has_correct_value = (
                 False  # Flag for checking if in one condition has correct value
             )
-            # print("conditions", conditions)
 
             # Get options of the current conditon (children - lv 2 - options))
             condition_options = condition.get("children")
@@ -267,17 +273,15 @@ def _formatFields(
 
             # Loop over options (children - lv 2)
             for option in condition_options:
-                option_id = option["field_id"]
-                option_value = int(option["value"])
-                option_field = [
-                    field for field in task_fields if field["id"] == option_id
-                ][-1]
+                id = option["field_id"]
+                value = int(option["value"])
+                field = [field for field in task_fields if field["id"] == id][-1]
 
                 # Check to find corrent field and if it has correct value
                 if (
-                    "value" in option_field
-                    and "choice_ids" in option_field["value"]
-                    and option_value in option_field["value"]["choice_ids"]
+                    "value" in field
+                    and "choice_ids" in field["value"]
+                    and value in field["value"]["choice_ids"]
                 ):
                     has_correct_value = True
                     break
@@ -287,23 +291,34 @@ def _formatFields(
 
         return True
 
+    for field in form_fields:
+        if (
+            "info" in field
+            and "required_step" in field["info"]
+            and field["info"]["required_step"] == required_step
+        ):
+            found_field = _filtered_field(field["id"], task_fields)
+            if found_field:
+                filtered_fields_list.append(found_field)
+        elif "info" in field and "fields" in field["info"]:
+            for field_lv_two in field["info"]["fields"]:
+                if (
+                    "info" in field_lv_two
+                    and "required_step" in field_lv_two["info"]
+                    and field_lv_two["info"]["required_step"] == required_step
+                ):
+                    found_field = _filtered_field(field_lv_two["id"], task_fields)
+                    if found_field:
+                        filtered_fields_list.append(found_field)
+
     for (
         filtered_field
     ) in filtered_fields_list:  # loop over filtered fields from form API
         for task_field in task_fields:  # loop over fields from task API
-            if not _check_visibility_condition(task_field, task_fields):
-                break
             if (
                 "value" in task_field and "fields" in task_field["value"]
             ):  # field has second level of fields
                 for task_field_lv_2 in task_field["value"]["fields"]:
-                    if (
-                        "visibility_condition" in task_field_lv_2
-                        and not _check_visibility_condition(
-                            task_field_lv_2, task_fields
-                        )
-                    ):
-                        break
                     if filtered_field["id"] == task_field_lv_2["id"]:
                         formated_fields_list.append(
                             f'{field_html_tag_begin}{"✅" if "value" in task_field_lv_2 and task_field_lv_2["value"] != "unchecked" or "value" in task_field_lv_2 and task_field_lv_2["value"] == "checked" else "✔️" if "value" in task_field_lv_2 and task_field_lv_2["value"] == "unchecked" else "❌"}{filtered_field["name"]}{field_html_tag_end}'

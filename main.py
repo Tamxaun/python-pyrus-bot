@@ -235,10 +235,10 @@ def _formatFields(
                 if not _check_visibility_condition(fields_from_list, fields_list):
                     continue
 
-            # find field in group by id
-            for fields_from_list_lv_2 in fields_from_list["value"]["fields"]:
-                if fields_from_list_lv_2["id"] == field_id:
-                    found_field = fields_from_list_lv_2
+                # find field in group by id
+                for fields_from_list_lv_2 in fields_from_list["value"]["fields"]:
+                    if fields_from_list_lv_2["id"] == field_id:
+                        found_field = fields_from_list_lv_2
 
             # if one level
             if fields_from_list["id"] == field_id:

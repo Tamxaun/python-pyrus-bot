@@ -225,14 +225,14 @@ def _formatFields(
     filtered_fields_list = []
     formated_fields_list = []
 
-    def _filtered_field(field_id, fields_list):
+    def _filtered_field(field_id, task_fields):
         found_field = {}
 
-        for fields_from_list in fields_list:
+        for fields_from_list in task_fields:
             # if second level
             if "value" in fields_from_list and "fields" in fields_from_list["value"]:
                 # if this is group check visiability
-                if not _check_visibility_condition(fields_from_list, fields_list):
+                if not _check_visibility_condition(fields_from_list, task_fields):
                     continue
 
                 # find field in group by id
@@ -244,7 +244,7 @@ def _formatFields(
             if fields_from_list["id"] == field_id:
                 found_field = fields_from_list
 
-        if not _check_visibility_condition(found_field, fields_list):
+        if not _check_visibility_condition(found_field, task_fields):
             return None
 
         return found_field
@@ -260,6 +260,26 @@ def _formatFields(
         if conditions is None:
             return False
 
+        # TODO Check if field has no other level of children (conditions) but one
+        #     {
+        #      "id":172,
+        #      "type":"file",
+        #      "name":"Этикетки на упаковку",
+        #      "tooltip":"",
+        #      "visibility_condition":{
+        #         "field_id":0,
+        #         "condition_type":11,
+        #         "value":"",
+        #         "children":[
+        #            {
+        #               "field_id":51,
+        #               "condition_type":3,
+        #               "value":""
+        #            }
+        #         ]
+        #      }
+        #   },
+
         # Loop over conditions (children - lv 1)
         for condition in conditions:
             has_correct_value = (
@@ -269,7 +289,17 @@ def _formatFields(
             # Get options of the current conditon (children - lv 2 - options))
             condition_options = condition.get("children")
             if condition_options is None:
-                return False
+                id = condition["field_id"]
+                value = int(condition["value"])
+                field = [field for field in task_fields if field["id"] == id][-1]
+                # Check to find corrent field and if it has correct value
+                if (
+                    "value" in field
+                    and "choice_ids" in field["value"]
+                    and value in field["value"]["choice_ids"]
+                ):
+                    has_correct_value = True
+                    break
 
             # Loop over options (children - lv 2)
             for option in condition_options:

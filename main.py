@@ -250,6 +250,44 @@ def _formatFields(
         return found_field
 
     def _check_visibility_condition(task_field, task_fields):
+        def check_field(current_field):
+            condition_type = int(current_field["condition_type"])
+            id = current_field["field_id"]
+            value = int(current_field["value"])
+
+            if field is None or condition_type is None or id is None or value is None:
+                print("⛔ check_field is not ready")
+                return False
+
+            filtered_field = [field for field in task_fields if field["id"] == id]
+            if not filtered_field:
+                print("⛔ filtered_field is not ready")
+                return False
+            chosen_field = filtered_field[-1]
+
+            # Check if field has condition_type 3 or 2 (Заполнено и не Заполнено)
+            if condition_type == 2 or condition_type == 3:
+                type_chosen_field = chosen_field.get("type")
+                value_chosen_field = chosen_field.get("value")
+                if type_chosen_field == "multiple_choice":
+                    if condition_type == 2 and value_chosen_field is None:
+                        return True
+                    if condition_type == 3 and value_chosen_field is not None:
+                        return True
+                if type_chosen_field == "checkmark":
+                    if condition_type == 2 and value_chosen_field == "unchecked":
+                        return True
+                    if condition_type == 3 and value_chosen_field == "checked":
+                        return True
+            elif (
+                "value" in chosen_field
+                and "choice_ids" in chosen_field["value"]
+                and value in chosen_field["value"]["choice_ids"]
+            ):
+                return True
+
+            return False
+
         # Check if field has visibility_condition
         visibility_condition = task_field.get("visibility_condition")
         if visibility_condition is None:
@@ -261,6 +299,7 @@ def _formatFields(
             return False
 
         # TODO Check if field has no other level of children (conditions) but one
+        # TODO Checj condition type condition_type":2 (Не заполнено), "condition_type":3 (заполненоб если галочка то checked)
         #     {
         #      "id":172,
         #      "type":"file",
@@ -280,6 +319,12 @@ def _formatFields(
         #      }
         #   },
 
+        # "type":"multiple_choice" (Не заполнено "condition_type":2) > field "value don't exist"
+        # "type":"multiple_choice" (Заполнено "condition_type":3,) > field "value" exist
+
+        # "type":"checkmark" (Не заполнено "condition_type":2) > "value":"unchecked"
+        # "type":"checkmark" (Заполнено "condition_type":3) > "value":"checked"
+
         # Loop over conditions (children - lv 1)
         for condition in conditions:
             has_correct_value = (
@@ -289,30 +334,15 @@ def _formatFields(
             # Get options of the current conditon (children - lv 2 - options))
             condition_options = condition.get("children")
             if condition_options is None:
-                id = condition["field_id"]
-                value = int(condition["value"])
-                field = [field for field in task_fields if field["id"] == id][-1]
                 # Check to find corrent field and if it has correct value
-                if (
-                    "value" in field
-                    and "choice_ids" in field["value"]
-                    and value in field["value"]["choice_ids"]
-                ):
+                if check_field(condition):
                     has_correct_value = True
                     break
 
             # Loop over options (children - lv 2)
             for option in condition_options:
-                id = option["field_id"]
-                value = int(option["value"])
-                field = [field for field in task_fields if field["id"] == id][-1]
-
                 # Check to find corrent field and if it has correct value
-                if (
-                    "value" in field
-                    and "choice_ids" in field["value"]
-                    and value in field["value"]["choice_ids"]
-                ):
+                if check_field(option):
                     has_correct_value = True
                     break
 

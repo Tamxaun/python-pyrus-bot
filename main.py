@@ -250,20 +250,12 @@ def _formatFields(
         return found_field
 
     def _check_visibility_condition(task_field, task_fields):
-        def check_string(string):
-            if string == "":
-                return None
-            elif not string.isdigit():
-                return None
-            else:
-                return True
-
         def check_field(current_field):
             if (
                 field is None
                 or current_field["condition_type"] is None
                 or current_field["field_id"] is None
-                or check_string(current_field["value"] is None)
+                or current_field["value"] is None
             ):
                 print(
                     "⛔ check_field is not ready",
@@ -276,7 +268,7 @@ def _formatFields(
 
             condition_type = int(current_field["condition_type"])
             field_id = current_field["field_id"]
-            value = int(current_field["value"])
+            value = current_field["value"]
             filtered_field = [field for field in task_fields if field["id"] == field_id]
             if not filtered_field:
                 print("⛔ filtered_field is not ready")
@@ -297,10 +289,10 @@ def _formatFields(
                         return True
                     if condition_type == 3 and value_chosen_field == "checked":
                         return True
-            elif (
+            if (
                 "value" in chosen_field
                 and "choice_ids" in chosen_field["value"]
-                and value in chosen_field["value"]["choice_ids"]
+                and int(value) in chosen_field["value"]["choice_ids"]
             ):
                 return True
 

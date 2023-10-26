@@ -257,7 +257,13 @@ def _formatFields(
                 or current_field["field_id"] is None
                 or current_field["value"] is None
             ):
-                print("⛔ check_field is not ready")
+                print(
+                    "⛔ check_field is not ready",
+                    field,
+                    current_field["condition_type"],
+                    current_field["field_id"],
+                    current_field["value"],
+                )
                 return False
 
             condition_type = int(current_field["condition_type"])

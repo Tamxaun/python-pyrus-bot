@@ -280,9 +280,13 @@ def _formatFields(
                 type_chosen_field = chosen_field.get("type")
                 value_chosen_field = chosen_field.get("value")
                 if type_chosen_field == "multiple_choice":
-                    if condition_type == 2 and value_chosen_field is None:
+                    if (
+                        condition_type == 2 and value_chosen_field is None
+                    ):  # Не заполнено
                         return True
-                    if condition_type == 3 and value_chosen_field is not None:
+                    if (
+                        condition_type == 3 and value_chosen_field is not None
+                    ):  # Заполнено
                         return True
                 if type_chosen_field == "checkmark":
                     if condition_type == 2 and value_chosen_field == "unchecked":
@@ -346,7 +350,7 @@ def _formatFields(
             if condition_options is None:
                 # Check to find corrent field and if it has correct value
                 if check_field(condition):
-                    has_correct_value = True
+                    # has_correct_value = True
                     break
 
             # Loop over options (children - lv 2)

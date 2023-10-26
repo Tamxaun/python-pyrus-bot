@@ -251,15 +251,19 @@ def _formatFields(
 
     def _check_visibility_condition(task_field, task_fields):
         def check_field(current_field):
-            condition_type = int(current_field["condition_type"])
-            id = current_field["field_id"]
-            value = int(current_field["value"])
-
-            if field is None or condition_type is None or id is None or value is None:
+            if (
+                field is None
+                or current_field["condition_type"] is None
+                or current_field["field_id"] is None
+                or current_field["value"] is None
+            ):
                 print("⛔ check_field is not ready")
                 return False
 
-            filtered_field = [field for field in task_fields if field["id"] == id]
+            condition_type = int(current_field["condition_type"])
+            field_id = current_field["field_id"]
+            value = int(current_field["value"])
+            filtered_field = [field for field in task_fields if field["id"] == field_id]
             if not filtered_field:
                 print("⛔ filtered_field is not ready")
                 return False

@@ -312,55 +312,28 @@ def _formatFields(
         if conditions is None:
             return False
 
-        # TODO Check if field has no other level of children (conditions) but one
-        # TODO Checj condition type condition_type":2 (Не заполнено), "condition_type":3 (заполненоб если галочка то checked)
-        #     {
-        #      "id":172,
-        #      "type":"file",
-        #      "name":"Этикетки на упаковку",
-        #      "tooltip":"",
-        #      "visibility_condition":{
-        #         "field_id":0,
-        #         "condition_type":11,
-        #         "value":"",
-        #         "children":[
-        #            {
-        #               "field_id":51,
-        #               "condition_type":3,
-        #               "value":""
-        #            }
-        #         ]
-        #      }
-        #   },
-
-        # "type":"multiple_choice" (Не заполнено "condition_type":2) > field "value don't exist"
-        # "type":"multiple_choice" (Заполнено "condition_type":3,) > field "value" exist
-
-        # "type":"checkmark" (Не заполнено "condition_type":2) > "value":"unchecked"
-        # "type":"checkmark" (Заполнено "condition_type":3) > "value":"checked"
-
         # Loop over conditions (children - lv 1)
         for condition in conditions:
-            has_correct_value = (
-                False  # Flag for checking if in one condition has correct value
-            )
-
             # Get options of the current conditon (children - lv 2 - options))
             condition_options = condition.get("children")
             if condition_options is None:
-                # Check to find corrent field and if it has correct value
-                if check_field(condition):
-                    # has_correct_value = True
-                    break
+                is_valid_field = check_field(condition)
+                if not is_valid_field:
+                    return False
+                continue
+
+            has_correct_value_lv2 = (
+                False  # Flag for checking if in one condition has correct value
+            )
 
             # Loop over options (children - lv 2)
             for option in condition_options:
                 # Check to find corrent field and if it has correct value
                 if check_field(option):
-                    has_correct_value = True
+                    has_correct_value_lv2 = True
                     break
 
-            if not has_correct_value:
+            if not has_correct_value_lv2:
                 return False
 
         return True

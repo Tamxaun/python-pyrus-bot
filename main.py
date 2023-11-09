@@ -185,7 +185,7 @@ def _pyrus_get_api_request(url):
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = json.loads(r.text)
 
-    print("✅ API GET request is ready", data)
+    print("✅ API GET request is ready", r.status_code)
 
     return data
 
@@ -203,7 +203,7 @@ def _pyrus_post_api_request(url, data):
     r = requests.post(url=url, data=data, headers=headers)
     data = r.json()
 
-    print("✅ API POST request is ready", data, r.status_code)
+    print("✅ API POST request is ready", r.status_code)
 
     return data
 

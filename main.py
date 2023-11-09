@@ -54,7 +54,7 @@ def _prepare_response(body):
     task = json.loads(body)["task"]
     task_fields = task["fields"]
     current_step_num = int(task["current_step"])
-    current_step = task["steps"][current_step_num - 1]
+    current_step = task["steps"][current_step_num - 1 if current_step_num > 1 else 1]
     prev_step = task["steps"][current_step_num - 2] if current_step_num > 1 else []
     task_was_created = (
         task["create_date"] == task["last_modified_date"] and len(task["steps"]) == 1

@@ -97,6 +97,10 @@ def _prepare_response(body):
             f"https://api.pyrus.com/v4/forms/{int(task['form_id'])}"
         )
 
+        if form is None:
+            print("⚠️ Form not found, id:", task["form_id"], task)
+            return "{}", 200
+
         # print("form", form)
 
         formatted_fields = _formatFields(
@@ -185,9 +189,12 @@ def _pyrus_get_api_request(url):
     r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
     data = json.loads(r.text)
 
-    print("✅ API GET request is ready", r.status_code)
-
-    return data
+    if r.status_code == 200:
+        print("✅ API GET Response is ready", r.status_code, data)
+        return data
+    else:
+        print("⚠️ API GET Response is not ready", r.status_code, data)
+        return None
 
 
 def _pyrus_post_api_request(url, data):
@@ -203,9 +210,12 @@ def _pyrus_post_api_request(url, data):
     r = requests.post(url=url, data=data, headers=headers)
     data = r.json()
 
-    print("✅ API POST request is ready", r.status_code)
-
-    return data
+    if r.status_code == 200:
+        print("✅ API POST Response is ready", r.status_code, data)
+        return data
+    else:
+        print("⚠️ API POST Response is not ready", r.status_code, data)
+        return None
 
 
 def _filter_required_fields(field, current_step_num):

@@ -52,23 +52,22 @@ def _prepare_response(body):
     print("⌛ Preparing response")
 
     task = json.loads(body)["task"]
+    print("✅ Task is ready", task)
     task_fields = task["fields"]
     current_step_num = int(task["current_step"])
-    current_step = task["steps"][current_step_num - 1 if current_step_num > 1 else 1]
+    print("✅ current_step_num is ready", current_step_num)
+    current_step = task["steps"][current_step_num - 1]
+    print("✅ step is ready", current_step)
     prev_step = task["steps"][current_step_num - 2] if current_step_num > 1 else []
     task_was_created = (
         task["create_date"] == task["last_modified_date"] and len(task["steps"]) == 1
     )
     current_approvals = task["approvals"][current_step_num - 1]
+    print("✅ approvals is ready", current_approvals)
     prev_approvals = (
         task["approvals"][current_step_num - 2] if current_step_num > 1 else []
     )
     comment = task["comments"][-1]
-
-    print("✅ Task is ready", task)
-    print("✅ current_step is ready", current_step_num)
-    print("✅ step is ready", current_step)
-    print("✅ approvals is ready", current_approvals)
 
     has_approval_choice = "approval_choice" in comment
     has_approvals_added = "approvals_added" in comment

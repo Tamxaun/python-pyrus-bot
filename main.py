@@ -215,11 +215,11 @@ def _pyrus_get_api_request(url):
     }
 
     r = requests.get(url, headers=headers)
-    data = json.loads(r.text)
+    r_data = json.loads(r.text)
 
     if r.status_code == 200:
         print("✅ API GET Response is ready", r.status_code)
-        return data
+        return r_data
     elif r.status_code == 401:
         print("⚠️ API GET Response authentication token is expired")
         access_token = _auth_pyrus()
@@ -252,18 +252,18 @@ def _pyrus_post_api_request(url, data):
     }
 
     r = requests.post(url=url, data=data, headers=headers)
-    data = r.json()
+    r_data = r.json()
 
     if r.status_code == 200:
-        print("✅ API POST Response is ready", r.status_code, data)
-        return data
+        print("✅ API POST Response is ready", r.status_code)
+        return r_data
     elif r.status_code == 401:
         print("⚠️ API POST Response authentication token is expired")
         access_token = _auth_pyrus()
         cache.set("auth_pyrus_token", access_token)
         _pyrus_post_api_request(url, data)
     else:
-        print("⚠️ API POST Response is not ready", r.status_code, data)
+        print("⚠️ API POST Response is not ready", r.status_code)
         return None
 
 

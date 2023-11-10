@@ -205,12 +205,13 @@ def _pyrus_get_api_request(url):
             "⚠️ API GET Response authentication token is not in cache, creating a new one..."
         )
         access_token = _auth_pyrus()
+        print("ℹ️ API GET Response saving authentication token in cache...")
+        cache.set("auth_pyrus_token", access_token)
 
         if access_token is None:
             print("⚠️ API GET Response authentication token is not ready")
             return None
     else:
-        cache.set("auth_pyrus_token", access_token)
         print("ℹ️ API GET Response authentication token in cache")
 
     headers = {
@@ -243,12 +244,13 @@ def _pyrus_post_api_request(url, data):
             "⚠️ API POST Response authentication token is not in cache, creating a new one..."
         )
         access_token = _auth_pyrus()
+        print("ℹ️ API GET Response saving authentication token in cache...")
+        cache.set("auth_pyrus_token", access_token)
 
         if access_token is None:
             print("⚠️ API POST Response authentication token is not ready")
             return None
     else:
-        cache.set("auth_pyrus_token", access_token)
         print("ℹ️ API POST Response authentication token in cache")
 
     headers = {

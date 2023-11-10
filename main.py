@@ -176,7 +176,7 @@ def _prepare_response(body):
 
 
 def _auth_pyrus():
-    print("⌛ Starting API Auth request to Pyrus")
+    print("⌛ Starting API authentication request to Pyrus")
 
     secret = str.encode(SECRET_KEY)
     login = str.encode(LOGIN)
@@ -188,7 +188,10 @@ def _auth_pyrus():
     access_token = json.loads(auth)["access_token"]
 
     if access_token is None:
+        print("❌ Failed to get authentication token from Pyrus")
         return None
+
+    print("✅ Success to get authentication token from Pyrus")
 
     return access_token
 

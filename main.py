@@ -1,7 +1,3 @@
-# TODO: Check this error
-# 2023-11-09T16:35:58.257553+00:00 app[web.1]: ⚠️ API GET Response is not ready 403 {'error': 'Доступ запрещен', 'error_code': 'access_denied'}
-# 2023-11-09T16:35:58.259842+00:00 app[web.1]: ⚠️ Form not found, id: 1341099 {'id': 190120884, 'text': 'Копия Тест Поставки на маркетплейсы: WOWFOODS; ООО "ЦЕЛЛЕК";
-
 import os
 import hmac
 import hashlib
@@ -10,11 +6,16 @@ import requests
 import random
 from flask import Flask
 from flask import request
+from flask_caching import Cache
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 LOGIN = os.getenv("LOGIN")
 
+config = {"DEBUG": False, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
+
 app = Flask(__name__)
+app.config.from_mapping(config)
+cache = Cache(app)
 port = int(os.environ.get("PORT", 5000))
 
 
@@ -195,11 +196,16 @@ def _auth_pyrus():
 def _pyrus_get_api_request(url):
     print("⌛ Making API GET request")
 
-    access_token = _auth_pyrus()
-
+    access_token = cache.get("auth_pyrus_token")
     if access_token is None:
-        print("⚠️ API GET Response authentication is not ready")
-        return None
+        print(
+            "⚠️ API GET Response authentication token is not in cache, creating a new one..."
+        )
+        access_token = _auth_pyrus()
+
+        if access_token is None:
+            print("⚠️ API GET Response authentication token is not ready")
+            return None
 
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -210,10 +216,15 @@ def _pyrus_get_api_request(url):
     data = json.loads(r.text)
 
     if r.status_code == 200:
-        print("✅ API GET Response is ready", r.status_code, data)
+        print("✅ API GET Response is ready", r.status_code)
         return data
+    elif r.status_code == 401:
+        print("⚠️ API GET Response authentication token is expired")
+        access_token = _auth_pyrus()
+        cache.set("auth_pyrus_token", access_token)
+        _pyrus_get_api_request(url)
     else:
-        print("⚠️ API GET Response is not ready", r.status_code, data)
+        print("⚠️ API GET Response is not ready", r.status_code)
         return None
 
 

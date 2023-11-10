@@ -233,7 +233,18 @@ def _pyrus_get_api_request(url):
 def _pyrus_post_api_request(url, data):
     print("⌛ Making API POST request")
 
-    access_token = _auth_pyrus()
+    access_token = cache.get("auth_pyrus_token")
+    if access_token is None:
+        print(
+            "⚠️ API POST Response authentication token is not in cache, creating a new one..."
+        )
+        access_token = _auth_pyrus()
+
+        if access_token is None:
+            print("⚠️ API POST Response authentication token is not ready")
+            return None
+    else:
+        print("ℹ️ API POST Response authentication token in cache")
 
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -246,6 +257,11 @@ def _pyrus_post_api_request(url, data):
     if r.status_code == 200:
         print("✅ API POST Response is ready", r.status_code, data)
         return data
+    elif r.status_code == 401:
+        print("⚠️ API POST Response authentication token is expired")
+        access_token = _auth_pyrus()
+        cache.set("auth_pyrus_token", access_token)
+        _pyrus_post_api_request(url, data)
     else:
         print("⚠️ API POST Response is not ready", r.status_code, data)
         return None

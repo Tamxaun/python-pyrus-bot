@@ -210,6 +210,7 @@ def _pyrus_get_api_request(url):
             print("⚠️ API GET Response authentication token is not ready")
             return None
     else:
+        cache.set("auth_pyrus_token", access_token)
         print("ℹ️ API GET Response authentication token in cache")
 
     headers = {
@@ -247,6 +248,7 @@ def _pyrus_post_api_request(url, data):
             print("⚠️ API POST Response authentication token is not ready")
             return None
     else:
+        cache.set("auth_pyrus_token", access_token)
         print("ℹ️ API POST Response authentication token in cache")
 
     headers = {

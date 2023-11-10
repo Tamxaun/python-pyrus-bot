@@ -206,6 +206,8 @@ def _pyrus_get_api_request(url):
         if access_token is None:
             print("⚠️ API GET Response authentication token is not ready")
             return None
+    else:
+        print("ℹ️ API GET Response authentication token in cache")
 
     headers = {
         "Authorization": f"Bearer {access_token}",

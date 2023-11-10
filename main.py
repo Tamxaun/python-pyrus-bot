@@ -60,7 +60,12 @@ def _prepare_response(body):
     task_fields = task["fields"]
     current_step_num = int(task["current_step"])
     print("✅ current_step_num is ready", current_step_num)
-    current_step = task["steps"][current_step_num - 1]
+    filtered_step = [item for item in task["steps"] if item["step"] == current_step_num]
+    if not filtered_step:
+        print("⛔ Step is not found")
+        print("⚠️ No response")
+        return "{}", 200
+    current_step = filtered_step[-1]
     print("✅ step is ready", current_step)
     prev_step = task["steps"][current_step_num - 2] if current_step_num > 1 else []
     task_was_created = (

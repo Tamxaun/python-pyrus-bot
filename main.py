@@ -1,3 +1,7 @@
+# TODO: Check this error
+# 2023-11-09T16:35:58.257553+00:00 app[web.1]: ⚠️ API GET Response is not ready 403 {'error': 'Доступ запрещен', 'error_code': 'access_denied'}
+# 2023-11-09T16:35:58.259842+00:00 app[web.1]: ⚠️ Form not found, id: 1341099 {'id': 190120884, 'text': 'Копия Тест Поставки на маркетплейсы: WOWFOODS; ООО "ЦЕЛЛЕК";
+
 import os
 import hmac
 import hashlib
@@ -177,6 +181,9 @@ def _auth_pyrus():
 
     access_token = json.loads(auth)["access_token"]
 
+    if access_token is None:
+        return None
+
     return access_token
 
 
@@ -185,7 +192,16 @@ def _pyrus_get_api_request(url):
 
     access_token = _auth_pyrus()
 
-    r = requests.get(url, headers={"Authorization": f"Bearer {access_token}"})
+    if access_token is None:
+        print("⚠️ API GET Response authentication is not ready")
+        return None
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+
+    r = requests.get(url, headers=headers)
     data = json.loads(r.text)
 
     if r.status_code == 200:

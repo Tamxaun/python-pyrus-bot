@@ -66,9 +66,11 @@ def _prepare_response(body):
         print("⛔ Step is not found")
         print("⚠️ No response")
         return "{}", 200
-    current_step = filtered_step[-1]
+    first_tuple = filtered_step[-1]
+    current_step = first_tuple[0]
+    current_step_index = first_tuple[1]
     print("✅ step is ready", current_step)
-    prev_step = task["steps"][current_step_num - 2] if current_step_num > 1 else []
+    prev_step = task["steps"][current_step_index - 1] if current_step_num > 1 else []
     task_was_created = (
         task["create_date"] == task["last_modified_date"] and len(task["steps"]) == 1
     )

@@ -61,7 +61,11 @@ def _prepare_response(body):
     task_fields = task["fields"]
     current_step_num = int(task["current_step"])
     print("✅ current_step_num is ready", current_step_num)
-    filtered_step = [item for item in task["steps"] if item["step"] == current_step_num]
+    filtered_step = [
+        (item, i)
+        for i, item in enumerate(task["steps"])
+        if item["step"] == current_step_num
+    ]
     if not filtered_step:
         print("⛔ Step is not found")
         print("⚠️ No response")

@@ -302,7 +302,9 @@ def _formatFields(
 
         for fields_from_list in task_fields:
             # if second level
-            if "value" in fields_from_list and "fields" in fields_from_list["value"]:
+            value = fields_from_list.get("value")
+            if value is not None and isinstance(value, dict) and "fields" in value:
+                # if value and fields:
                 # if this is group check visiability
                 if not _check_visibility_condition(fields_from_list, task_fields):
                     continue

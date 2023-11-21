@@ -376,8 +376,13 @@ def _formatFields(
 
         # Check if field has visibility_condition
         visibility_condition = task_field.get("visibility_condition")
-        if visibility_condition is None:
+        conditions_is_empty = (
+            visibility_condition.get("field_id") == 0 and conditions is None
+        )
+        if conditions_is_empty:
             return True
+        if visibility_condition is None:
+            return False
 
         # Check if field has children (conditions) lv 1
         conditions = visibility_condition.get("children")

@@ -377,7 +377,7 @@ def _formatFields(
         # Check if field has visibility_condition
         visibility_condition = task_field.get("visibility_condition")
         conditions_is_empty = (
-            visibility_condition.get("field_id") == 0 and conditions is None
+            visibility_condition.get("field_id") == 0 and visibility_condition is None
         )
         if conditions_is_empty:
             return True

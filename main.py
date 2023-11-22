@@ -324,6 +324,18 @@ def _formatFields(
         return found_field
 
     def _check_visibility_condition(task_field, task_fields):
+        def find_field_by_id(field_id, field_list):
+            for field in field_list:
+                if field["id"] == field_id:
+                    return field
+                value = field.get("value")
+                if value is not None and isinstance(value, dict) and "fields" in value:
+                    nested_fields = value["fields"]
+                    found_field = find_field_by_id(field_id, nested_fields)
+                    if found_field is not None:
+                        return found_field
+            return None
+
         def check_field(current_field):
             if (
                 field is None
@@ -343,7 +355,7 @@ def _formatFields(
             condition_type = int(current_field["condition_type"])
             field_id = current_field["field_id"]
             value = current_field["value"]
-            filtered_field = [field for field in task_fields if field["id"] == field_id]
+            filtered_field = [find_field_by_id(field_id, task_fields)]
             if not filtered_field:
                 print("⛔ filtered_field is not ready")
                 return False

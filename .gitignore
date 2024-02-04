@@ -1,0 +1,5 @@
+.env
+.vscode/launch.json
+**/__pycache__/
+.editorconfig
+.vscode/settings.json

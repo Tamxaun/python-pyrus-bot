@@ -1,5 +1,6 @@
 import json
 import requests
+from typing import Optional
 
 
 class PyrusAPI:
@@ -28,7 +29,7 @@ class PyrusAPI:
         print("✅ Success to get authentication token from Pyrus")
         return token
 
-    def get_request(self, url: str) -> dict | None:
+    def get_request(self, url: str) -> Optional[dict]:
         print("⌛ API GET: Making a  request...")
 
         if self.token is None:

@@ -1,37 +1,43 @@
 import os
+from dotenv import load_dotenv
 from flask import Flask
 from flask import request
 from flask_caching import Cache
-
 from pyrus_api_handler import PyrusAPI
-
-# from bot.reminder_step import ReminderStep
-# from bot.reminder_payment_type import ReminderPaymentType
+from bot.reminder_step import ReminderStep
+from bot.reminder_payment_type import ReminderPaymentType
 
 
 # Initialize the Flask app
 app = Flask(__name__)
 
 # Check if the app is running in debug mode
-# from dotenv import load_dotenv
-# load_dotenv()
+if app.debug:
+    print("Flask app is running in debug mode")
+    os.environ["APP_ENV"] = "development"
+    load_dotenv()
+else:
+    os.environ["APP_ENV"] = "production"
 
 # Load environment variables
+LOGIN = os.getenv("LOGIN")
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 RS_LOGIN = os.getenv("RS_LOGIN")
 RS_SECRET_KEY = os.getenv("RS_SECRET_KEY")
 RPT_LOGIN = os.getenv("RPT_LOGIN")
 RPT_SECRET_KEY = os.getenv("RPT_SECRET_KEY")
 
-# if (
-#     RS_LOGIN is None
-#     or RS_SECRET_KEY is None
-#     or RPT_LOGIN is None
-#     or RPT_SECRET_KEY is None
-# ):
-#     print("❌ All required environment variables must be set")
-#     exit(1)  # Exit the application if any required environment variable is missing
-# else:
-#     print("✅ All required environment variables are set")
+if (
+    RS_LOGIN is None
+    or RS_SECRET_KEY is None
+    or RPT_LOGIN is None
+    or RPT_SECRET_KEY is None
+):
+    print("❌ All required environment variables must be set")
+    exit(1)  # Exit the application if any required environment variable is missing
+else:
+    print("✅ All required environment variables are set")
 
 # Configure the Flask app
 config = {"DEBUG": False, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
@@ -42,7 +48,7 @@ port = int(os.environ.get("PORT", 5000))
 cache = Cache(app)
 
 # Initialize the Pyrus API
-# pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
+pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
 
 
 @app.route("/", methods=["GET"])
@@ -72,26 +78,26 @@ def index_page():
     return "✅ Server is ready"
 
 
-# @app.route("/step-reminder", methods=["GET"])
-# def reminder_step_page():
-#     reminder_step_page = ReminderStep(
-#         cache=cache,
-#         request=request,
-#         pyrus_secret_key=RS_SECRET_KEY,
-#         pyrus_login=RS_LOGIN,
-#     )
-#     return reminder_step_page.process_request()
+@app.route("/step-reminder", methods=["GET"])
+def reminder_step_page():
+    reminder_step_page = ReminderStep(
+        cache=cache,
+        request=request,
+        pyrus_secret_key=RS_SECRET_KEY,
+        pyrus_login=RS_LOGIN,
+    )
+    return reminder_step_page.process_request()
 
 
-# @app.route("/reminder-payment-type", methods=["GET"])
-# def reminder_peyment_type_page():
-#     reminder_peyment_type = ReminderPaymentType(
-#         cache=cache,
-#         request=request,
-#         pyrus_secret_key=RPT_SECRET_KEY,
-#         pyrus_login=RPT_LOGIN,
-#     )
-#     return reminder_peyment_type.process_request()
+@app.route("/reminder-payment-type", methods=["GET"])
+def reminder_peyment_type_page():
+    reminder_peyment_type = ReminderPaymentType(
+        cache=cache,
+        request=request,
+        pyrus_secret_key=RPT_SECRET_KEY,
+        pyrus_login=RPT_LOGIN,
+    )
+    return reminder_peyment_type.process_request()
 
 
 if __name__ == "__main__":

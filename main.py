@@ -48,7 +48,7 @@ port = int(os.environ.get("PORT", 5000))
 cache = Cache(app)
 
 # Initialize the Pyrus API
-pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
+# pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
 
 
 @app.route("/", methods=["GET"])
@@ -78,26 +78,26 @@ def index_page():
     return "✅ Server is ready"
 
 
-@app.route("/step-reminder", methods=["GET"])
-def reminder_step_page():
-    reminder_step_page = ReminderStep(
-        cache=cache,
-        request=request,
-        pyrus_secret_key=RS_SECRET_KEY,
-        pyrus_login=RS_LOGIN,
-    )
-    return reminder_step_page.process_request()
+# @app.route("/step-reminder", methods=["GET"])
+# def reminder_step_page():
+#     reminder_step_page = ReminderStep(
+#         cache=cache,
+#         request=request,
+#         pyrus_secret_key=RS_SECRET_KEY,
+#         pyrus_login=RS_LOGIN,
+#     )
+#     return reminder_step_page.process_request()
 
 
-@app.route("/reminder-payment-type", methods=["GET"])
-def reminder_peyment_type_page():
-    reminder_peyment_type = ReminderPaymentType(
-        cache=cache,
-        request=request,
-        pyrus_secret_key=RPT_SECRET_KEY,
-        pyrus_login=RPT_LOGIN,
-    )
-    return reminder_peyment_type.process_request()
+# @app.route("/reminder-payment-type", methods=["GET"])
+# def reminder_peyment_type_page():
+#     reminder_peyment_type = ReminderPaymentType(
+#         cache=cache,
+#         request=request,
+#         pyrus_secret_key=RPT_SECRET_KEY,
+#         pyrus_login=RPT_LOGIN,
+#     )
+#     return reminder_peyment_type.process_request()
 
 
 if __name__ == "__main__":

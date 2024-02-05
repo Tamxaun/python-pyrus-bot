@@ -28,43 +28,43 @@ class PyrusAPI:
         print("✅ Success to get authentication token from Pyrus")
         return token
 
-    # def get_request(self, url: str) -> dict | None:
-    #     print("⌛ API GET: Making a  request...")
+    def get_request(self, url: str) -> dict | None:
+        print("⌛ API GET: Making a  request...")
 
-    #     if self.token is None:
-    #         print(
-    #             "⚠️ API GET: Authentication token is not in cache, creating a new one..."
-    #         )
-    #         self.token = self._auth()
-    #         if self.token is None:
-    #             print(
-    #                 "⚠️ API GET: Authentication token is not ready from _auth() method"
-    #             )
-    #             return None
-    #         print("🫙 API GET: Saving authentication token in cache...")
-    #         self.cache.set("pyrus_auth_token", self.token)
-    #     else:
-    #         print("🫙 API GET: Authentication token in cache")
+        if self.token is None:
+            print(
+                "⚠️ API GET: Authentication token is not in cache, creating a new one..."
+            )
+            self.token = self._auth()
+            if self.token is None:
+                print(
+                    "⚠️ API GET: Authentication token is not ready from _auth() method"
+                )
+                return None
+            print("🫙 API GET: Saving authentication token in cache...")
+            self.cache.set("pyrus_auth_token", self.token)
+        else:
+            print("🫙 API GET: Authentication token in cache")
 
-    #     headers = {
-    #         "Authorization": f"Bearer {self.token}",
-    #         "Content-Type": "application/json",
-    #     }
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json",
+        }
 
-    #     r = requests.get(url, headers=headers)
-    #     r_data: dict = json.loads(r.text)
+        r = requests.get(url, headers=headers)
+        r_data: dict = json.loads(r.text)
 
-    #     if r.status_code == 200:
-    #         print("✅ API GET: Response is ready", r.status_code)
-    #         return r_data
-    #     elif r.status_code == 401:
-    #         print("⚠️ API GET: Authentication token is expired")
-    #         self.token = self._auth()
-    #         self.cache.set("pyrus_auth_token", self.token)
-    #         return self.get_request(url)
-    #     else:
-    #         print("⚠️ API GET Response is not ready", r.status_code)
-    #         return None
+        if r.status_code == 200:
+            print("✅ API GET: Response is ready", r.status_code)
+            return r_data
+        elif r.status_code == 401:
+            print("⚠️ API GET: Authentication token is expired")
+            self.token = self._auth()
+            self.cache.set("pyrus_auth_token", self.token)
+            return self.get_request(url)
+        else:
+            print("⚠️ API GET Response is not ready", r.status_code)
+            return None
 
     def post_request(self, url, data):
         print("⌛ API POST: Making request...")

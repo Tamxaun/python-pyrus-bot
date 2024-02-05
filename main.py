@@ -1,6 +1,4 @@
 import os
-import json
-import requests
 from flask import Flask
 from flask import request
 from flask_caching import Cache

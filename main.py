@@ -6,7 +6,7 @@ from flask import request
 from flask_caching import Cache
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
-from bot.reminder_peyment_type import ReminderPaymentType
+from bot.reminder_payment_type import ReminderPaymentType
 
 
 # Initialize the Flask app

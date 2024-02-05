@@ -4,11 +4,12 @@ import requests
 
 class PyrusAPI:
     print("✅ All required environment variables are set")
-    # def __init__(self, cache, pyrus_login: str, pyrus_secret_key: str):
-    #     self.cache = cache
-    #     self.token = None
-    #     self.pyrus_login = pyrus_login
-    #     self.pyrus_secret_key = pyrus_secret_key
+
+    def __init__(self, cache, pyrus_login: str, pyrus_secret_key: str):
+        self.cache = cache
+        self.token = None
+        self.pyrus_login = pyrus_login
+        self.pyrus_secret_key = pyrus_secret_key
 
     # def _auth(self):
     #     print("⌛ Starting API authentication request to Pyrus")

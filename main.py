@@ -24,7 +24,17 @@ else:
 LOGIN = os.getenv("LOGIN")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-if LOGIN is None or SECRET_KEY is None:
+REMINDER_STEP_LOGIN = os.getenv("REMINDER_STEP_LOGIN")
+REMINDER_STEP_SECRET_KEY = os.getenv("REMINDER_STEP_SECRET_KEY")
+REMINDER_PAYMENT_TYPE_LOGIN = os.getenv("REMINDER_PAYMENT_TYPE_LOGIN")
+REMINDER_PAYMENT_TYPE_SECRET_KEY = os.getenv("REMINDER_PAYMENT_TYPE_SECRET_KEY")
+
+if (
+    REMINDER_STEP_LOGIN is None
+    or REMINDER_STEP_SECRET_KEY is None
+    or REMINDER_PAYMENT_TYPE_LOGIN is None
+    or REMINDER_PAYMENT_TYPE_SECRET_KEY is None
+):
     raise ValueError("Environment variables LOGIN and SECRET_KEY must be set")
 
 # Configure the Flask app
@@ -36,7 +46,7 @@ port = int(os.environ.get("PORT", 5000))
 cache = Cache(app)
 
 # Initialize the Pyrus API
-pyrus_api = PyrusAPI(cache, LOGIN, SECRET_KEY)
+pyrus_api = PyrusAPI(cache, REMINDER_STEP_LOGIN, REMINDER_STEP_SECRET_KEY)
 
 
 @app.route("/", methods=["GET"])
@@ -69,7 +79,10 @@ def index_page():
 @app.route("/step-reminder", methods=["GET"])
 def reminder_step_page():
     reminder_step_page = ReminderStep(
-        cache=cache, request=request, pyrus_secret_key=SECRET_KEY, pyrus_login=LOGIN
+        cache=cache,
+        request=request,
+        pyrus_secret_key=REMINDER_STEP_SECRET_KEY,
+        pyrus_login=REMINDER_STEP_LOGIN,
     )
     return reminder_step_page.process_request()
 
@@ -77,7 +90,10 @@ def reminder_step_page():
 @app.route("/reminder-payment-type", methods=["GET"])
 def reminder_peyment_type_page():
     reminder_peyment_type = ReminderPaymentType(
-        cache=cache, request=request, pyrus_secret_key=SECRET_KEY, pyrus_login=LOGIN
+        cache=cache,
+        request=request,
+        pyrus_secret_key=REMINDER_PAYMENT_TYPE_SECRET_KEY,
+        pyrus_login=REMINDER_PAYMENT_TYPE_LOGIN,
     )
     return reminder_peyment_type.process_request()
 

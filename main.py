@@ -16,9 +16,6 @@ app = Flask(__name__)
 # load_dotenv()
 
 # Load environment variables
-LOGIN = os.getenv("LOGIN")
-SECRET_KEY = os.getenv("SECRET_KEY")
-
 RS_LOGIN = os.getenv("RS_LOGIN")
 RS_SECRET_KEY = os.getenv("RS_SECRET_KEY")
 RPT_LOGIN = os.getenv("RPT_LOGIN")

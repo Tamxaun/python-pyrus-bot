@@ -34,7 +34,10 @@ if (
     or RPT_LOGIN is None
     or RPT_SECRET_KEY is None
 ):
-    raise ValueError("Environment variables LOGIN and SECRET_KEY must be set")
+    print("❌ All required environment variables must be set")
+    exit(1)  # Exit the application if any required environment variable is missing
+else:
+    print("✅ All required environment variables are set")
 
 # Configure the Flask app
 config = {"DEBUG": False, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}

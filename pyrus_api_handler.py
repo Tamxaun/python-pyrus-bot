@@ -28,7 +28,7 @@ class PyrusAPI:
         print("✅ Success to get authentication token from Pyrus")
         return token
 
-    def get_request(self, url: str) -> dict:
+    def get_request(self, url: str) -> dict | None:
         print("⌛ API GET: Making a  request...")
 
         if self.token is None:

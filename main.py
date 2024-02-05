@@ -1,6 +1,4 @@
 import os
-
-# from dotenv import load_dotenv
 from flask import Flask
 from flask import request
 from flask_caching import Cache
@@ -13,6 +11,7 @@ from bot.reminder_payment_type import ReminderPaymentType
 app = Flask(__name__)
 
 # Check if the app is running in debug mode
+# from dotenv import load_dotenv
 # load_dotenv()
 
 # Load environment variables
@@ -71,26 +70,26 @@ def index_page():
     return "✅ Server is ready"
 
 
-@app.route("/step-reminder", methods=["GET"])
-def reminder_step_page():
-    reminder_step_page = ReminderStep(
-        cache=cache,
-        request=request,
-        pyrus_secret_key=RS_SECRET_KEY,
-        pyrus_login=RS_LOGIN,
-    )
-    return reminder_step_page.process_request()
+# @app.route("/step-reminder", methods=["GET"])
+# def reminder_step_page():
+#     reminder_step_page = ReminderStep(
+#         cache=cache,
+#         request=request,
+#         pyrus_secret_key=RS_SECRET_KEY,
+#         pyrus_login=RS_LOGIN,
+#     )
+#     return reminder_step_page.process_request()
 
 
-@app.route("/reminder-payment-type", methods=["GET"])
-def reminder_peyment_type_page():
-    reminder_peyment_type = ReminderPaymentType(
-        cache=cache,
-        request=request,
-        pyrus_secret_key=RPT_SECRET_KEY,
-        pyrus_login=RPT_LOGIN,
-    )
-    return reminder_peyment_type.process_request()
+# @app.route("/reminder-payment-type", methods=["GET"])
+# def reminder_peyment_type_page():
+#     reminder_peyment_type = ReminderPaymentType(
+#         cache=cache,
+#         request=request,
+#         pyrus_secret_key=RPT_SECRET_KEY,
+#         pyrus_login=RPT_LOGIN,
+#     )
+#     return reminder_peyment_type.process_request()
 
 
 if __name__ == "__main__":

@@ -1,14 +1,26 @@
-# from main import pyrus_api
 import unittest
+from main import pyrus_api
+from bot.reminder_step import format_fields
 
 
-class Test_TestFormatFields(unittest.TestCase):
-    def test_fields(self):
-        # forms_test = pyrus_api.get_request("https://api.pyrus.com/v4/forms/1346484")
-        # task_test = pyrus_api.get_request("https://api.pyrus.com/v4/tasks/1346484")
+class Test_bot_step_reminder(unittest.TestCase):
+    def test_field_scan(self):
+        forms_test = pyrus_api.get_request("https://api.pyrus.com/v4/forms/1058514")
+        task_test = pyrus_api.get_request("https://api.pyrus.com/v4/tasks/201740291")
 
-        # print(forms_test)
-        # print(task_test)
+        self.assertNotIsInstance(forms_test, type(None))
+        self.assertNotIsInstance(task_test, type(None))
+
+        if forms_test is not None and task_test is not None:
+            fields = format_fields(
+                forms_test["fields"],
+                task_test["task"]["fields"],
+                1,
+                field_html_tag_begin="<li>",
+                field_html_tag_end="</li>",
+            )
+
+            print("🚀 fields", fields)
 
         self.assertEqual(True, True)
 

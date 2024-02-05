@@ -1,23 +1,25 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask
-from flask import request
+
+# from flask import request
 from flask_caching import Cache
-from pyrus_api_handler import PyrusAPI
-from bot.reminder_step import ReminderStep
-from bot.reminder_payment_type import ReminderPaymentType
+
+# from pyrus_api_handler import PyrusAPI
+# from bot.reminder_step import ReminderStep
+# from bot.reminder_payment_type import ReminderPaymentType
 
 
 # Initialize the Flask app
 app = Flask(__name__)
 
 # Check if the app is running in debug mode
-if app.debug:
-    print("Flask app is running in debug mode")
-    os.environ["APP_ENV"] = "development"
-    load_dotenv()
-else:
-    os.environ["APP_ENV"] = "production"
+# if app.debug:
+#     print("Flask app is running in debug mode")
+#     os.environ["APP_ENV"] = "development"
+#     load_dotenv()
+# else:
+#     os.environ["APP_ENV"] = "production"
 
 # Load environment variables
 LOGIN = os.getenv("LOGIN")

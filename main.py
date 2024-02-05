@@ -23,16 +23,16 @@ else:
 LOGIN = os.getenv("LOGIN")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-REMINDER_STEP_LOGIN = os.getenv("REMINDER_STEP_LOGIN")
-REMINDER_STEP_SECRET_KEY = os.getenv("REMINDER_STEP_SECRET_KEY")
-REMINDER_PAYMENT_TYPE_LOGIN = os.getenv("REMINDER_PAYMENT_TYPE_LOGIN")
-REMINDER_PAYMENT_TYPE_SECRET_KEY = os.getenv("REMINDER_PAYMENT_TYPE_SECRET_KEY")
+RS_LOGIN = os.getenv("RS_LOGIN")
+RS_SECRET_KEY = os.getenv("RS_SECRET_KEY")
+RPT_LOGIN = os.getenv("RPT_LOGIN")
+RPT_SECRET_KEY = os.getenv("RPT_SECRET_KEY")
 
 if (
-    REMINDER_STEP_LOGIN is None
-    or REMINDER_STEP_SECRET_KEY is None
-    or REMINDER_PAYMENT_TYPE_LOGIN is None
-    or REMINDER_PAYMENT_TYPE_SECRET_KEY is None
+    RS_LOGIN is None
+    or RS_SECRET_KEY is None
+    or RPT_LOGIN is None
+    or RPT_SECRET_KEY is None
 ):
     raise ValueError("Environment variables LOGIN and SECRET_KEY must be set")
 
@@ -45,7 +45,7 @@ port = int(os.environ.get("PORT", 5000))
 cache = Cache(app)
 
 # Initialize the Pyrus API
-pyrus_api = PyrusAPI(cache, REMINDER_STEP_LOGIN, REMINDER_STEP_SECRET_KEY)
+pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
 
 
 @app.route("/", methods=["GET"])
@@ -80,8 +80,8 @@ def reminder_step_page():
     reminder_step_page = ReminderStep(
         cache=cache,
         request=request,
-        pyrus_secret_key=REMINDER_STEP_SECRET_KEY,
-        pyrus_login=REMINDER_STEP_LOGIN,
+        pyrus_secret_key=RS_SECRET_KEY,
+        pyrus_login=RS_LOGIN,
     )
     return reminder_step_page.process_request()
 
@@ -91,8 +91,8 @@ def reminder_peyment_type_page():
     reminder_peyment_type = ReminderPaymentType(
         cache=cache,
         request=request,
-        pyrus_secret_key=REMINDER_PAYMENT_TYPE_SECRET_KEY,
-        pyrus_login=REMINDER_PAYMENT_TYPE_LOGIN,
+        pyrus_secret_key=RPT_SECRET_KEY,
+        pyrus_login=RPT_LOGIN,
     )
     return reminder_peyment_type.process_request()
 

@@ -3,7 +3,7 @@ from main import pyrus_api
 from bot.reminder_step import format_fields
 
 
-class Test_bot_step_reminder(unittest.TestCase):
+class Test_bot_reminder_step(unittest.TestCase):
     def test_field_scan(self):
         forms_test = pyrus_api.get_request("https://api.pyrus.com/v4/forms/1058514")
         task_test = pyrus_api.get_request("https://api.pyrus.com/v4/tasks/201740291")

@@ -40,7 +40,7 @@ port = int(os.environ.get("PORT", 5000))
 cache = Cache(app)
 
 # Initialize the Pyrus API
-pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
+# pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
 
 
 @app.route("/", methods=["GET"])

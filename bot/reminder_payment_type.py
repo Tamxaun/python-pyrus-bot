@@ -1,4 +1,6 @@
 import json
+import hmac
+import hashlib
 from flask import Request
 from pyrus_api_handler import PyrusAPI
 
@@ -10,24 +12,32 @@ class ReminderPaymentType:
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
         self.request = request
+        self.body = self.request.data
+        self.signature = self.request.headers.get("X-Pyrus-Sig")
         self.cache = cache
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
 
     def _validate_request(self):
-        if self.request.headers.get("X-Pyrus-Sig") is None:
+        # check if signature is set
+        if self.signature is None:
             print("⛔ The request does not have the X-Pyrus-Sig.")
             print(self.request.headers)
             return False
-        if self.pyrus_secret_key is None or self.request.data is None:
-            print(f"Body is {'set ✅' if self.request.data != None else 'not set ❌'}")
+        # check if body and secret is set
+        if self.pyrus_secret_key is None or self.body is None:
+            print(f"Body is {'set ✅' if self.body != None else 'not set ❌'}")
             print(
                 f"Secret is {'set ✅' if self.pyrus_secret_key != None else 'not set ❌'}"
             )
             return False
-        return True
+
+        # chech signature
+        secret = str.encode(self.pyrus_secret_key)
+        digest = hmac.new(secret, msg=self.body, digestmod=hashlib.sha1).hexdigest()
+        return hmac.compare_digest(digest, self.signature.lower())
 
     def _prepare_response(self):
-        # print("⌛ Preparing response")
+        print("⌛ Preparing response")
 
         # task = json.loads(self.request.data)["task"]
 
@@ -59,7 +69,9 @@ class ReminderPaymentType:
         #             return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
         # return "{}", 200
-        return ('{{ "text":"{}" }}'.format(self.request.data), 200)
+
+        task = json.loads(self.body.decode("utf-8"))["task"]
+        return '{{"text": {} }}'.format(task)
 
     def process_request(self):
         if not self._validate_request():

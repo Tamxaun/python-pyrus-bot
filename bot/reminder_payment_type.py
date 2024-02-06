@@ -40,32 +40,33 @@ class ReminderPaymentType:
     def _prepare_response(self, task: dict):
         print("⌛ Preparing response")
 
-        person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
-        text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
-        comment_text = "{person}<br>{text}".format(person=person, text=text)
+        # person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
+        # text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
+        # comment_text = "{person}<br>{text}".format(person=person, text=text)
 
-        hasUpdatedFields = (
-            "comments" in task and "task_field_updates" in task["comments"]
-        )
+        # hasUpdatedFields = (
+        #     "comments" in task and "task_field_updates" in task["comments"]
+        # )
 
-        if hasUpdatedFields:
-            task_field_updates = task["comments"]["task_field_updates"]
+        # if hasUpdatedFields:
+        #     task_field_updates = task["comments"]["task_field_updates"]
 
-            for field in task_field_updates:
-                isPaymenType = (
-                    "name" in field and field["name"] == "Тип оплаты / Статус"
-                )
-                isCorrectPaymenType = (
-                    "value" in field
-                    and isinstance(field["value"], dict)
-                    and "choice_names" in field["value"]
-                    and field["value"]["choice_names"][0] == "✅Нал (чек)"
-                )
+        #     for field in task_field_updates:
+        #         isPaymenType = (
+        #             "name" in field and field["name"] == "Тип оплаты / Статус"
+        #         )
+        #         isCorrectPaymenType = (
+        #             "value" in field
+        #             and isinstance(field["value"], dict)
+        #             and "choice_names" in field["value"]
+        #             and field["value"]["choice_names"][0] == "✅Нал (чек)"
+        #         )
 
-                if isPaymenType and isCorrectPaymenType:
-                    return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
+        #         if isPaymenType and isCorrectPaymenType:
+        #             return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
-        return "{}", 200
+        # return "{}", 200
+        return ('{{ "text":"Hello" }}'.format(), 200)
 
     def process_request(self):
         if not self._validate_request():

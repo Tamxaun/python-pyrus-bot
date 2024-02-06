@@ -201,21 +201,26 @@ class ReminderStep:
         self.pyrus_login = pyrus_login
         self.pyrus_secret_key = pyrus_secret_key
         self.request = request
+        self.signature = self.request.headers.get("X-Pyrus-Sig")
         self.body = request.data
         self.cache = cache
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
 
     def _validate_request(self):
-        if self.request.headers.get("X-Pyrus-Sig") is None:
+        # check if signature is set
+        if self.signature is None:
             print("⛔ The request does not have the X-Pyrus-Sig.")
             print(self.request.headers)
             return False
-        if self.pyrus_secret_key is None or self.request.data is None:
-            print(f"Body is {'set ✅' if self.request.data != None else 'not set ❌'}")
-            print(
-                f"Secret is {'set ✅' if self.pyrus_secret_key != None else 'not set ❌'}"
-            )
+        # check if secret is set
+        if self.pyrus_secret_key is None or not self.pyrus_secret_key:
+            print(f"Secret is not set ❌")
             return False
+        # check if body is set
+        if self.body is None or not self.body:
+            print(f"Body is not set ❌")
+            return False
+
         return True
 
     def _prepare_response(self):
@@ -363,6 +368,7 @@ class ReminderStep:
 
     def process_request(self):
         if not self._validate_request():
+            print("❌ Signature is not correct")
             return "🚫 Access Denied", 403
 
         print("✅ Signature_correct")

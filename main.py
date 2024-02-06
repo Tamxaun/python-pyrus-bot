@@ -6,10 +6,18 @@ from flask_caching import Cache
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
+import logging
+from logging.handlers import RotatingFileHandler
 
 
 # Initialize the Flask app
 app = Flask(__name__)
+
+# Configure the Flask app
+log_handler = RotatingFileHandler("flask.log", maxBytes=10000, backupCount=5)
+log_handler.setLevel(logging.INFO)
+app.logger.addHandler(log_handler)
+app.logger.setLevel(logging.INFO)
 
 # Check if the app is running in debug mode
 if app.debug:

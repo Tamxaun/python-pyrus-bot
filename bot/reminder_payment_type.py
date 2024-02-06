@@ -58,7 +58,8 @@ class ReminderPaymentType:
                 if isPaymenType and isCorrectPaymenType:
                     return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
-        return "{}", 200
+        # return "{}", 200
+        return ('{{ "text":"{}" }}'.format(self.request.data), 200)
 
     def process_request(self):
         if not self._validate_request():

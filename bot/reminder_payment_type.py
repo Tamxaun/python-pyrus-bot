@@ -29,8 +29,7 @@ class ReminderPaymentType:
     def _prepare_response(self):
         print("⌛ Preparing response")
 
-        task = json.loads(self.request.data)
-        task_field_updates = task["comments"]["task_field_updates"]
+        task = json.loads(self.request.data)["task"]
 
         print("👋 task", task)
 
@@ -38,17 +37,26 @@ class ReminderPaymentType:
         text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
         comment_text = "{person}<br>{text}".format(person=person, text=text)
 
-        for field in task_field_updates:
-            isPaymenType = "name" in field and field["name"] == "Тип оплаты / Статус"
-            isCorrectPaymenType = (
-                "value" in field
-                and isinstance(field["value"], dict)
-                and "choice_names" in field["value"]
-                and field["value"]["choice_names"][0] == "✅Нал (чек)"
-            )
+        hasUpdatedFields = (
+            "comments" in task and "task_field_updates" in task["comments"]
+        )
 
-            if isPaymenType and isCorrectPaymenType:
-                return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
+        if hasUpdatedFields:
+            task_field_updates = task["comments"]["task_field_updates"]
+
+            for field in task_field_updates:
+                isPaymenType = (
+                    "name" in field and field["name"] == "Тип оплаты / Статус"
+                )
+                isCorrectPaymenType = (
+                    "value" in field
+                    and isinstance(field["value"], dict)
+                    and "choice_names" in field["value"]
+                    and field["value"]["choice_names"][0] == "✅Нал (чек)"
+                )
+
+                if isPaymenType and isCorrectPaymenType:
+                    return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
         return "{}", 200
 

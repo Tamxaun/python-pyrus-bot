@@ -29,14 +29,16 @@ class ReminderPaymentType:
     def _prepare_response(self):
         print("⌛ Preparing response")
 
-        task = json.loads(self.request.data)["task"]
-        task_fields = task["fields"]
+        task = json.loads(self.request.data)
+        task_field_updates = task["comments"]["task_field_updates"]
+
+        print("👋 task", task)
 
         person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
         text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
         comment_text = "{person}<br>{text}".format(person=person, text=text)
 
-        for field in task_fields:
+        for field in task_field_updates:
             isPaymenType = "name" in field and field["name"] == "Тип оплаты / Статус"
             isCorrectPaymenType = (
                 "value" in field

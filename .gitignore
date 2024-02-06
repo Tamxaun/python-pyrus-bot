@@ -3,3 +3,4 @@
 **/__pycache__/
 .editorconfig
 .vscode/settings.json
+flask.log

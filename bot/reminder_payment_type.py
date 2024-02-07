@@ -21,11 +21,10 @@ class ReminderPaymentType:
         # check if signature is set
         if self.signature is None:
             print("⛔ The request does not have the X-Pyrus-Sig.")
-            print(self.request.headers)
             return False
         # check if secret is set
         if self.pyrus_secret_key is None or not self.pyrus_secret_key:
-            print("Secret is not set ❌", self.pyrus_secret_key)
+            print("Secret is not set ❌")
             return False
         # check if body is set
         if self.body is None or not self.body:
@@ -68,7 +67,7 @@ class ReminderPaymentType:
 
         # return "{}", 200
         # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
-        task_str = json.dumps(self.body, indent=4)
+        task_str = json.dumps(self.body)
         return (
             '{{ "formatted_text":"<code>{}</code>" }}'.format(task_str),
             200,

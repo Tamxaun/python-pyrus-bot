@@ -66,7 +66,7 @@ class ReminderPaymentType:
         #             return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
         # return "{}", 200
-        return ('{{ "text":"Hello" }}'.format(), 200)
+        return '{{ "text":"Hello" }}'.format(), 200
 
     def process_request(self):
         if not self._validate_request():
@@ -76,7 +76,7 @@ class ReminderPaymentType:
         print("✅ Signature_correct")
 
         try:
-            data = json.loads(self.body.decode("utf-8"))
+            data = json.loads(self.body)
             if "task" in data:
                 print("😉 Body contains 'task'")
                 task = data["task"]

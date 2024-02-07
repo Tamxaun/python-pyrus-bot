@@ -86,7 +86,7 @@ def index_page():
     return "✅ Server is ready"
 
 
-@app.route("/step-reminder", methods=["GET"])
+@app.route("/step-reminder", methods=["GET", "POST"])
 def reminder_step_page():
     reminder_step_page = ReminderStep(
         cache=cache,
@@ -97,7 +97,7 @@ def reminder_step_page():
     return reminder_step_page.process_request()
 
 
-@app.route("/reminder-payment-type", methods=["GET"])
+@app.route("/reminder-payment-type", methods=["GET", "POST"])
 def reminder_peyment_type_page():
     reminder_peyment_type = ReminderPaymentType(
         cache=cache,

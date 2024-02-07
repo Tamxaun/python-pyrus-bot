@@ -8,7 +8,19 @@ from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 import logging
 from logging.handlers import RotatingFileHandler
+import sentry_sdk
 
+# Conf
+sentry_sdk.init(
+    dsn="https://4cc58ab824b087258eac2255dbfd9e99@o1295012.ingest.sentry.io/4506705877860352",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -18,6 +30,7 @@ log_handler = RotatingFileHandler("flask.log", maxBytes=10000, backupCount=5)
 log_handler.setLevel(logging.INFO)
 app.logger.addHandler(log_handler)
 app.logger.setLevel(logging.INFO)
+
 
 # Check if the app is running in debug mode
 if app.debug:
@@ -104,6 +117,7 @@ def reminder_peyment_type_page():
         request=request,
         pyrus_secret_key=RPT_SECRET_KEY,
         pyrus_login=RPT_LOGIN,
+        sentry_sdk=sentry_sdk,
     )
     return reminder_peyment_type.process_request()
 

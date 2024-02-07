@@ -64,13 +64,7 @@ def format_fields(
                 or current_field["field_id"] is None
                 or current_field["value"] is None
             ):
-                print(
-                    "⛔ check_field is not ready",
-                    field,
-                    current_field["condition_type"],
-                    current_field["field_id"],
-                    current_field["value"],
-                )
+                print("⛔ check_field: is not ready")
                 return False
 
             condition_type = int(current_field["condition_type"])
@@ -78,7 +72,7 @@ def format_fields(
             value = current_field["value"]
             filtered_field = [find_field_by_id(field_id, task_fields)]
             if isinstance(filtered_field[-1], type(None)):
-                print("⛔ filtered_field is None and not ready")
+                print("⛔ filtered_field: is None and not ready")
                 return False
 
             chosen_field = filtered_field[-1]
@@ -210,7 +204,6 @@ class ReminderStep:
         # check if signature is set
         if self.signature is None:
             print("⛔ The request does not have the X-Pyrus-Sig.")
-            print(self.request.headers)
             return False
         # check if secret is set
         if self.pyrus_secret_key is None or not self.pyrus_secret_key:
@@ -227,10 +220,8 @@ class ReminderStep:
         print("⌛ Preparing response")
 
         task = json.loads(self.request.data)["task"]
-        print("✅ Task is ready", task)
         task_fields = task["fields"]
         current_step_num = int(task["current_step"])
-        print("✅ current_step_num is ready", current_step_num)
         filtered_step = [
             (item, i)
             for i, item in enumerate(task["steps"])
@@ -243,7 +234,6 @@ class ReminderStep:
         first_tuple = filtered_step[-1]
         current_step = first_tuple[0]
         current_step_index = first_tuple[1]
-        print("✅ step is ready", current_step)
         prev_step = (
             task["steps"][current_step_index - 1] if current_step_num > 1 else []
         )
@@ -252,7 +242,6 @@ class ReminderStep:
             and len(task["steps"]) == 1
         )
         current_approvals = task["approvals"][current_step_num - 1]
-        print("✅ approvals is ready", current_approvals)
         prev_approvals = (
             task["approvals"][current_step_num - 2] if current_step_num > 1 else []
         )
@@ -286,7 +275,7 @@ class ReminderStep:
             )
 
             if form is None:
-                print("⚠️ Form not found, id:", task["form_id"], task)
+                print("⚠️ Form not found, id:", task["form_id"])
                 return "{}", 200
 
             # print("form", form)
@@ -350,10 +339,10 @@ class ReminderStep:
                     "".join(formatted_fields),
                 )
 
-            print(
-                "✅ Response is ready",
-                '{{ "formatted_text":"{}" }}'.format(comment_text),
-            )
+            # print(
+            #     "✅ Response is ready",
+            #     '{{ "formatted_text":"{}" }}'.format(comment_text),
+            # )
 
             return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 

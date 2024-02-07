@@ -7,12 +7,7 @@ from pyrus_api_handler import PyrusAPI
 
 class ReminderPaymentType:
     def __init__(
-        self,
-        cache,
-        request: Request,
-        pyrus_secret_key: str,
-        pyrus_login: str,
-        sentry_sdk,
+        self, cache, request: Request, pyrus_secret_key: str, pyrus_login: str
     ):
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
@@ -21,7 +16,6 @@ class ReminderPaymentType:
         self.signature = self.request.headers.get("X-Pyrus-Sig")
         self.cache = cache
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
-        self.sentry_sdk = sentry_sdk
 
     def _validate_request(self):
         # check if signature is set
@@ -54,10 +48,6 @@ class ReminderPaymentType:
             "comments" in task and "field_updates" in task["comments"][-1]
         )
 
-        self.sentry_sdk.capture_message(
-            f"Reminder_peyment_type_bot: task_str: {task['comments'][-1]}", level="info"
-        )
-
         if hasUpdatedFields:
             task_field_updates = task["comments"][-1]["field_updates"]
 
@@ -76,15 +66,6 @@ class ReminderPaymentType:
                     return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
         return "{}", 200
-        # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
-        # task = json.loads(self.body)
-        # task_str = json.dumps(task["task"]["comments"][-1])
-
-        # return (
-        #     '{{ "text":"{}" }}'.format(task_str),
-        #     200,
-        # )
-        # return '{{ "text":"{}" }}'.format(comment_text, comment_author["id"])
 
     def process_request(self):
         if not self._validate_request():

@@ -6,7 +6,6 @@ from flask_caching import Cache
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
-import logging
 from logging.handlers import RotatingFileHandler
 import sentry_sdk
 
@@ -24,12 +23,6 @@ sentry_sdk.init(
 
 # Initialize the Flask app
 app = Flask(__name__)
-
-# Configure the Flask app
-log_handler = RotatingFileHandler("flask.log", maxBytes=10000, backupCount=5)
-log_handler.setLevel(logging.INFO)
-app.logger.addHandler(log_handler)
-app.logger.setLevel(logging.INFO)
 
 
 # Check if the app is running in debug mode
@@ -117,7 +110,6 @@ def reminder_peyment_type_page():
         request=request,
         pyrus_secret_key=RPT_SECRET_KEY,
         pyrus_login=RPT_LOGIN,
-        sentry_sdk=sentry_sdk,
     )
     return reminder_peyment_type.process_request()
 

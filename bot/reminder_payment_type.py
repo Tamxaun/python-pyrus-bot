@@ -74,7 +74,7 @@ class ReminderPaymentType:
         # return "{}", 200
         # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
         task = json.loads(self.body)
-        task_str = json.dumps(task)
+        task_str = json.dumps(task["task"])
         self.sentry_sdk.capture_message(
             f"Reminder_peyment_type_bot: task_str: {task_str}", level="info"
         )

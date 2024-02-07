@@ -7,7 +7,12 @@ from pyrus_api_handler import PyrusAPI
 
 class ReminderPaymentType:
     def __init__(
-        self, cache, request: Request, pyrus_secret_key: str, pyrus_login: str
+        self,
+        cache,
+        request: Request,
+        pyrus_secret_key: str,
+        pyrus_login: str,
+        sentry_sdk,
     ):
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
@@ -16,6 +21,7 @@ class ReminderPaymentType:
         self.signature = self.request.headers.get("X-Pyrus-Sig")
         self.cache = cache
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
+        self.sentry_sdk = sentry_sdk
 
     def _validate_request(self):
         # check if signature is set
@@ -69,6 +75,10 @@ class ReminderPaymentType:
         # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
         task = json.loads(self.body)
         task_str = json.dumps(task)
+        self.sentry_sdk.capture_message(
+            f"Reminder_peyment_type_bot: task_str: {task_str}", level="info"
+        )
+
         return (
             '{{ "text":"{}" }}'.format(task_str),
             200,

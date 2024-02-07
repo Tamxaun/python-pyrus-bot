@@ -67,9 +67,10 @@ class ReminderPaymentType:
 
         # return "{}", 200
         # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
-        task_str = json.dumps(self.body)
+        task = json.loads(self.body)
+        task_str = json.dumps(task)
         return (
-            '{{ "formatted_text":"<code>{}</code>" }}'.format(task_str),
+            '{{ "text":"{}" }}'.format(task_str),
             200,
         )
         # return '{{ "text":"{}" }}'.format(comment_text, comment_author["id"])

@@ -46,43 +46,44 @@ class ReminderPaymentType:
     def _prepare_response(self, task: dict):
         print("⌛ Preparing response")
 
-        # person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
-        # text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
-        # comment_text = "{person}<br>{text}".format(person=person, text=text)
+        person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
+        text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
+        comment_text = "{person}<br>{text}".format(person=person, text=text)
 
-        # hasUpdatedFields = (
-        #     "comments" in task and "field_updates" in task["comments"][-1]
-        # )
+        hasUpdatedFields = (
+            "comments" in task and "field_updates" in task["comments"][-1]
+        )
 
-        # if hasUpdatedFields:
-        #     task_field_updates = task["comments"][-1]["field_updates"][-1]
-
-        #     for field in task_field_updates:
-        #         isPaymenType = (
-        #             "name" in field and field["name"] == "Тип оплаты / Статус"
-        #         )
-        #         isCorrectPaymenType = (
-        #             "value" in field
-        #             and isinstance(field["value"], dict)
-        #             and "choice_names" in field["value"]
-        #             and field["value"]["choice_names"][-1] == "✅Нал (чек)"
-        #         )
-
-        #         if isPaymenType and isCorrectPaymenType:
-        #             return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
-
-        # return "{}", 200
-        # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
-        task = json.loads(self.body)
-        task_str = json.dumps(task["task"])
         self.sentry_sdk.capture_message(
-            f"Reminder_peyment_type_bot: task_str: {task_str}", level="info"
+            f"Reminder_peyment_type_bot: task_str: {task['comments'][-1]}", level="info"
         )
 
-        return (
-            '{{ "text":"{}" }}'.format(task_str),
-            200,
-        )
+        if hasUpdatedFields:
+            task_field_updates = task["comments"][-1]["field_updates"][-1]
+
+            for field in task_field_updates:
+                isPaymenType = (
+                    "name" in field and field["name"] == "Тип оплаты / Статус"
+                )
+                isCorrectPaymenType = (
+                    "value" in field
+                    and isinstance(field["value"], dict)
+                    and "choice_names" in field["value"]
+                    and field["value"]["choice_names"][-1] == "✅Нал (чек)"
+                )
+
+                if isPaymenType and isCorrectPaymenType:
+                    return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
+
+        return "{}", 200
+        # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
+        # task = json.loads(self.body)
+        # task_str = json.dumps(task["task"]["comments"][-1])
+
+        # return (
+        #     '{{ "text":"{}" }}'.format(task_str),
+        #     200,
+        # )
         # return '{{ "text":"{}" }}'.format(comment_text, comment_author["id"])
 
     def process_request(self):

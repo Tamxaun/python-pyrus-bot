@@ -59,7 +59,7 @@ class ReminderPaymentType:
         )
 
         if hasUpdatedFields:
-            task_field_updates = task["comments"][-1]["field_updates"][-1]
+            task_field_updates = task["comments"][-1]["field_updates"]
 
             for field in task_field_updates:
                 isPaymenType = (

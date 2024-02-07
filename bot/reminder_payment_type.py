@@ -68,12 +68,12 @@ class ReminderPaymentType:
 
         # return "{}", 200
         # return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
+        task_str = json.dumps(task, indent=4)
         return (
-            '{{ "formatted_text":"<code>{}</code>" }}'.format(
-                json.dumps(task, indent=4)
-            ),
+            '{{ "formatted_text":"<code>{}</code>" }}'.format(task_str),
             200,
         )
+        # return '{{ "text":"{}" }}'.format(comment_text, comment_author["id"])
 
     def process_request(self):
         if not self._validate_request():

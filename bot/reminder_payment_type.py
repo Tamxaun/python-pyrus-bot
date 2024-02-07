@@ -36,17 +36,18 @@ class ReminderPaymentType:
         secret = str.encode(self.pyrus_secret_key)
         digest = hmac.new(secret, msg=self.body, digestmod=hashlib.sha1).hexdigest()
         return hmac.compare_digest(digest, self.signature.lower())
+        # return True
 
     def _prepare_response(self, task: dict):
         print("⌛ Preparing response")
 
-        person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
-        text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
-        comment_text = "{person}<br>{text}".format(person=person, text=text)
+        # person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
+        # text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
+        # comment_text = "{person}<br>{text}".format(person=person, text=text)
 
-        hasUpdatedFields = (
-            "comments" in task and "field_updates" in task["comments"][-1]
-        )
+        # hasUpdatedFields = (
+        #     "comments" in task and "field_updates" in task["comments"][-1]
+        # )
 
         # if hasUpdatedFields:
         #     task_field_updates = task["comments"][-1]["field_updates"][-1]
@@ -66,7 +67,7 @@ class ReminderPaymentType:
         #             return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
         # return "{}", 200
-        return '{{ "formatted_text":"<code>{task}</code>" }}'.format(task), 200
+        return '{{ "formatted_text":"<code>{}</code>" }}'.format(task), 200
 
     def process_request(self):
         if not self._validate_request():

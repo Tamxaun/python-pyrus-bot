@@ -48,25 +48,25 @@ class ReminderPaymentType:
             "comments" in task and "field_updates" in task["comments"][-1]
         )
 
-        if hasUpdatedFields:
-            task_field_updates = task["comments"][-1]["field_updates"][-1]
+        # if hasUpdatedFields:
+        #     task_field_updates = task["comments"][-1]["field_updates"][-1]
 
-            for field in task_field_updates:
-                isPaymenType = (
-                    "name" in field and field["name"] == "Тип оплаты / Статус"
-                )
-                isCorrectPaymenType = (
-                    "value" in field
-                    and isinstance(field["value"], dict)
-                    and "choice_names" in field["value"]
-                    and field["value"]["choice_names"][0] == "✅Нал (чек)"
-                )
+        #     for field in task_field_updates:
+        #         isPaymenType = (
+        #             "name" in field and field["name"] == "Тип оплаты / Статус"
+        #         )
+        #         isCorrectPaymenType = (
+        #             "value" in field
+        #             and isinstance(field["value"], dict)
+        #             and "choice_names" in field["value"]
+        #             and field["value"]["choice_names"][-1] == "✅Нал (чек)"
+        #         )
 
-                if isPaymenType and isCorrectPaymenType:
-                    return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
+        #         if isPaymenType and isCorrectPaymenType:
+        #             return ('{{ "formatted_text":"{}" }}'.format(comment_text), 200)
 
-        return "{}", 200
-        # return '{{ "text":"Hello" }}'.format(), 200
+        # return "{}", 200
+        return '{{ "formatted_text":"<code>{task}</code>" }}'.format(task), 200
 
     def process_request(self):
         if not self._validate_request():

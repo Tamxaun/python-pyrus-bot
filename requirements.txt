@@ -3,3 +3,4 @@ flask
 requests
 flask_caching
 load_dotenv
+sentry-sdk[flask]

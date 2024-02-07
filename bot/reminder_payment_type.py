@@ -45,7 +45,7 @@ class ReminderPaymentType:
         comment_text = "{person}<br>{text}".format(person=person, text=text)
 
         hasUpdatedFields = (
-            "comments" in task and "task_field_updates" in task["comments"][-1]
+            "comments" in task and "field_updates" in task["comments"][-1]
         )
 
         if hasUpdatedFields:

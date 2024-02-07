@@ -45,11 +45,11 @@ class ReminderPaymentType:
         comment_text = "{person}<br>{text}".format(person=person, text=text)
 
         hasUpdatedFields = (
-            "comments" in task and "task_field_updates" in task["comments"]
+            "comments" in task and "task_field_updates" in task["comments"][-1]
         )
 
         if hasUpdatedFields:
-            task_field_updates = task["comments"]["task_field_updates"]
+            task_field_updates = task["comments"][-1]["field_updates"][-1]
 
             for field in task_field_updates:
                 isPaymenType = (

@@ -221,7 +221,11 @@ class ReminderStep:
 
         task = json.loads(self.request.data)["task"]
         task_fields = task["fields"]
-        current_step_num = int(task["current_step"])
+        current_step_num = int(task["current_step"]) if "current_step" in task else None
+        if current_step_num is None:
+            print("⛔ Current Step is not found")
+            print("⚠️ No response")
+            return "{}", 200
         filtered_step = [
             (item, i)
             for i, item in enumerate(task["steps"])

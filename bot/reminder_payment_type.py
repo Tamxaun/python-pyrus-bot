@@ -64,7 +64,7 @@ class ReminderPaymentType:
 
                 if isPaymenType and isCorrectPaymenType:
                     return (
-                        '{{ "formatted_text":"{}", "subscribers_added": [{"id": 486746}] }}'.format(
+                        '{{ "formatted_text":"{}", "subscribers_added": "[{{\\"id\\": \\"486746\\"}}]" }}'.format(
                             comment_text
                         ),
                         200,

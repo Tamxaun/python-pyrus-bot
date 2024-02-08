@@ -4,3 +4,4 @@
 .editorconfig
 .vscode/settings.json
 flask.log
+*.ini

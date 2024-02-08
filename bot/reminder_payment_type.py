@@ -43,6 +43,11 @@ class ReminderPaymentType:
         person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
         text = "Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li><ul>"
         comment_text = "{person}<br>{text}".format(person=person, text=text)
+        subscribers_added = [
+            {
+                "id": 486746,
+            }
+        ]
 
         hasUpdatedFields = (
             "comments" in task and "field_updates" in task["comments"][-1]
@@ -64,8 +69,8 @@ class ReminderPaymentType:
 
                 if isPaymenType and isCorrectPaymenType:
                     return (
-                        '{{ "formatted_text":"{}", "subscribers_added": "[{{\\"id\\": \\"486746\\", \\"type\\": \\"user\\"}}]" }}'.format(
-                            comment_text
+                        '{{ "formatted_text":"{}", "subscribers_added": {} }}'.format(
+                            comment_text, subscribers_added
                         ),
                         200,
                     )

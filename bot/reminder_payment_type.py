@@ -40,9 +40,9 @@ class ReminderPaymentType:
     def _prepare_response(self, task: dict):
         print("⌛ Preparing response")
 
-        person = f"<a target='_blank' rel='nofollow noopener noreferrer' href='https://pyrus.com/t#pp486746'><span class='current-user' data-personid='430612' data-origin='https://pyrus.com' data-type='user-mention'>Татьяна Ивановна</span></a>"
-        text = f"<p>Для данного заказа требуется оформить:</p><ul><li>Приходный кассовый ордер</li><li>Оформить подотчет на Бусырев А.А.</li></ul>"
-        comment_text = f"<p>{person}</p><br>{text}"
+        person = f"<a href='https://pyrus.com/t#pp486746'><mark data-color='yellow'>Татьяна Ивановна</mark></a>"
+        text = f"Для данного заказа требуется оформить:<ul><li>Приходный кассовый ордер<br></li><li>Оформить подотчет на Бусырев А.А.<br></li></ul>"
+        comment_text = f"{person}<br>{text}"
         subscribers_added = [
             {
                 "id": 486746,

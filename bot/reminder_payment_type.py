@@ -41,8 +41,8 @@ class ReminderPaymentType:
         print("⌛ Preparing response")
 
         person = f"<a target='_blank' rel='nofollow noopener noreferrer' href='https://pyrus.com/t#pp486746'><span class='current-user' data-personid='430612' data-origin='https://pyrus.com' data-type='user-mention'>Татьяна Ивановна</span></a>"
-        text = f"Для данного заказа требуется оформить:<br><ul><li>приходный кассовый ордер</li><li>оформить подотчет на Бусырев А.А.</li></ul>"
-        comment_text = "{person}<br>{text}".format(person=person, text=text)
+        text = f"<p>Для данного заказа требуется оформить:</p><ul><li>Приходный кассовый ордер</li><li>Оформить подотчет на Бусырев А.А.</li></ul>"
+        comment_text = f"<p>{person}</p><br>{text}"
         subscribers_added = [
             {
                 "id": 486746,

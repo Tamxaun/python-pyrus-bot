@@ -78,7 +78,7 @@ class RemiderInactiveTasks:
                         )
                         self._update_tasks(task_id)
             print("✅ Tasks checked")
-            return "✅ Tasks checked", 200
+            return "{}", 200
         else:
             print("❌ Didn't get catalog")
             self.sentry_sdk.capture_message(
@@ -123,6 +123,9 @@ class RemiderInactiveTasks:
                 json.dumps(catalog_new),
             )
         else:
+            self.sentry_sdk.capture_message(
+                "Debug message: ❌ Catalog is not found in _update_tasks", level="info"
+            )
             print("❌ Catalog is not found")
 
     def _prepare_response(self, task: dict):
@@ -138,7 +141,8 @@ class RemiderInactiveTasks:
             else:
                 print("🚚 Task is not complete. Updating it or adding if isn't exist")
                 self._update_tasks(task_id)
-            return "✅ Signal received", 200
+            print("✅ Signal received")
+            return "{}", 200
         else:
             print("❌ Didn't get task_id")
             self.sentry_sdk.capture_message(

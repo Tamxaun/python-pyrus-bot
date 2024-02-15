@@ -126,7 +126,7 @@ class RemiderInactiveTasks:
             print("❌ Catalog is not found")
 
     def _prepare_response(self, task: dict):
-        task_id = task.get("task_id")
+        task_id = task.get("id")
         is_task_closed = (
             len(task["comments"]) > 0
             and task["comments"][0].get("action") == "finished"

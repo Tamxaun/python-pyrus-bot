@@ -30,21 +30,21 @@ class RemiderInactiveTasks:
         # check if signature is set
         if self.signature is None:
             self.sentry_sdk.capture_message(
-                "⛔ The request does not have the X-Pyrus-Sig.", level="info"
+                "⛔ The request does not have the X-Pyrus-Sig.", level="debug"
             )
             print("⛔ The request does not have the X-Pyrus-Sig.")
             return False
         # check if secret is set
         if self.pyrus_secret_key is None or not self.pyrus_secret_key:
             self.sentry_sdk.capture_message(
-                "Debug message: Secret is not set ❌", level="info"
+                "Debug message: Secret is not set ❌", level="debug"
             )
             print("Secret is not set ❌")
             return False
         # check if body is set
         if self.body is None or not self.body:
             self.sentry_sdk.capture_message(
-                "Debug message: Body is not set ❌", level="info"
+                "Debug message: Body is not set ❌", level="debug"
             )
             print("Body is not set ❌")
             return False
@@ -82,7 +82,7 @@ class RemiderInactiveTasks:
         else:
             print("❌ Didn't get catalog")
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Didn't get catalog", level="info"
+                "Debug message: ❌ Didn't get catalog", level="debug"
             )
             return "❌ Didn't get catalog", 400
 
@@ -124,7 +124,7 @@ class RemiderInactiveTasks:
             )
         else:
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Catalog is not found in _update_tasks", level="info"
+                "Debug message: ❌ Catalog is not found in _update_tasks", level="debug"
             )
             print("❌ Catalog is not found")
 
@@ -146,14 +146,14 @@ class RemiderInactiveTasks:
         else:
             print("❌ Didn't get task_id")
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Didn't get task_id", level="info"
+                "Debug message: ❌ Didn't get task_id", level="debug"
             )
             return "🚫 Access Denied", 400
 
     def process_request(self):
         if not self._validate_request():
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Signature is not correct", level="info"
+                "Debug message: ❌ Signature is not correct", level="debug"
             )
             print("❌ Signature is not correct")
             return "🚫 Access Denied", 403
@@ -169,12 +169,12 @@ class RemiderInactiveTasks:
             else:
                 print("😢 Body does not contain 'task'")
                 self.sentry_sdk.capture_message(
-                    "Debug message: 😢 Body does not contain 'task'", level="info"
+                    "Debug message: 😢 Body does not contain 'task'", level="debug"
                 )
                 return "🚫 Access Denied", 403
         except json.JSONDecodeError:
             self.sentry_sdk.capture_message(
-                "Debug message: 😢 Body is not valid JSON", level="info"
+                "Debug message: 😢 Body is not valid JSON", level="debug"
             )
             print("😢 Body is not valid JSON")
             return "🚫 Access Denied", 403

@@ -87,16 +87,19 @@ class RemiderInactiveTasks:
         else:
             print("❌ Didn't get catalog")
             self.sentry_sdk.capture_message(
-                f"Debug message: ❌ Didn't get catalog {now}, {catalog}",
+                f"Debug message: ❌ Didn't get catalog in check_for_inactive_task, {now}, {catalog}",
                 extra={"catalog": catalog, "now": now},
                 level="debug",
             )
             return "❌ Didn't get catalog", 400
 
     def _update_tasks(self, task_id: str, remove: bool = False):
-        catalog = self.pyrus_api.get_request(
-            f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
-        )
+        try:
+            catalog = self.pyrus_api.get_request(
+                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
+            )
+        except Exception as e:
+            self.sentry_sdk.capture_message(e, extra={"error": e}, level="error")
         catalog_new = [
             {
                 "apply": "true",
@@ -131,7 +134,9 @@ class RemiderInactiveTasks:
             )
         else:
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Catalog is not found in _update_tasks", level="debug"
+                "Debug message: ❌ Catalog is not found in _update_tasks",
+                extra={"catalog": catalog},
+                level="debug",
             )
             print("❌ Catalog is not found")
 

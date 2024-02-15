@@ -7,7 +7,7 @@ from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 from bot.remider_inactive_tasks import RemiderInactiveTasks
-from logging.handlers import RotatingFileHandler
+from apscheduler.schedulers.background import BackgroundScheduler
 import sentry_sdk
 
 # Conf
@@ -62,6 +62,13 @@ else:
 config = {"DEBUG": False, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
 app.config.from_mapping(config)
 port = int(os.environ.get("PORT", 5000))
+
+# Initialize the scheduler
+scheduler = BackgroundScheduler()
+# Add a job to the scheduler
+scheduler.add_job(RemiderInactiveTasks.check_for_inactive_task, "interval", minutes=1)
+# Start the scheduler
+scheduler.start()
 
 # Initialize the cache
 cache = Cache(app)
@@ -131,5 +138,5 @@ def remider_inactive_tasks_page():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, use_reloader=False)
     print("✅ Server is ready")

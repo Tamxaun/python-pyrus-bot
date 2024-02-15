@@ -61,9 +61,7 @@ class RemiderInactiveTasks:
                 f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
             )
         except Exception as e:
-            self.sentry_sdk.capture_message(
-                e, extra={"error": e, "now": now}, level="error"
-            )
+            self.sentry_sdk.capture_message(e, level="error")
         if catalog and "items" in catalog:
             items = catalog["items"]
             for item in items:
@@ -88,7 +86,6 @@ class RemiderInactiveTasks:
             print("❌ Didn't get catalog")
             self.sentry_sdk.capture_message(
                 f"Debug message: ❌ Didn't get catalog in check_for_inactive_task, {now}, {catalog}",
-                extra={"catalog": catalog, "now": now},
                 level="debug",
             )
             return "❌ Didn't get catalog", 400
@@ -99,7 +96,7 @@ class RemiderInactiveTasks:
                 f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
             )
         except Exception as e:
-            self.sentry_sdk.capture_message(e, extra={"error": e}, level="error")
+            self.sentry_sdk.capture_message(e, level="error")
         catalog_new = [
             {
                 "apply": "true",
@@ -108,26 +105,33 @@ class RemiderInactiveTasks:
             }
         ]
 
-        if catalog and "items" in catalog:
-            items = catalog["items"]
+        if catalog:
+            # Check if catalog contains items
+            # If not - add new item
             # Loop for items
             # Find item by task_id and update timestamp
             # Or Remove item (not adding it to new catalog)
             # Or Add new item
             # POST request to update catalog with new catalog
-            for item in items:
-                if item["values"] and item["values"][0] == task_id:
-                    if not remove:
-                        print("🚚 Updating the task")
-                        item["values"][1] = datetime.datetime.now()
-                        catalog_new[0]["items"].append({item["values"]})
+            if "items" in catalog:
+                items = catalog["items"]
+                for item in items:
+                    if item["values"] and item["values"][0] == task_id:
+                        if not remove:
+                            print("🚚 Updating the task")
+                            item["values"][1] = datetime.datetime.now()
+                            catalog_new[0]["items"].append({item["values"]})
+                        else:
+                            print("🚚 Removing the task by not adding to new catalog")
                     else:
-                        print("🚚 Removing the task by not adding to new catalog")
-                else:
-                    print("🚚 Adding the task")
-                    catalog_new[0]["items"].append(
-                        {"values": [task_id, datetime.datetime.now()]}
-                    )
+                        print("🚚 Adding the task")
+                        catalog_new[0]["items"].append(
+                            {"values": [task_id, datetime.datetime.now()]}
+                        )
+            else:
+                catalog_new[0]["items"].append(
+                    {"values": [task_id, datetime.datetime.now()]}
+                )
             self.pyrus_api.post_request(
                 f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
                 json.dumps(catalog_new),
@@ -135,7 +139,6 @@ class RemiderInactiveTasks:
         else:
             self.sentry_sdk.capture_message(
                 "Debug message: ❌ Catalog is not found in _update_tasks",
-                extra={"catalog": catalog},
                 level="debug",
             )
             print("❌ Catalog is not found")

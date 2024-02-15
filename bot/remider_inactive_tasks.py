@@ -81,6 +81,9 @@ class RemiderInactiveTasks:
             return "✅ Tasks checked", 200
         else:
             print("❌ Didn't get catalog")
+            self.sentry_sdk.capture_message(
+                "Debug message: ❌ Didn't get catalog", level="info"
+            )
             return "❌ Didn't get catalog", 400
 
     def _update_tasks(self, task_id: str, remove: bool = False):
@@ -138,6 +141,9 @@ class RemiderInactiveTasks:
             return "✅ Signal received", 200
         else:
             print("❌ Didn't get task_id")
+            self.sentry_sdk.capture_message(
+                "Debug message: ❌ Didn't get task_id", level="info"
+            )
             return "🚫 Access Denied", 400
 
     def process_request(self):

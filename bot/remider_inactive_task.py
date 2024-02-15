@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import datetime
 
 
-class RemiderInactiveTask:
+class RemiderInactiveTasks:
     def __init__(
         self, cache, request: Request, pyrus_secret_key: str, pyrus_login: str
     ):

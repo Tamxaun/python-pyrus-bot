@@ -6,7 +6,7 @@ from flask_caching import Cache
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
-from bot.remider_inactive_task import RemiderInactiveTask
+from bot.remider_inactive_tasks import RemiderInactiveTasks
 from logging.handlers import RotatingFileHandler
 import sentry_sdk
 
@@ -119,15 +119,15 @@ def reminder_peyment_type_page():
     return reminder_peyment_type.process_request()
 
 
-@app.route("/remider-inactive-task", methods=["GET", "POST"])
-def remider_inactive_task_page():
-    remider_inactive_task = RemiderInactiveTask(
+@app.route("/remider-inactive-tasks", methods=["GET", "POST"])
+def remider_inactive_tasks_page():
+    remider_inactive_tasks = RemiderInactiveTasks(
         cache=cache,
         request=request,
         pyrus_secret_key=RIT_SECRET_KEY,
         pyrus_login=RIT_LOGIN,
     )
-    return remider_inactive_task.process_request()
+    return remider_inactive_tasks.process_request()
 
 
 if __name__ == "__main__":

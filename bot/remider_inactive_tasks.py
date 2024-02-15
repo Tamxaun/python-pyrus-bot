@@ -87,9 +87,9 @@ class RemiderInactiveTasks:
         else:
             print("❌ Didn't get catalog")
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Didn't get catalog",
+                f"Debug message: ❌ Didn't get catalog {now}, {catalog}",
                 extra={"catalog": catalog, "now": now},
-                level="error",
+                level="debug",
             )
             return "❌ Didn't get catalog", 400
 

@@ -8,6 +8,7 @@ from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 from bot.remider_inactive_tasks import RemiderInactiveTasks
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 import sentry_sdk
 
 # Conf
@@ -63,12 +64,6 @@ config = {"DEBUG": False, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 
 app.config.from_mapping(config)
 port = int(os.environ.get("PORT", 5000))
 
-# Initialize the scheduler
-scheduler = BackgroundScheduler()
-# Add a job to the scheduler
-scheduler.add_job(RemiderInactiveTasks.check_for_inactive_task, "interval", minutes=1)
-# Start the scheduler
-scheduler.start()
 
 # Initialize the cache
 cache = Cache(app)
@@ -138,5 +133,24 @@ def remider_inactive_tasks_page():
 
 
 if __name__ == "__main__":
+    remider_inactive_tasks = RemiderInactiveTasks(
+        cache=cache,
+        request=request,
+        pyrus_secret_key=RIT_SECRET_KEY,
+        pyrus_login=RIT_LOGIN,
+    )
+    # Initialize the scheduler
+    scheduler = BackgroundScheduler()
+    # Define the job function and its trigger
+    job = scheduler.add_job(
+        remider_inactive_tasks.check_for_inactive_task(),
+        IntervalTrigger(minutes=5),
+        id="check_inactive_tasks",
+        max_instances=1,
+        replace_existing=True,
+    )
+    # Start the scheduler
+    scheduler.start()
+
     app.run(host="0.0.0.0", port=port)
     print("✅ Server is ready")

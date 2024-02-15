@@ -9,7 +9,12 @@ import datetime
 
 class RemiderInactiveTasks:
     def __init__(
-        self, cache, request: Request, pyrus_secret_key: str, pyrus_login: str
+        self,
+        cache,
+        request: Request,
+        pyrus_secret_key: str,
+        pyrus_login: str,
+        sentry_sdk,
     ):
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
@@ -19,18 +24,28 @@ class RemiderInactiveTasks:
         self.cache = cache
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
         self.catalog_id = "211552"
+        self.sentry_sdk = sentry_sdk
 
     def _validate_request(self):
         # check if signature is set
         if self.signature is None:
+            self.sentry_sdk.capture_message(
+                "⛔ The request does not have the X-Pyrus-Sig.", level="info"
+            )
             print("⛔ The request does not have the X-Pyrus-Sig.")
             return False
         # check if secret is set
         if self.pyrus_secret_key is None or not self.pyrus_secret_key:
+            self.sentry_sdk.capture_message(
+                "Debug message: Secret is not set ❌", level="info"
+            )
             print("Secret is not set ❌")
             return False
         # check if body is set
         if self.body is None or not self.body:
+            self.sentry_sdk.capture_message(
+                "Debug message: Body is not set ❌", level="info"
+            )
             print("Body is not set ❌")
             return False
 
@@ -127,6 +142,9 @@ class RemiderInactiveTasks:
 
     def process_request(self):
         if not self._validate_request():
+            self.sentry_sdk.capture_message(
+                "Debug message: ❌ Signature is not correct", level="info"
+            )
             print("❌ Signature is not correct")
             return "🚫 Access Denied", 403
 
@@ -140,7 +158,13 @@ class RemiderInactiveTasks:
                 return self._prepare_response(task)
             else:
                 print("😢 Body does not contain 'task'")
+                self.sentry_sdk.capture_message(
+                    "Debug message: 😢 Body does not contain 'task'", level="info"
+                )
                 return "🚫 Access Denied", 403
         except json.JSONDecodeError:
+            self.sentry_sdk.capture_message(
+                "Debug message: 😢 Body is not valid JSON", level="info"
+            )
             print("😢 Body is not valid JSON")
             return "🚫 Access Denied", 403

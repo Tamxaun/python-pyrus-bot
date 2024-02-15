@@ -128,6 +128,7 @@ def remider_inactive_tasks_page():
         request=request,
         pyrus_secret_key=RIT_SECRET_KEY,
         pyrus_login=RIT_LOGIN,
+        sentry_sdk=sentry_sdk,
     )
     return remider_inactive_tasks.process_request()
 
@@ -138,6 +139,7 @@ if __name__ == "__main__":
         request=request,
         pyrus_secret_key=RIT_SECRET_KEY,
         pyrus_login=RIT_LOGIN,
+        sentry_sdk=sentry_sdk,
     )
     # Initialize the scheduler
     scheduler = BackgroundScheduler()

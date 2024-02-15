@@ -56,9 +56,14 @@ class RemiderInactiveTasks:
 
     def check_for_inactive_task(self):
         now = datetime.datetime.now()
-        catalog = self.pyrus_api.get_request(
-            f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
-        )
+        try:
+            catalog = self.pyrus_api.get_request(
+                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
+            )
+        except Exception as e:
+            self.sentry_sdk.capture_message(
+                e, extra={"error": e, "now": now}, level="error"
+            )
         if catalog and "items" in catalog:
             items = catalog["items"]
             for item in items:
@@ -83,8 +88,8 @@ class RemiderInactiveTasks:
             print("❌ Didn't get catalog")
             self.sentry_sdk.capture_message(
                 "Debug message: ❌ Didn't get catalog",
-                level="debug",
                 extra={"catalog": catalog, "now": now},
+                level="error",
             )
             return "❌ Didn't get catalog", 400
 

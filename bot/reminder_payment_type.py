@@ -40,9 +40,9 @@ class ReminderPaymentType:
     def _prepare_response(self, task: dict):
         print("⌛ Preparing response")
 
-        person = f"<a href='https://pyrus.com/t#pp486746'><mark data-color='yellow'>Татьяна Ивановна</mark></a>"
-        text = f"Для данного заказа требуется оформить:<ul><li>Приходный кассовый ордер<br></li><li>Оформить подотчет на Бусырев А.А.<br></li></ul>"
-        comment_text = f"{person}<br>{text}"
+        person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
+        text = f"Для данного заказа требуется оформить:<ul><li>Приходный кассовый ордер</li><li>Оформить подотчет на Бусырев А.А.</li></ul><br>После чего назначить статус '✅Нал (чек принят в 1С)' в поле 'Тип оплаты / Статус'"
+        comment_text = f"<mark data-color='yellow'>{person}</mark><br>{text}<br>"
         subscribers_added = [
             {
                 "id": 486746,

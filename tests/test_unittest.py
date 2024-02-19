@@ -49,8 +49,6 @@ class Test_bot_notify_date_shipment(unittest.TestCase):
                     and isinstance(field["value"]["fields"], dict)
                 )
 
-                print("field", field["name"])
-
                 if isNestedField:
                     print("isNestedField", isNestedField)
                     return find_fields(field["value"]["fields"], name)

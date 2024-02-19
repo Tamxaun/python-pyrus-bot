@@ -7,6 +7,7 @@ from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 from bot.remider_inactive_tasks import RemiderInactiveTasks
+from bot.notify_date_shipment import NotifyDateShipment
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 import sentry_sdk
@@ -45,6 +46,8 @@ RPT_LOGIN = os.getenv("RPT_LOGIN")
 RPT_SECRET_KEY = os.getenv("RPT_SECRET_KEY")
 RIT_LOGIN = os.getenv("RIT_LOGIN")
 RIT_SECRET_KEY = os.getenv("RIT_SECRET_KEY")
+NDS_LOGIN = os.getenv("NDS_LOGIN")
+NDS_SECRET_KEY = os.getenv("NDS_SECRET_KEY")
 
 if (
     RS_LOGIN is None
@@ -53,6 +56,8 @@ if (
     or RPT_SECRET_KEY is None
     or RIT_LOGIN is None
     or RIT_SECRET_KEY is None
+    or NDS_LOGIN is None
+    or NDS_SECRET_KEY is None
 ):
     print("❌ All required environment variables must be set")
     exit(1)  # Exit the application if any required environment variable is missing
@@ -131,6 +136,18 @@ def remider_inactive_tasks_page():
         sentry_sdk=sentry_sdk,
     )
     return remider_inactive_tasks.process_request()
+
+
+@app.route("/notify-date-shipment", methods=["GET", "POST"])
+def notify_date_shipment_page():
+    notify_date_shipment = NotifyDateShipment(
+        cache=cache,
+        request=request,
+        pyrus_secret_key=NDS_SECRET_KEY,
+        pyrus_login=NDS_LOGIN,
+        sentry_sdk=sentry_sdk,
+    )
+    return notify_date_shipment.process_request()
 
 
 if __name__ == "__main__":

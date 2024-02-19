@@ -145,7 +145,8 @@ class NotifyDateShipment:
 
         if date is None:
             self.sentry_sdk.capture_message(
-                "Debug message: 😢 Body does not contain 'Дата отгрузки'",
+                "Debug message: 😢 Body does not contain 'Дата отгрузки' {task}",
+                task=task,
             )
             print("😢 Body does not contain 'Дата отгрузки'")
             return "{}", 200

@@ -1,1 +1,1 @@
-# python-bot-reminders-payment
+# python-bot-pyrus

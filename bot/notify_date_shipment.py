@@ -145,7 +145,8 @@ class NotifyDateShipment:
 
         if date is None:
             self.sentry_sdk.capture_message(
-                f"Debug message: 😢 Body does not contain 'Дата отгрузки' {task}"
+                f"Debug message: 😢 Body does not contain 'Дата отгрузки' {task}",
+                level="error",
             )
             print("😢 Body does not contain 'Дата отгрузки'")
             return "{}", 200
@@ -185,9 +186,6 @@ class NotifyDateShipment:
 
         try:
             data = json.loads(self.body)
-            self.sentry_sdk.capture_message(
-                f"Debug message: 😢 Body does not contain 'Дата отгрузки' {data}"
-            )
             if "task" in data:
                 print("😉 Body contains 'task'")
                 task = data["task"]

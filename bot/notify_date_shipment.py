@@ -75,7 +75,7 @@ class NotifyDateShipment:
                 return field
             return None
 
-    def _notify(self, author: str, date: str, time: str):
+    def _notify(self, author: str, date: str, time: Union[str, None] = ""):
         formatted_text = f"{author}<br>Связаться с Клиентом и подтвердить дату {date}: {time} забора на сегодня!<br>В случае изменение даты, обязательно изменить поле 'Дата отгрузки' на актуальную дату, а так же сменить даты реализации и ордера в 1С."
         return formatted_text
 
@@ -145,16 +145,7 @@ class NotifyDateShipment:
 
         if date is None:
             print("😢 Body does not contain 'Дата отгрузки'")
-            self.sentry_sdk.capture_message(
-                "😢 Body does not contain 'Дата отгрузки'", level="debug"
-            )
-            return "{}", 400
-        if time is None:
-            print("😢 Body does not contain 'Время отгрузки'")
-            self.sentry_sdk.capture_message(
-                "😢 Body does not contain 'Время отгрузки'", level="debug"
-            )
-            return "{}", 400
+            return "{}", 200
 
         date_now = datetime.now().date()
         date_in_task = datetime.strptime(str(date), "%Y-%m-%d")

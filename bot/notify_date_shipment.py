@@ -144,6 +144,9 @@ class NotifyDateShipment:
         time = field_time["value"] if field_time is not None else None
 
         if date is None:
+            self.sentry_sdk.capture_message(
+                "Debug message: 😢 Body does not contain 'Дата отгрузки'",
+            )
             print("😢 Body does not contain 'Дата отгрузки'")
             return "{}", 200
 
@@ -152,12 +155,18 @@ class NotifyDateShipment:
         is_today = date_now == date_in_task
 
         if is_today:
+            self.sentry_sdk.capture_message(
+                "Debug message: 😢 is_today",
+            )
             formatted_text = self._notify(author=author, date=date, time=time)
             return (
                 '{{ "formatted_text":"{}" }}'.format(formatted_text),
                 200,
             )
         else:
+            self.sentry_sdk.capture_message(
+                "Debug message: 😢 is not today",
+            )
             self._update_catalog(
                 task_id=task["id"],
                 task_date=date.strftime("%Y-%m-%d"),

@@ -31,21 +31,21 @@ class NotifyDateShipment:
         # check if signature is set
         if self.signature is None:
             self.sentry_sdk.capture_message(
-                "⛔ The request does not have the X-Pyrus-Sig.", level="debug"
+                "⛔ The request does not have the X-Pyrus-Sig.", level="error"
             )
             print("⛔ The request does not have the X-Pyrus-Sig.")
             return False
         # check if secret is set
         if self.pyrus_secret_key is None or not self.pyrus_secret_key:
             self.sentry_sdk.capture_message(
-                "Debug message: Secret is not set ❌", level="debug"
+                "Debug message: Secret is not set ❌", level="error"
             )
             print("Secret is not set ❌")
             return False
         # check if body is set
         if self.body is None or not self.body:
             self.sentry_sdk.capture_message(
-                "Debug message: Body is not set ❌", level="debug"
+                "Debug message: Body is not set ❌", level="error"
             )
             print("Body is not set ❌")
             return False
@@ -126,7 +126,7 @@ class NotifyDateShipment:
         else:
             self.sentry_sdk.capture_message(
                 "Debug message: ❌ Catalog is not found in _update_catalog",
-                level="debug",
+                level="error",
             )
             print("❌ Catalog is not found")
 
@@ -145,8 +145,7 @@ class NotifyDateShipment:
 
         if date is None:
             self.sentry_sdk.capture_message(
-                "Debug message: 😢 Body does not contain 'Дата отгрузки' {task}",
-                task=task,
+                f"Debug message: 😢 Body does not contain 'Дата отгрузки' {task}"
             )
             print("😢 Body does not contain 'Дата отгрузки'")
             return "{}", 200
@@ -177,7 +176,7 @@ class NotifyDateShipment:
     def process_request(self):
         if not self._validate_request():
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Signature is not correct", level="debug"
+                "Debug message: ❌ Signature is not correct", level="error"
             )
             print("❌ Signature is not correct")
             return "🚫 Access Denied", 403
@@ -186,6 +185,9 @@ class NotifyDateShipment:
 
         try:
             data = json.loads(self.body)
+            self.sentry_sdk.capture_message(
+                f"Debug message: 😢 Body does not contain 'Дата отгрузки' {data}"
+            )
             if "task" in data:
                 print("😉 Body contains 'task'")
                 task = data["task"]
@@ -193,12 +195,12 @@ class NotifyDateShipment:
             else:
                 print("😢 Body does not contain 'task'")
                 self.sentry_sdk.capture_message(
-                    "Debug message: 😢 Body does not contain 'task'", level="debug"
+                    "Debug message: 😢 Body does not contain 'task'", level="error"
                 )
                 return "🚫 Access Denied", 403
         except json.JSONDecodeError:
             self.sentry_sdk.capture_message(
-                "Debug message: 😢 Body is not valid JSON", level="debug"
+                "Debug message: 😢 Body is not valid JSON", level="error"
             )
             print("😢 Body is not valid JSON")
             return "🚫 Access Denied", 403

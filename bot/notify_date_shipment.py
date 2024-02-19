@@ -55,7 +55,9 @@ class NotifyDateShipment:
         digest = hmac.new(secret, msg=self.body, digestmod=hashlib.sha1).hexdigest()
         return hmac.compare_digest(digest, self.signature.lower())
 
-    def _find_fields(self, fields: dict, name: str) -> Union[dict, None]:
+    def _find_fields(
+        self, fields: dict, name: str, type_field: str = "text"
+    ) -> Union[dict, None]:
         for field in fields:
             isNestedField = (
                 "value" in field
@@ -63,7 +65,7 @@ class NotifyDateShipment:
                 and isinstance(field["value"]["fields"], dict)
             )
             if isNestedField:
-                return self._find_fields(field["value"]["fields"], name)
+                return self._find_fields(field["value"]["fields"], name, type_field)
             if (
                 "type" in field
                 and field["type"] == "text"
@@ -132,8 +134,12 @@ class NotifyDateShipment:
         # data formate: Формат даты: "YYYY-MM-DD", "value": "2017-03-16"
         # time formate: Формат времени: "HH:mm", "value": "17:26"
         author = f"<a href='https://pyrus.com/t#{task['author']['id']}'>{task['author']['first_name']} {task['author']['last_name']}</a>"
-        field_date = self._find_fields(fields=task["fields"], name="Дата отгрузки")
-        field_time = self._find_fields(fields=task["fields"], name="Время отгрузки")
+        field_date = self._find_fields(
+            fields=task["fields"], name="Дата отгрузки", type_field="date"
+        )
+        field_time = self._find_fields(
+            fields=task["fields"], name="Время отгрузки", type_field="date"
+        )
         date = field_date["value"] if field_date is not None else None
         time = field_time["value"] if field_time is not None else None
 

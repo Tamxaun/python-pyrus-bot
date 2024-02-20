@@ -131,18 +131,29 @@ class NotifyDateShipment:
             print("❌ Catalog is not found")
 
     def _prepare_response(self, task: dict):
-        self.sentry_sdk.capture_exception(Exception(task))
         # data formate: Формат даты: "YYYY-MM-DD", "value": "2017-03-16"
         # time formate: Формат времени: "HH:mm", "value": "17:26"
         author = f"<a href='https://pyrus.com/t#{task['author']['id']}'>{task['author']['first_name']} {task['author']['last_name']}</a>"
-        # whole_task = self.pyrus_api.get_request(
-        #     f"https://api.pyrus.com/v4/tasks/{task['id']}"
-        # )
+
+        try:
+            whole_task = self.pyrus_api.get_request(
+                f"https://api.pyrus.com/v4/tasks/{task['id']}"
+            )
+        except Exception as e:
+            self.sentry_sdk.capture_message(e, level="debug")
+
+        if whole_task is None:
+            print("😢 whole_task is None")
+            self.sentry_sdk.capture_message(
+                "Debug message: 😢 whole_task is None",
+            )
+            return "{}", 200
+
         field_date = self._find_fields(
-            fields=task["task"]["fields"], name="Дата отгрузки", type_field="date"
+            fields=whole_task["task"]["fields"], name="Дата отгрузки", type_field="date"
         )
         field_time = self._find_fields(
-            fields=task["task"]["fields"],
+            fields=whole_task["task"]["fields"],
             name="Время отгрузки",
             type_field="date",
         )

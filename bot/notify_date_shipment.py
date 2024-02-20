@@ -149,11 +149,15 @@ class NotifyDateShipment:
             )
             return "{}", 200
 
+        fields = whole_task["task"]["fields"]
+
+        self.sentry_sdk.capture_message(whole_task["task"]["fields"], level="debug")
+
         field_date = self._find_fields(
-            fields=whole_task["task"]["fields"], name="Дата отгрузки", type_field="date"
+            fields=fields, name="Дата отгрузки", type_field="date"
         )
         field_time = self._find_fields(
-            fields=whole_task["task"]["fields"],
+            fields=fields,
             name="Время отгрузки",
             type_field="date",
         )

@@ -151,9 +151,6 @@ class NotifyDateShipment:
 
         fields = whole_task["task"]["fields"]
 
-        self.sentry_sdk.capture_message("whole_task", level="debug")
-        self.sentry_sdk.capture_exception(whole_task["task"]["fields"])
-
         field_date = self._find_fields(
             fields=fields, name="Дата отгрузки", type_field="date"
         )

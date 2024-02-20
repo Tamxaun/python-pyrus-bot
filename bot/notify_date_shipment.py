@@ -31,21 +31,21 @@ class NotifyDateShipment:
         # check if signature is set
         if self.signature is None:
             self.sentry_sdk.capture_message(
-                "⛔ The request does not have the X-Pyrus-Sig.", level="error"
+                "⛔ The request does not have the X-Pyrus-Sig.", level="debug"
             )
             print("⛔ The request does not have the X-Pyrus-Sig.")
             return False
         # check if secret is set
         if self.pyrus_secret_key is None or not self.pyrus_secret_key:
             self.sentry_sdk.capture_message(
-                "Debug message: Secret is not set ❌", level="error"
+                "Debug message: Secret is not set ❌", level="debug"
             )
             print("Secret is not set ❌")
             return False
         # check if body is set
         if self.body is None or not self.body:
             self.sentry_sdk.capture_message(
-                "Debug message: Body is not set ❌", level="error"
+                "Debug message: Body is not set ❌", level="debug"
             )
             print("Body is not set ❌")
             return False
@@ -85,7 +85,7 @@ class NotifyDateShipment:
                 f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
             )
         except Exception as e:
-            self.sentry_sdk.capture_message(e, level="error")
+            self.sentry_sdk.capture_message(e, level="debug")
 
         catalog_new = [
             {
@@ -126,27 +126,33 @@ class NotifyDateShipment:
         else:
             self.sentry_sdk.capture_message(
                 "Debug message: ❌ Catalog is not found in _update_catalog",
-                level="error",
+                level="debug",
             )
             print("❌ Catalog is not found")
 
     def _prepare_response(self, task: dict):
+        self.sentry_sdk.capture_exception(Exception(task))
         # data formate: Формат даты: "YYYY-MM-DD", "value": "2017-03-16"
         # time formate: Формат времени: "HH:mm", "value": "17:26"
         author = f"<a href='https://pyrus.com/t#{task['author']['id']}'>{task['author']['first_name']} {task['author']['last_name']}</a>"
+        # whole_task = self.pyrus_api.get_request(
+        #     f"https://api.pyrus.com/v4/tasks/{task['id']}"
+        # )
         field_date = self._find_fields(
-            fields=task["fields"], name="Дата отгрузки", type_field="date"
+            fields=task["task"]["fields"], name="Дата отгрузки", type_field="date"
         )
         field_time = self._find_fields(
-            fields=task["fields"], name="Время отгрузки", type_field="date"
+            fields=task["task"]["fields"],
+            name="Время отгрузки",
+            type_field="date",
         )
         date = field_date["value"] if field_date is not None else None
         time = field_time["value"] if field_time is not None else None
 
         if date is None:
             self.sentry_sdk.capture_message(
-                f"Debug message: 😢 Body does not contain 'Дата отгрузки' {task}",
-                level="error",
+                f"Debug message: 😢 Body does not contain 'Дата отгрузки'",
+                level="debug",
             )
             print("😢 Body does not contain 'Дата отгрузки'")
             return "{}", 200
@@ -177,7 +183,7 @@ class NotifyDateShipment:
     def process_request(self):
         if not self._validate_request():
             self.sentry_sdk.capture_message(
-                "Debug message: ❌ Signature is not correct", level="error"
+                "Debug message: ❌ Signature is not correct", level="debug"
             )
             print("❌ Signature is not correct")
             return "🚫 Access Denied", 403
@@ -193,12 +199,12 @@ class NotifyDateShipment:
             else:
                 print("😢 Body does not contain 'task'")
                 self.sentry_sdk.capture_message(
-                    "Debug message: 😢 Body does not contain 'task'", level="error"
+                    "Debug message: 😢 Body does not contain 'task'", level="debug"
                 )
                 return "🚫 Access Denied", 403
         except json.JSONDecodeError:
             self.sentry_sdk.capture_message(
-                "Debug message: 😢 Body is not valid JSON", level="error"
+                "Debug message: 😢 Body is not valid JSON", level="debug"
             )
             print("😢 Body is not valid JSON")
             return "🚫 Access Denied", 403

@@ -24,13 +24,13 @@ class PyrusAPI:
                 },
             )
             r.raise_for_status()  # This line raises an HTTPError if the HTTP request returned an unsuccessful status code
-            auth_data: str = json.loads(r.text)
+            auth_data: dict = json.loads(r.text)
         except requests.exceptions.RequestException as e:
             # Handle any request exceptions
             print(f"❌ API AUTH: Failed to get authentication token from Pyrus: {e}")
             raise Exception(e)
 
-        token = json.loads(auth_data)["access_token"]
+        token: str = auth_data["access_token"]
         print(f"✅ API AUTH: Success to get authentication token from Pyrus")
 
         return token

@@ -12,7 +12,23 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 import sentry_sdk
 
-# Conf
+# import locale
+
+# Initialize the Flask app
+app = Flask(__name__)
+
+# Check if the app is running in debug mode
+if app.debug:
+    print("Flask app is running in debug mode")
+    os.environ["APP_ENV"] = "development"
+    load_dotenv()
+else:
+    os.environ["APP_ENV"] = "production"
+
+# Set the locale
+# locale.setlocale(locale.LC_TIME)
+
+# Initialize Sentry
 sentry_sdk.init(
     dsn="https://4cc58ab824b087258eac2255dbfd9e99@o1295012.ingest.sentry.io/4506705877860352",
     # Set traces_sample_rate to 1.0 to capture 100%
@@ -23,18 +39,6 @@ sentry_sdk.init(
     # We recommend adjusting this value in production.
     profiles_sample_rate=1.0,
 )
-
-# Initialize the Flask app
-app = Flask(__name__)
-
-
-# Check if the app is running in debug mode
-if app.debug:
-    print("Flask app is running in debug mode")
-    os.environ["APP_ENV"] = "development"
-    load_dotenv()
-else:
-    os.environ["APP_ENV"] = "production"
 
 # Load environment variables
 LOGIN = os.getenv("LOGIN")
@@ -151,20 +155,20 @@ def notify_date_shipment_page():
 
 
 if __name__ == "__main__":
-    remider_inactive_tasks = RemiderInactiveTasks(
+    notify_date_shipment = NotifyDateShipment(
         cache=cache,
         request=request,
-        pyrus_secret_key=RIT_SECRET_KEY,
-        pyrus_login=RIT_LOGIN,
+        pyrus_secret_key=NDS_SECRET_KEY,
+        pyrus_login=NDS_LOGIN,
         sentry_sdk=sentry_sdk,
     )
     # Initialize the scheduler
     scheduler = BackgroundScheduler()
     # Define the job function and its trigger
     job = scheduler.add_job(
-        remider_inactive_tasks.check_for_inactive_task(),
-        IntervalTrigger(minutes=5),
-        id="check_inactive_tasks",
+        notify_date_shipment.notify,
+        trigger=IntervalTrigger(minutes=10),
+        id="notify_date_shipment",
         max_instances=1,
         replace_existing=True,
     )

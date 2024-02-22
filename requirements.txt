@@ -4,4 +4,4 @@ requests
 flask_caching
 load_dotenv
 sentry-sdk[flask]
-apscheduler
+Flask-APScheduler

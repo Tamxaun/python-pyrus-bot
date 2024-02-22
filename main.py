@@ -3,16 +3,14 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask import request
 from flask_caching import Cache
+from flask_apscheduler import APScheduler
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 from bot.remider_inactive_tasks import RemiderInactiveTasks
 from bot.notify_date_shipment import NotifyDateShipment
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import IntervalTrigger
 import sentry_sdk
 
-# import locale
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -154,7 +152,18 @@ def notify_date_shipment_page():
     return notify_date_shipment.process_request()
 
 
-if __name__ == "__main__":
+# initialize scheduler
+scheduler = APScheduler()
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
+
+
+@scheduler.task(
+    "interval", id="notify_date_shipment_job", minutes=1, misfire_grace_time=900
+)
+def notify_date_shipment_job():
+    sentry_sdk.capture_message("⚒️ Job 'notify_date_shipment' started", level="debug")
     notify_date_shipment = NotifyDateShipment(
         cache=cache,
         request=request,
@@ -162,18 +171,9 @@ if __name__ == "__main__":
         pyrus_login=NDS_LOGIN,
         sentry_sdk=sentry_sdk,
     )
-    # Initialize the scheduler
-    scheduler = BackgroundScheduler()
-    # Define the job function and its trigger
-    job = scheduler.add_job(
-        notify_date_shipment.notify,
-        trigger=IntervalTrigger(minutes=10),
-        id="notify_date_shipment",
-        max_instances=1,
-        replace_existing=True,
-    )
-    # Start the scheduler
-    scheduler.start()
+    notify_date_shipment.notify()
 
-    app.run(host="0.0.0.0", port=port)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=port, use_reloader=False)
     print("✅ Server is ready")

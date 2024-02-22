@@ -221,7 +221,7 @@ class NotifyDateShipment:
             )
             formatted_text = self._create_message(author=author, date=date, time=time)
             return (
-                '{{ "formatted_text":"{}" }}'.format(formatted_text),
+                '{{ "formatted_text":"{}" }}'.format(json.dumps({formatted_text})),
                 200,
             )
         elif is_passed:

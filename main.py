@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask import request
 from flask_caching import Cache
-from flask_apscheduler import APScheduler
+
+# from flask_apscheduler import APScheduler
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
@@ -152,24 +153,24 @@ def notify_date_shipment_page():
 
 
 # initialize scheduler
-scheduler = APScheduler()
-scheduler.api_enabled = True
-scheduler.init_app(app)
-scheduler.start()
+# scheduler = APScheduler()
+# scheduler.api_enabled = True
+# scheduler.init_app(app)
+# scheduler.start()
 
 
-@scheduler.task(
-    "interval", id="notify_date_shipment_job", minutes=1, misfire_grace_time=900
-)
-def notify_date_shipment_job():
-    sentry_sdk.capture_message("⚒️ Job 'notify_date_shipment' started", level="debug")
-    notify_date_shipment = NotifyDateShipment(
-        cache=cache,
-        pyrus_secret_key=NDS_SECRET_KEY,
-        pyrus_login=NDS_LOGIN,
-        sentry_sdk=sentry_sdk,
-    )
-    notify_date_shipment.notify()
+# @scheduler.task(
+#     "interval", id="notify_date_shipment_job", minutes=1, misfire_grace_time=900
+# )
+# def notify_date_shipment_job():
+#     sentry_sdk.capture_message("⚒️ Job 'notify_date_shipment' started", level="debug")
+#     notify_date_shipment = NotifyDateShipment(
+#         cache=cache,
+#         pyrus_secret_key=NDS_SECRET_KEY,
+#         pyrus_login=NDS_LOGIN,
+#         sentry_sdk=sentry_sdk,
+#     )
+#     notify_date_shipment.notify()
 
 
 if __name__ == "__main__":

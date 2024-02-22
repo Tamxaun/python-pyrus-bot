@@ -11,24 +11,20 @@ class NotifyDateShipment:
     def __init__(
         self,
         cache,
-        request: Request,
         pyrus_secret_key: str,
         pyrus_login: str,
         sentry_sdk,
     ):
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
-        self.request = request
-        self.body = self.request.data
-        self.signature = self.request.headers.get("X-Pyrus-Sig")
         self.cache = cache
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
         self.catalog_id = "211864"
         self.sentry_sdk = sentry_sdk
 
-    def _validate_request(self):
+    def _validate_request(self, signature, body):
         # check if signature is set
-        if self.signature is None:
+        if signature is None:
             self.sentry_sdk.capture_message(
                 "⛔ The request does not have the X-Pyrus-Sig.", level="debug"
             )
@@ -42,7 +38,7 @@ class NotifyDateShipment:
             print("Secret is not set ❌")
             return False
         # check if body is set
-        if self.body is None or not self.body:
+        if body is None or not body:
             self.sentry_sdk.capture_message(
                 "Debug message: Body is not set ❌", level="debug"
             )
@@ -51,8 +47,8 @@ class NotifyDateShipment:
 
         # chech signature
         secret = str.encode(self.pyrus_secret_key)
-        digest = hmac.new(secret, msg=self.body, digestmod=hashlib.sha1).hexdigest()
-        return hmac.compare_digest(digest, self.signature.lower())
+        digest = hmac.new(secret, msg=body, digestmod=hashlib.sha1).hexdigest()
+        return hmac.compare_digest(digest, signature.lower())
 
     def _find_fields(
         self, fields: dict, name: str, type_field: str = "text"
@@ -240,8 +236,10 @@ class NotifyDateShipment:
             )
             return "{}", 200
 
-    def process_request(self):
-        if not self._validate_request():
+    def process_request(self, request: Request):
+        signature = request.headers.get("X-Pyrus-Sig")
+        body = request.data
+        if not self._validate_request(signature=signature, body=body):
             self.sentry_sdk.capture_message(
                 "Debug message: ❌ Signature is not correct", level="debug"
             )
@@ -251,7 +249,7 @@ class NotifyDateShipment:
         print("✅ Signature_correct")
 
         try:
-            data = json.loads(self.body)
+            data = json.loads(body)
             if "task" in data:
                 print("😉 Body contains 'task'")
                 task = data["task"]

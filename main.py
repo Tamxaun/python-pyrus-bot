@@ -144,12 +144,11 @@ def remider_inactive_tasks_page():
 def notify_date_shipment_page():
     notify_date_shipment = NotifyDateShipment(
         cache=cache,
-        request=request,
         pyrus_secret_key=NDS_SECRET_KEY,
         pyrus_login=NDS_LOGIN,
         sentry_sdk=sentry_sdk,
     )
-    return notify_date_shipment.process_request()
+    return notify_date_shipment.process_request(request)
 
 
 # initialize scheduler
@@ -166,7 +165,6 @@ def notify_date_shipment_job():
     sentry_sdk.capture_message("⚒️ Job 'notify_date_shipment' started", level="debug")
     notify_date_shipment = NotifyDateShipment(
         cache=cache,
-        request=request,
         pyrus_secret_key=NDS_SECRET_KEY,
         pyrus_login=NDS_LOGIN,
         sentry_sdk=sentry_sdk,

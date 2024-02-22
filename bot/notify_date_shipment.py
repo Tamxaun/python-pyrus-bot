@@ -119,6 +119,7 @@ class NotifyDateShipment:
                             "✅ Notify: Notification is sent. This item will be deleted"
                         )
                     if timestamp.date() > date_now:
+                        print("✅ Notify: This item will be added to new catalog")
                         catalog_new["items"].append(
                             {"values": [item_id, item_timestamp]}
                         )
@@ -126,7 +127,7 @@ class NotifyDateShipment:
                         print("⚒️ Notify: This item will be deleted")
                 self.pyrus_api.post_request(
                     f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
-                    json.dumps(catalog_new),
+                    data=catalog_new,
                 )
                 print("✅ Notify: All items are checked")
             else:
@@ -170,7 +171,7 @@ class NotifyDateShipment:
 
                 self.pyrus_api.post_request(
                     f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
-                    json.dumps(catalog_new),
+                    catalog_new,
                 )
 
         else:

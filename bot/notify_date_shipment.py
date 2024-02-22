@@ -3,7 +3,6 @@ import hmac
 import hashlib
 from flask import Request
 from pyrus_api_handler import PyrusAPI
-from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from typing import Union
 

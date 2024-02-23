@@ -187,7 +187,11 @@ class NotifyDateShipment:
         )
 
         fields = whole_task["task"]["fields"]
+        fields_updated_in_task = task["comments"][0]["field_updates"]
 
+        updated_field_date_in_task = self._find_fields(
+            fields=fields_updated_in_task, name="Дата отгрузки", type_field="date"
+        )
         field_date = self._find_fields(
             fields=fields, name="Дата отгрузки", type_field="date"
         )
@@ -197,10 +201,15 @@ class NotifyDateShipment:
             type_field="date",
         )
 
-        date = field_date["value"] if field_date is not None else None
-        time: str = field_time["value"] if field_time is not None else ""
+        value_date = field_date["value"] if field_date is not None else None
+        updated_value_date = (
+            updated_field_date_in_task["value"]
+            if updated_field_date_in_task is not None
+            else None
+        )
+        value_time: str = field_time["value"] if field_time is not None else ""
 
-        if date is None:
+        if value_date is None:
             self.sentry_sdk.capture_message(
                 f"Debug message: 😢 Body does not contain 'Дата отгрузки'",
                 level="debug",
@@ -209,15 +218,18 @@ class NotifyDateShipment:
             return "{}", 200
 
         date_now = datetime.now().date()
-        date_in_task = datetime.strptime(str(date), "%Y-%m-%d")
+        updated_date_in_task = datetime.strptime(str(updated_value_date), "%Y-%m-%d")
+        date_in_task = datetime.strptime(str(value_date), "%Y-%m-%d")
         is_today = date_now == date_in_task.date()
         is_passed = date_now > date_in_task.date()
 
-        if is_today:
+        if updated_date_in_task and is_today == updated_date_in_task.date():
             print(
                 "Debug message: 📅 This shipment date is today, Sending a message... A notification wouldn't be created."
             )
-            formatted_text = self._create_message(author=author, date=date, time=time)
+            formatted_text = self._create_message(
+                author=author, date=value_date, time=value_time
+            )
             return (
                 '{{ "formatted_text":"{}" }}'.format(formatted_text),
                 200,

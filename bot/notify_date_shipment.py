@@ -4,7 +4,7 @@ import hashlib
 from flask import Request
 from pyrus_api_handler import PyrusAPI
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 
 
 class NotifyDateShipment:
@@ -201,8 +201,10 @@ class NotifyDateShipment:
             type_field="date",
         )
 
-        value_date = field_date["value"] if field_date is not None else None
-        updated_value_date = (
+        value_date: Union[str, None] = (
+            field_date["value"] if field_date is not None else None
+        )
+        updated_value_date: Union[str, None] = (
             updated_field_date_in_task["value"]
             if updated_field_date_in_task is not None
             else None
@@ -221,7 +223,11 @@ class NotifyDateShipment:
         updated_date_in_task = datetime.strptime(str(updated_value_date), "%Y-%m-%d")
         date_in_task = datetime.strptime(str(value_date), "%Y-%m-%d")
         is_today = date_now == date_in_task.date()
-        is_passed = date_now > date_in_task.date()
+        is_passed = (
+            updated_date_in_task
+            and date_now > updated_date_in_task
+            or date_now > date_in_task.date()
+        )
 
         if updated_date_in_task and is_today == updated_date_in_task.date():
             print(
@@ -243,7 +249,7 @@ class NotifyDateShipment:
             )
             self._update_catalog(
                 task_id=task["id"],
-                task_date=date,
+                task_date=value_date,
             )
             return "{}", 200
 

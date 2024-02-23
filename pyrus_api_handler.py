@@ -1,6 +1,6 @@
 import json
 import requests
-from typing import Optional
+from typing import Dict, Any
 
 
 class PyrusAPI:
@@ -74,7 +74,7 @@ class PyrusAPI:
             print(f"⚠️ API GET: An error occurred: {e}")
             raise Exception(e)
 
-    def post_request(self, url, data) -> dict:
+    def post_request(self, url, data: Dict[str, Any]) -> dict:
         print("⌛ API POST: Making request...")
 
         if self.token is None:

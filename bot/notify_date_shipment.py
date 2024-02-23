@@ -187,11 +187,24 @@ class NotifyDateShipment:
         )
 
         fields = whole_task["task"]["fields"]
-        fields_updated_in_task = task["comments"][0]["field_updates"]
 
-        updated_field_date_in_task = self._find_fields(
-            fields=fields_updated_in_task, name="Дата отгрузки", type_field="date"
-        )
+        #  Find updated date in task in task
+        if "comments" in task and "field_updates" in task["comments"][0]:
+            fields_updated_in_task = task["comments"][0]["field_updates"]
+            updated_field_date_in_task = self._find_fields(
+                fields=fields_updated_in_task, name="Дата отгрузки", type_field="date"
+            )
+            updated_value_date: Union[str, None] = (
+                updated_field_date_in_task["value"]
+                if updated_field_date_in_task is not None
+                else None
+            )
+            updated_date_in_task = datetime.strptime(
+                str(updated_value_date), "%Y-%m-%d"
+            )
+        else:
+            updated_date_in_task = None
+
         field_date = self._find_fields(
             fields=fields, name="Дата отгрузки", type_field="date"
         )
@@ -204,11 +217,6 @@ class NotifyDateShipment:
         value_date: Union[str, None] = (
             field_date["value"] if field_date is not None else None
         )
-        updated_value_date: Union[str, None] = (
-            updated_field_date_in_task["value"]
-            if updated_field_date_in_task is not None
-            else None
-        )
         value_time: str = field_time["value"] if field_time is not None else ""
 
         if value_date is None:
@@ -220,12 +228,11 @@ class NotifyDateShipment:
             return "{}", 200
 
         date_now = datetime.now().date()
-        updated_date_in_task = datetime.strptime(str(updated_value_date), "%Y-%m-%d")
         date_in_task = datetime.strptime(str(value_date), "%Y-%m-%d")
         is_today = date_now == date_in_task.date()
         is_passed = (
             updated_date_in_task
-            and date_now > updated_date_in_task
+            and date_now > updated_date_in_task.date()
             or date_now > date_in_task.date()
         )
 

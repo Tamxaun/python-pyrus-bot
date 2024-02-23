@@ -70,7 +70,7 @@ class NotifyDateShipment:
                 return field
         return None
 
-    def _create_message(self, author: str, date: str, time: Union[str, None] = ""):
+    def _create_message(self, author: str, date: str, time: str = ""):
         date_obj = datetime.strptime(str(date), "%Y-%m-%d")
         formatted_date = date_obj.strftime("%A, %B %d, %Y")
         formated_time = f", {time}" if time != "" else ""
@@ -198,7 +198,7 @@ class NotifyDateShipment:
         )
 
         date = field_date["value"] if field_date is not None else None
-        time = field_time["value"] if field_time is not None else None
+        time: str = field_time["value"] if field_time is not None else ""
 
         if date is None:
             self.sentry_sdk.capture_message(

@@ -234,7 +234,7 @@ class NotifyDateShipment:
         is_today = (
             updated_date_in_task
             and date_now == updated_date_in_task
-            or date_now == date_in_task
+            # or date_now == date_in_task # reapeting every comment
         )
         is_passed = (
             updated_date_in_task

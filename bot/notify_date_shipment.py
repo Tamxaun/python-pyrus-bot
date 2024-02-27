@@ -231,18 +231,18 @@ class NotifyDateShipment:
 
         date_now = datetime.now().date()
         date_in_task = datetime.strptime(str(value_date), "%Y-%m-%d").date()
-        is_today = (
-            updated_date_in_task
-            and date_now == updated_date_in_task
-            # or date_now == date_in_task # reapeting every comment
+        is_today = date_now == date_in_task
+        is_today_and_updated_now = (
+            updated_date_in_task and date_now == updated_date_in_task
         )
+
         is_passed = (
             updated_date_in_task
             and date_now > updated_date_in_task
             or date_now > date_in_task
         )
 
-        if is_today:
+        if is_today_and_updated_now:
             print(
                 "Debug message: 📅 This shipment date is today, Sending a message... A notification wouldn't be created."
             )
@@ -253,6 +253,11 @@ class NotifyDateShipment:
                 '{{ "formatted_text":"{}" }}'.format(formatted_text),
                 200,
             )
+        elif is_today:
+            print(
+                "Debug message: 📅 This shipment date is today, Message should be sent previously... A notification wouldn't be created."
+            )
+            return {}, 200
         elif is_passed:
             print("Debug message: 📅 This shipment date is passed")
             return "{}", 200

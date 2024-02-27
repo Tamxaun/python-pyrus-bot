@@ -195,12 +195,14 @@ class NotifyDateShipment:
                 fields=fields_updated_in_task, name="Дата отгрузки", type_field="date"
             )
             updated_value_date: Union[str, None] = (
-                updated_field_date_in_task["value"]
+                str(updated_field_date_in_task["value"])
                 if updated_field_date_in_task is not None
                 else None
             )
-            updated_date_in_task = datetime.strptime(
-                str(updated_value_date), "%Y-%m-%d"
+            updated_date_in_task = (
+                datetime.strptime(updated_value_date, "%Y-%m-%d").date()
+                if updated_value_date is not None
+                else None
             )
         else:
             updated_date_in_task = None
@@ -228,15 +230,19 @@ class NotifyDateShipment:
             return "{}", 200
 
         date_now = datetime.now().date()
-        date_in_task = datetime.strptime(str(value_date), "%Y-%m-%d")
-        is_today = date_now == date_in_task.date()
+        date_in_task = datetime.strptime(str(value_date), "%Y-%m-%d").date()
+        is_today = (
+            updated_date_in_task
+            and date_now == updated_date_in_task
+            or date_now == date_in_task
+        )
         is_passed = (
             updated_date_in_task
-            and date_now > updated_date_in_task.date()
-            or date_now > date_in_task.date()
+            and date_now > updated_date_in_task
+            or date_now > date_in_task
         )
 
-        if updated_date_in_task and is_today == updated_date_in_task.date():
+        if is_today:
             print(
                 "Debug message: 📅 This shipment date is today, Sending a message... A notification wouldn't be created."
             )

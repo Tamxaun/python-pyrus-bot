@@ -5,6 +5,9 @@ from flask import Request
 from pyrus_api_handler import PyrusAPI
 from datetime import datetime
 from typing import Union
+import locale
+
+locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
 
 class NotifyDateShipment:

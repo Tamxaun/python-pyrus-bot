@@ -4,7 +4,7 @@ import hashlib
 from flask import Request
 from pyrus_api_handler import PyrusAPI
 from datetime import datetime
-from typing import Union, Optional
+from typing import Union
 
 
 class NotifyDateShipment:
@@ -70,12 +70,13 @@ class NotifyDateShipment:
                 return field
         return None
 
-    def _create_message(self, author: str, date: str, time: str = ""):
+    def _create_message(self, author: dict, date: str, time: str = ""):
+        author_link_name = f"<a href='https://pyrus.com/t#{author['id']}'>{author['first_name']} {author['last_name']}</a>"
         date_obj = datetime.strptime(str(date), "%Y-%m-%d")
         formatted_date = date_obj.strftime("%A, %B %d, %Y")
         formated_time = f", {time}" if time != "" else ""
         formatted_text = "{}<br>Связаться с Клиентом и подтвердить дату {}{} забора на сегодня!<br>В случае изменение даты, обязательно изменить поле 'Дата отгрузки' на актуальную дату, а так же сменить даты реализации и ордера в 1С.".format(
-            author, formatted_date, formated_time
+            author_link_name, formatted_date, formated_time
         )
         return formatted_text
 
@@ -180,7 +181,6 @@ class NotifyDateShipment:
             print("❌ Catalog is not found")
 
     def _prepare_response(self, task: dict):
-        author = f"<a href='https://pyrus.com/t#{task['author']['id']}'>{task['author']['first_name']} {task['author']['last_name']}</a>"
 
         whole_task = self.pyrus_api.get_request(
             f"https://api.pyrus.com/v4/tasks/{task['id']}"
@@ -247,7 +247,7 @@ class NotifyDateShipment:
                 "Debug message: 📅 This shipment date is today, Sending a message... A notification wouldn't be created."
             )
             formatted_text = self._create_message(
-                author=author, date=value_date, time=value_time
+                author=task["task"]["author"], date=value_date, time=value_time
             )
             return (
                 '{{ "formatted_text":"{}" }}'.format(formatted_text),

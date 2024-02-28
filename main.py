@@ -159,7 +159,7 @@ scheduler.start()
 
 
 @scheduler.task(
-    "interval", id="notify_date_shipment_job", days=1, minutes=1, misfire_grace_time=900
+    "cron", id="notify_date_shipment_job", hour=8, minutes=5, timezone="Europe/Moscow"
 )
 def notify_date_shipment_job():
     sentry_sdk.capture_message("⚒️ Job 'notify_date_shipment' started", level="debug")

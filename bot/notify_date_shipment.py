@@ -78,7 +78,7 @@ class NotifyDateShipment:
         date_obj = datetime.strptime(str(date), "%Y-%m-%d")
         formatted_date = date_obj.strftime("%A, %B %d, %Y")
         formated_time = f", {time}" if time != "" else ""
-        formatted_text = "{}<br>Связаться с Клиентом и подтвердить дату {}{} забора на сегодня!<br>В случае изменение даты, обязательно изменить поле 'Дата отгрузки' на актуальную дату, а так же сменить даты реализации и ордера в 1С.".format(
+        formatted_text = "{}<br>Связаться с Клиентом и подтвердить дату забора заказа на сегодня! ({}, {})<br>В случае изменение даты, обязательно изменить поле 'Дата отгрузки' в форме на актуальную дату, а также не забыть сменить даты реализации и ордера в 1С.".format(
             author_link_name, formatted_date, formated_time
         )
         return formatted_text

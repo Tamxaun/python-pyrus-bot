@@ -291,6 +291,9 @@ class NotifyDateShipment:
             if "task" in data:
                 print("😉 Body contains 'task'")
                 task = data["task"]
+                self.sentry_sdk.capture_message(
+                    "Debug message: success Body contain 'task'", level="debug"
+                )
                 self.sentry_sdk.set_context("data", data)
                 return self._prepare_response(task)
             else:

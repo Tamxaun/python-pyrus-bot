@@ -289,12 +289,12 @@ class NotifyDateShipment:
         try:
             data = json.loads(body)
             if "task" in data:
-                print("😉 Body contains 'task'", data)
                 task = data["task"]
+                self.sentry_sdk.set_context("data", data)
                 self.sentry_sdk.capture_message(
                     "Debug message: success Body contain 'task'", level="debug"
                 )
-                self.sentry_sdk.set_context("data", data)
+                self.sentry_sdk.capture_exception(" success Body contain 'task'")
                 return self._prepare_response(task)
             else:
                 print("😢 Body does not contain 'task'")

@@ -288,13 +288,18 @@ class NotifyDateShipment:
 
         try:
             data = json.loads(body)
+            res_from_bot = {
+                key: value
+                for key, value in data.items()
+                if key != "task" and key != "access_token"
+            }
+
             if "task" in data:
                 task = data["task"]
-                self.sentry_sdk.set_context("data", data)
+                self.sentry_sdk.set_context("bot", res_from_bot)
                 self.sentry_sdk.capture_message(
-                    "Debug message: success Body contain 'task'", level="debug"
+                    "Debug message: data to bot", level="debug"
                 )
-                self.sentry_sdk.capture_exception(" success Body contain 'task'")
                 return self._prepare_response(task)
             else:
                 print("😢 Body does not contain 'task'")

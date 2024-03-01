@@ -4,6 +4,11 @@ import hashlib
 from flask import Request
 from pyrus_api_handler import PyrusAPI
 
+"""
+Description of the class
+
+"""
+
 
 class ReminderPaymentType:
     def __init__(

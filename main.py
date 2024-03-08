@@ -9,6 +9,7 @@ from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 from bot.remider_inactive_tasks import RemiderInactiveTasks
 from bot.notify_date_shipment import NotifyDateShipment
+from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 
 
@@ -170,6 +171,18 @@ def notify_date_shipment_job():
         sentry_sdk=sentry_sdk,
     )
     notify_date_shipment.notify()
+
+
+@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
+def notify_job():
+    catalog_id = "211552"
+    notification = Notification_in_pyrus_task(
+        catalog_id=catalog_id,
+        pyrus_login=NDS_LOGIN,
+        pyrus_security_key=NDS_SECRET_KEY,
+        sentry_sdk=sentry_sdk,
+    )
+    notification.send()
 
 
 if __name__ == "__main__":

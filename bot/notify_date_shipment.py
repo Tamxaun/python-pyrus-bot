@@ -296,10 +296,6 @@ class NotifyDateShipment:
 
             if "task" in data:
                 task = data["task"]
-                self.sentry_sdk.set_context("bot", res_from_bot)
-                self.sentry_sdk.capture_message(
-                    "Debug message: data to bot", level="debug"
-                )
                 return self._prepare_response(task)
             else:
                 print("😢 Body does not contain 'task'")

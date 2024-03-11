@@ -5,7 +5,7 @@ from datetime import datetime
 
 class Notification_in_pyrus_task:
     def __init__(self, catalog_id, pyrus_login, pyrus_security_key, sentry_sdk):
-        self.catalog_id = catalog_id
+        self.catalog_id = int(catalog_id)
         self.pyrus_client = client.PyrusAPI(pyrus_login, pyrus_security_key)
         self.sentry_sdk = sentry_sdk
 

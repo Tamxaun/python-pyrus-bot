@@ -1,6 +1,8 @@
 from pyrus import client
 import pyrus.models.requests
+from pyrus.models.entities import CatalogItem
 from datetime import datetime
+from typing import List, Optional
 
 
 class Notification_in_pyrus_task:
@@ -24,11 +26,11 @@ class Notification_in_pyrus_task:
         if auth_response.success:
             pass
         else:
-            self.sentry_sdk.set_context("Auth error", auth_response)
+            self.sentry_sdk.set_context("Auth error", auth_response.original_response)
             self.sentry_sdk.capture_message(
                 "Nonitification Debug message: error with auth", level="error"
             )
-            raise Exception(auth_response)
+            raise Exception(auth_response.original_response)
 
     def _get_catalog(self):
         catalog_response = self.pyrus_client.get_catalog(self.catalog_id)
@@ -41,49 +43,57 @@ class Notification_in_pyrus_task:
 
     def send(self):
         self._auth()
-        catalog = self._get_catalog()
-        if catalog:
+        catalog: Optional[List[CatalogItem]] = self._get_catalog()
+        if catalog is not None:
             date_now = datetime.now().date()
             catalog_headers = ["task_id", "timestamp", "message_type"]
             catalog_items_new = []
             for item in catalog:
-                item_id, item_timestamp, item_type_message = item["values"]
-                timestamp = datetime.strptime(str(item_timestamp), "%Y-%m-%d")
-                if timestamp.date() == date_now:
-                    task = self._get_task(item_id)
-                    if (
-                        item_type_message == "shipment_date"
-                        and task is not None
-                        and task.author is not None
-                    ):
-                        formatted_text = self._create_shipment_date_formatted_text(
-                            author=task.author, date=item_timestamp
+                if item.values is not None:
+                    item_id, item_timestamp, item_type_message = item.values
+                    timestamp = datetime.strptime(str(item_timestamp), "%Y-%m-%d")
+                    if timestamp.date() == date_now:
+                        task = self._get_task(item_id)
+                        if (
+                            item_type_message == "shipment_date"
+                            and task is not None
+                            and task.author is not None
+                        ):
+                            formatted_text = self._create_shipment_date_formatted_text(
+                                author=task.author, date=item_timestamp
+                            )
+                            request = pyrus.models.requests.TaskCommentRequest(
+                                text=formatted_text
+                            )
+                            task = self.pyrus_client.comment_task(item_id, request).task
+                            print(
+                                "✅ Notify: Notification is sent. This item will be deleted"
+                            )
+                    if timestamp.date() > date_now:
+                        print("✅ Notify: This item will be added to new catalog")
+                        catalog_items_new.append(
+                            [item_id, item_timestamp, item_type_message]
                         )
-                        request = pyrus.models.requests.TaskCommentRequest(
-                            text=formatted_text
-                        )
-                        task = self.pyrus_client.comment_task(item_id, request).task
-                        print(
-                            "✅ Notify: Notification is sent. This item will be deleted"
-                        )
-                if timestamp.date() > date_now:
-                    print("✅ Notify: This item will be added to new catalog")
-                    catalog_items_new.append(
-                        [item_id, item_timestamp, item_type_message]
-                    )
-                if timestamp.date() < date_now:
-                    print("⚒️ Notify: This item will be deleted")
-                    pass
+                    if timestamp.date() < date_now:
+                        print("⚒️ Notify: This item will be deleted")
+                        pass
             request = pyrus.models.requests.SyncCatalogRequest(
                 apply=True, catalog_headers=catalog_headers, items=catalog_items_new
             )
             response = self.pyrus_client.sync_catalog(self.catalog_id, request)
+
             delted = response.deleted
+            if delted:
+                print("🔎 Notify: delted: ", delted)
+
             updated = response.updated
+            if updated:
+                print("🔎 Notify: updated: ", updated)
+
             added = response.added
+            if added:
+                print("🔎 Notify: added: ", added)
+
             new_headers = response.catalog_headers
-            print("✅ Notify: All items are checked")
-            print("🔎 Notify: delted: ", delted)
-            print("🔎 Notify: updated: ", updated)
-            print("🔎 Notify: added: ", added)
-            print("🔎 Notify: new_headers: ", new_headers)
+            if new_headers:
+                print("🔎 Notify: new_headers: ", new_headers)

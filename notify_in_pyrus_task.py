@@ -27,6 +27,11 @@ class Notification_in_pyrus_task:
         )
         return formatted_text
 
+    def _create_payment_date_formatted_text(self, author):
+        author_link_name = f"<a href='https://pyrus.com/t#{author.id}'>{author.first_name} {author.last_name}</a>"
+        formatted_text = f"{author_link_name}<br>❗Планируемый срок оплаты назначен на сегодня🗓️. Связаться с клиентом и согласовать оплату💵."
+        return formatted_text
+
     def _auth(self):
         auth_response = self.pyrus_client.auth()
         if auth_response.success:
@@ -77,6 +82,21 @@ class Notification_in_pyrus_task:
                                 #     int(item_id), request
                                 # ).task
                             """
+                            self.pyrus_api.post_request(
+                                url=f"https://api.pyrus.com/v4/tasks/{int(item_id)}/comments",
+                                data={"formatted_text": formatted_text},
+                            )
+                            print(
+                                "✅ Notify: Notification is sent. This item will be deleted"
+                            )
+                        if (
+                            item_type_message == "payment_date"
+                            and task is not None
+                            and task.author is not None
+                        ):
+                            formatted_text = self._create_payment_date_formatted_text(
+                                author=task.author
+                            )
                             self.pyrus_api.post_request(
                                 url=f"https://api.pyrus.com/v4/tasks/{int(item_id)}/comments",
                                 data={"formatted_text": formatted_text},

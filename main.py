@@ -177,10 +177,7 @@ def notify_date_shipment_job():
 def notify_job():
     catalog_id = "211552"
     notification = Notification_in_pyrus_task(
-        catalog_id=catalog_id,
-        pyrus_login=NDS_LOGIN,
-        pyrus_security_key=NDS_SECRET_KEY,
-        sentry_sdk=sentry_sdk,
+        catalog_id, NDS_LOGIN, NDS_SECRET_KEY, sentry_sdk, cache
     )
     notification.send()
 

@@ -1,22 +1,28 @@
 from pyrus import client
 import pyrus.models.requests
 from pyrus.models.entities import CatalogItem
+from pyrus_api_handler import PyrusAPI
 from datetime import datetime
 from typing import List, Optional
 
 
 class Notification_in_pyrus_task:
-    def __init__(self, catalog_id, pyrus_login, pyrus_security_key, sentry_sdk):
+    def __init__(
+        self, catalog_id, pyrus_login, pyrus_security_key, sentry_sdk, cache=None
+    ):
         self.catalog_id = int(catalog_id)
         self.pyrus_client = client.PyrusAPI(pyrus_login, pyrus_security_key)
+        self.pyrus_api = PyrusAPI(
+            cache, pyrus_login, pyrus_security_key, self.pyrus_client.access_token
+        )
         self.sentry_sdk = sentry_sdk
 
     def _create_shipment_date_formatted_text(self, author, date: str, time: str = ""):
-        author_link_name = f"<a href='https://pyrus.com/t#{author['id']}'>{author['first_name']} {author['last_name']}</a>"
+        author_link_name = f"<a href='https://pyrus.com/t#{author.id}'>{author.first_name} {author.last_name}</a>"
         date_obj = datetime.strptime(str(date), "%Y-%m-%d")
-        formatted_date = date_obj.strftime("%A, %B %d, %Y")
+        formatted_date = date_obj.strftime("%A, %d %B, %Y")
         formated_time = f", {time}" if time != "" else ""
-        formatted_text = "{}<br>Связаться с Клиентом и подтвердить дату забора заказа на сегодня! ({}, {})<br>В случае изменение даты, обязательно изменить поле 'Дата отгрузки' в форме на актуальную дату, а также не забыть сменить даты реализации и ордера в 1С.".format(
+        formatted_text = "{}<br>Связаться с Клиентом и подтвердить дату забора заказа на сегодня! ({}{})<br>В случае изменение даты, обязательно изменить поле 'Дата отгрузки' в форме на актуальную дату, а также не забыть сменить даты реализации и ордера в 1С.".format(
             author_link_name, formatted_date, formated_time
         )
         return formatted_text
@@ -38,7 +44,7 @@ class Notification_in_pyrus_task:
         return items
 
     def _get_task(self, task_id):
-        task = self.pyrus_client.get_task(task_id).task
+        task = self.pyrus_client.get_task(int(task_id)).task
         return task
 
     def send(self):
@@ -62,10 +68,19 @@ class Notification_in_pyrus_task:
                             formatted_text = self._create_shipment_date_formatted_text(
                                 author=task.author, date=item_timestamp
                             )
-                            request = pyrus.models.requests.TaskCommentRequest(
-                                text=formatted_text
+                            """ Pyrus lib doesn't support formatting text
+
+                                # request = pyrus.models.requests.TaskCommentRequest(
+                                #     text=formatted_text
+                                # )
+                                # task = self.pyrus_client.comment_task(
+                                #     int(item_id), request
+                                # ).task
+                            """
+                            self.pyrus_api.post_request(
+                                url=f"https://api.pyrus.com/v4/tasks/{int(item_id)}/comments",
+                                data={"formatted_text": formatted_text},
                             )
-                            task = self.pyrus_client.comment_task(item_id, request).task
                             print(
                                 "✅ Notify: Notification is sent. This item will be deleted"
                             )

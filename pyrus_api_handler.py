@@ -6,9 +6,9 @@ from typing import Dict, Any
 class PyrusAPI:
     print("✅ All required environment variables are set")
 
-    def __init__(self, cache, pyrus_login: str, pyrus_secret_key: str):
+    def __init__(self, cache, pyrus_login: str, pyrus_secret_key: str, token=None):
         self.cache = cache
-        self.token = None
+        self.token = token
         self.pyrus_login = pyrus_login
         self.pyrus_secret_key = pyrus_secret_key
 

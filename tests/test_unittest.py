@@ -1,7 +1,7 @@
 import unittest
 from main import pyrus_api, sentry_sdk, cache, NDS_SECRET_KEY, NDS_LOGIN
 from bot.reminder_step import format_fields
-from bot.notify_date_shipment import NotifyDateShipment
+from bot.create_notify_date import NotifyDateShipment
 from flask import Request
 
 

@@ -8,7 +8,7 @@ from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 from bot.remider_inactive_tasks import RemiderInactiveTasks
-from bot.notify_date_shipment import NotifyDateShipment
+from bot.create_notify_date import NotifyDateShipment
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 

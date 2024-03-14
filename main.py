@@ -8,7 +8,7 @@ from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 from bot.remider_inactive_tasks import RemiderInactiveTasks
-from bot.create_notify_date import NotifyDateShipment
+from bot.create_notify_date import CreateNotificationDate
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 
@@ -141,13 +141,15 @@ def remider_inactive_tasks_page():
     return remider_inactive_tasks.process_request()
 
 
-@app.route("/notify-date-shipment", methods=["GET", "POST"])
+@app.route("/create-notification-date", methods=["GET", "POST"])
 def notify_date_shipment_page():
-    notify_date_shipment = NotifyDateShipment(
-        cache=cache,
-        pyrus_secret_key=NDS_SECRET_KEY,
-        pyrus_login=NDS_LOGIN,
-        sentry_sdk=sentry_sdk,
+    catalog_id = "211552"
+    notify_date_shipment = CreateNotificationDate(
+        catalog_id,
+        cache,
+        NDS_SECRET_KEY,
+        NDS_LOGIN,
+        sentry_sdk,
     )
     return notify_date_shipment.process_request(request)
 
@@ -157,20 +159,6 @@ scheduler = APScheduler()
 scheduler.api_enabled = True
 scheduler.init_app(app)
 scheduler.start()
-
-
-@scheduler.task(
-    "cron", id="notify_date_shipment_job", hour=8, minute=5, timezone="Europe/Moscow"
-)
-def notify_date_shipment_job():
-    sentry_sdk.capture_message("⚒️ Job 'notify_date_shipment' started", level="debug")
-    notify_date_shipment = NotifyDateShipment(
-        cache=cache,
-        pyrus_secret_key=NDS_SECRET_KEY,
-        pyrus_login=NDS_LOGIN,
-        sentry_sdk=sentry_sdk,
-    )
-    notify_date_shipment.notify()
 
 
 @scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")

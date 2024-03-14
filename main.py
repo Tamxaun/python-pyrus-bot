@@ -144,14 +144,14 @@ def remider_inactive_tasks_page():
 @app.route("/create-notification-date", methods=["GET", "POST"])
 def notify_date_shipment_page():
     catalog_id = "211552"
-    notify_date_shipment = CreateNotificationDate(
+    create_notification_date = CreateNotificationDate(
         catalog_id,
         cache,
         NDS_SECRET_KEY,
         NDS_LOGIN,
         sentry_sdk,
     )
-    return notify_date_shipment.process_request(request)
+    return create_notification_date.process_request(request)
 
 
 # initialize scheduler

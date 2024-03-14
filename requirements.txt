@@ -5,3 +5,4 @@ flask_caching
 load_dotenv
 sentry-sdk[flask]
 Flask-APScheduler
+pyrus-api

@@ -57,11 +57,11 @@ class Notification_in_pyrus_task:
         catalog: Optional[List[CatalogItem]] = self._get_catalog()
         if catalog is not None:
             date_now = datetime.now().date()
-            catalog_headers = ["task_id", "timestamp", "message_type"]
+            catalog_headers = ["id", "task_id", "timestamp", "message_type"]
             catalog_items_new = []
             for item in catalog:
                 if item.values is not None:
-                    item_id, item_timestamp, item_type_message = item.values
+                    id, item_id, item_timestamp, item_type_message = item.values
                     timestamp = datetime.strptime(str(item_timestamp), "%Y-%m-%d")
                     if timestamp.date() == date_now:
                         task = self._get_task(item_id)
@@ -107,7 +107,7 @@ class Notification_in_pyrus_task:
                     if timestamp.date() > date_now:
                         print("✅ Notify: This item will be added to new catalog")
                         catalog_items_new.append(
-                            [item_id, item_timestamp, item_type_message]
+                            [id, item_id, item_timestamp, item_type_message]
                         )
                     if timestamp.date() < date_now:
                         print("⚒️ Notify: This item will be deleted")

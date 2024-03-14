@@ -7,7 +7,8 @@ from flask_apscheduler import APScheduler
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
-from bot.remider_inactive_tasks import RemiderInactiveTasks
+
+# from bot.remider_inactive_tasks import RemiderInactiveTasks
 from bot.create_notify_date import CreateNotificationDate
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
@@ -129,16 +130,16 @@ def reminder_peyment_type_page():
     return reminder_peyment_type.process_request()
 
 
-@app.route("/remider-inactive-tasks", methods=["GET", "POST"])
-def remider_inactive_tasks_page():
-    remider_inactive_tasks = RemiderInactiveTasks(
-        cache=cache,
-        request=request,
-        pyrus_secret_key=RIT_SECRET_KEY,
-        pyrus_login=RIT_LOGIN,
-        sentry_sdk=sentry_sdk,
-    )
-    return remider_inactive_tasks.process_request()
+# @app.route("/remider-inactive-tasks", methods=["GET", "POST"])
+# def remider_inactive_tasks_page():
+#     remider_inactive_tasks = RemiderInactiveTasks(
+#         cache=cache,
+#         request=request,
+#         pyrus_secret_key=RIT_SECRET_KEY,
+#         pyrus_login=RIT_LOGIN,
+#         sentry_sdk=sentry_sdk,
+#     )
+#     return remider_inactive_tasks.process_request()
 
 
 @app.route("/create-notification-date", methods=["GET", "POST"])

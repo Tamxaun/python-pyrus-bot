@@ -1,0 +1,34 @@
+name: Deploy to Timeweb.Cloud
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  RS_LOGIN: bot@2099f2e7-dc7f-4fe4-a339-90e92157f640
+  RS_SECRET_KEY: ARNw3QmbpglKRN5iNQvGbqO2I1ipbiGK8sz8lTxFj2cTHWRFyNggVmt97eR6CQ6VNIKo2eGrLxb2EkVqCoaaJKBsuyQdRRBA
+  RPT_LOGIN: bot@d00f7602-188b-4db9-87bc-6197e56c0d94
+  RPT_SECRET_KEY: KgZle0hZibv~V7h8bJNUPe8XLsaUNvr-Ld2J~4zocmKR2Kiu3qyhgaMECocRiHxmeS-Uvgka5QF7s4Ie3F70z93QaVHwIgVw
+  RIT_LOGIN: bot@d78fda6d-ceb3-4527-84d4-8d32e1293164
+  RIT_SECRET_KEY: 9VpqGoe8V3dukHAIcxC7JgqlhDTxB4xiMNoarC-HYJPGA9N6x6NgrZiFpLcEEe-wsLxLHT~HAcD2KTC-r5Fzj0DkAcnXQxKP
+  NDS_LOGIN: bot@c0ee7437-46d5-4b70-bbf9-a89e23500a7a
+  NDS_SECRET_KEY: Y3DVICZN8CtJjuRCpqtnMvlgGiJzIwGB7w8voO~taoR4BbAU49bDy9AZThiJEnsSQ-tC5DBmHNbf-5~SPYUY19DWn8SgpwbK
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: whoami
+
+

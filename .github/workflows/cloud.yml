@@ -27,8 +27,7 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        fingerprint: ${{ secrets.FINGERPRINT }}
+        password: ${{ secrets.PASSWORD }}
         script: whoami
 
 

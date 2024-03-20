@@ -71,7 +71,7 @@ else:
 # Configure the Flask app
 config = {"DEBUG": False, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
 app.config.from_mapping(config)
-port = int(os.environ.get("PORT", 5000))
+port = int(os.environ.get("PORT", 8000))
 
 
 # Initialize the cache

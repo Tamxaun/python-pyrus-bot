@@ -66,9 +66,7 @@ class CreateNotificationDate:
                 and isinstance(field["value"]["fields"], list)
             )
             if isNestedField:
-                return self._find_fields(
-                    field["value"]["fields"], field_name, field_type
-                )
+                self._find_fields(field["value"]["fields"], field_name, field_type)
             if (
                 "type" in field
                 and field["type"] == field_type

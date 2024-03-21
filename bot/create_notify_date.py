@@ -66,7 +66,9 @@ class CreateNotificationDate:
                 and isinstance(field["value"]["fields"], list)
             )
             if isNestedField:
-                self._find_fields(field["value"]["fields"], field_name, field_type)
+                return self._find_fields(
+                    field["value"]["fields"], field_name, field_type
+                )
             if (
                 "type" in field
                 and field["type"] == field_type
@@ -74,7 +76,6 @@ class CreateNotificationDate:
                 and field["name"] == field_name
             ):
                 return field
-        return None
 
     def _create_shipment_date_formatted_text(self, author, date: str, time: str = ""):
         author_link_name = f"<a href='https://pyrus.com/t#{author.id}'>{author.first_name} {author.last_name}</a>"
@@ -87,7 +88,12 @@ class CreateNotificationDate:
         return formatted_text
 
     def _create_payment_date_formatted_text(self, author):
-        author_link_name = f"<a href='https://pyrus.com/t#{author.id}'>{author.first_name} {author.last_name}</a>"
+        id = author["id"]
+        first_name = author["first_name"]
+        last_name = author["last_name"]
+        author_link_name = (
+            f"<a href='https://pyrus.com/t#{id}'>{first_name} {last_name}</a>"
+        )
         formatted_text = f"{author_link_name}<br>❗Планируемый срок оплаты назначен на сегодня🗓️. Связаться с клиентом и согласовать оплату💵."
         return formatted_text
 
@@ -217,11 +223,11 @@ class CreateNotificationDate:
                 )
                 if notification_type == "shipment_date":
                     formatted_text = self._create_shipment_date_formatted_text(
-                        author=task["task"]["author"], date=updated_value_date
+                        author=task["author"], date=updated_value_date
                     )
                 elif notification_type == "payment_date":
                     formatted_text = self._create_payment_date_formatted_text(
-                        author=task["task"]["author"]
+                        author=task["author"]
                     )
                 self.pyrus_api.post_request(
                     url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",

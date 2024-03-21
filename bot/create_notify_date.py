@@ -204,7 +204,7 @@ class CreateNotificationDate:
                 "Debug message: ❌ This task doesn't have any comments or field_updates"
             )
 
-        if updated_date_in_task is not None and updated_value_date:
+        if updated_date_in_task is not None and updated_value_date is not None:
             date_now = datetime.now().date()
 
             field_date_is_today = date_now == updated_date_in_task

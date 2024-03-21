@@ -149,14 +149,16 @@ class CreateNotificationDate:
                         )
                 if not new_item_added:
                     id = uuid.uuid4()
+                    id_str = str(id)
                     catalog_new["items"].append(
-                        {"values": [id, task_id, task_date, type_message]}
+                        {"values": [id_str, task_id, task_date, type_message]}
                     )
                     print("🚚 Adding the item to new catalog")
             else:
                 id = uuid.uuid4()
+                id_str = str(id)
                 catalog_new["items"].append(
-                    {"values": [id, task_id, task_date, type_message]}
+                    {"values": [id_str, task_id, task_date, type_message]}
                 )
 
                 self.pyrus_api.post_request(

@@ -177,6 +177,8 @@ class CreateNotificationDate:
         print("🚚 Creating notification from field...")
         task_id = task["id"]
         print(f"Task ID: {task_id}")
+        updated_value_date = None
+        updated_date_in_task = None
 
         #  Find field in task["comments"][0]["field_updates"] from task response
         if "comments" in task and "field_updates" in task["comments"][0]:

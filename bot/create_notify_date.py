@@ -117,16 +117,18 @@ class CreateNotificationDate:
             # Find item by task_id and item_message_type to update it
             # Remove item if need it (not adding it to new catalog)
             # Or leave/add item just as it is
-            # If item not found or not created we adding this new item
+            # If item not found we adding this new item to the list catalog_new
             # POST request to update catalog with new catalog
             if "items" in catalog:
-                new_item_added = False
+                new_item = True
                 for item in catalog["items"]:
                     item_id, item_task_id, item_timestamp, item_message_type = item[
                         "values"
                     ]
-                    if item_task_id == task_id and item_message_type == type_message:
-                        new_item_added = True
+                    if str(item_task_id) == str(task_id) and str(
+                        item_message_type
+                    ) == str(type_message):
+                        new_item = False
                         if not remove:
                             catalog_new["items"].append(
                                 {
@@ -151,7 +153,7 @@ class CreateNotificationDate:
                                 ]
                             }
                         )
-                if not new_item_added:
+                if new_item:
                     id = uuid.uuid4()
                     id_str = str(id)
                     catalog_new["items"].append(
@@ -165,10 +167,10 @@ class CreateNotificationDate:
                     {"values": [id_str, task_id, task_date, type_message]}
                 )
 
-                self.pyrus_api.post_request(
-                    f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
-                    catalog_new,
-                )
+            self.pyrus_api.post_request(
+                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
+                catalog_new,
+            )
 
         else:
             self.sentry_sdk.capture_message(
@@ -232,6 +234,12 @@ class CreateNotificationDate:
                 self.pyrus_api.post_request(
                     url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
                     data={"formatted_text": formatted_text},
+                )
+                self._update_notification(
+                    task_id=task["id"],
+                    task_date=updated_value_date,
+                    type_message=notification_type,
+                    remove=True,
                 )
             elif field_date_is_passed:
                 print("Debug message: 📅 This shipment date is passed")

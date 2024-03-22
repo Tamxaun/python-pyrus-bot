@@ -62,6 +62,7 @@ class CreateNotificationDate:
         for field in fields:
             isNestedField = (
                 "value" in field
+                and isinstance(field["value"], dict)
                 and "fields" in field["value"]
                 and isinstance(field["value"]["fields"], list)
             )

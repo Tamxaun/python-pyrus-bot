@@ -78,7 +78,12 @@ class CreateNotificationDate:
                 return field
 
     def _create_shipment_date_formatted_text(self, author, date: str, time: str = ""):
-        author_link_name = f"<a href='https://pyrus.com/t#{author.id}'>{author.first_name} {author.last_name}</a>"
+        id = author["id"]
+        first_name = author["first_name"]
+        last_name = author["last_name"]
+        author_link_name = (
+            f"<a href='https://pyrus.com/t#{id}'>{first_name} {last_name}</a>"
+        )
         date_obj = datetime.strptime(str(date), "%Y-%m-%d")
         formatted_date = date_obj.strftime("%A, %d %B, %Y")
         formated_time = f", {time}" if time != "" else ""

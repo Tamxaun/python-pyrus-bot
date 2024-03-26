@@ -206,6 +206,7 @@ class CreateNotificationDate:
             updated_value_date: Union[str, None] = (
                 str(updated_field_date_in_task["value"])
                 if updated_field_date_in_task is not None
+                and "value" in updated_field_date_in_task
                 else None
             )
             updated_date_in_task = (

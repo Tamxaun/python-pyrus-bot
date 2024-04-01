@@ -29,7 +29,7 @@ class Notification_in_pyrus_task:
 
     def _create_payment_date_formatted_text(self, author):
         author_link_name = f"<a href='https://pyrus.com/t#{author.id}'>{author.first_name} {author.last_name}</a>"
-        formatted_text = f"{author_link_name}<br>❗Планируемый срок оплаты назначен на сегодня🗓️. Связаться с клиентом и согласовать оплату💵."
+        formatted_text = f"{author_link_name}<br>❗Планируемый срок оплаты назначен на сегодня🗓️. Связаться с клиентом и согласовать оплату💵. В случае задержки обязательно указать новую дату оплаты."
         return formatted_text
 
     def _auth(self):

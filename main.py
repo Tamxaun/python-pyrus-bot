@@ -113,8 +113,8 @@ def reminder_step_page():
     reminder_step_page = ReminderStep(
         cache=cache,
         request=request,
-        pyrus_secret_key=RS_SECRET_KEY,
-        pyrus_login=RS_LOGIN,
+        pyrus_secret_key=RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
+        pyrus_login=RS_LOGIN if RS_LOGIN is not None else "",
     )
     return reminder_step_page.process_request()
 
@@ -124,8 +124,8 @@ def reminder_peyment_type_page():
     reminder_peyment_type = ReminderPaymentType(
         cache=cache,
         request=request,
-        pyrus_secret_key=RPT_SECRET_KEY,
-        pyrus_login=RPT_LOGIN,
+        pyrus_secret_key=RPT_SECRET_KEY if RPT_SECRET_KEY is not None else "",
+        pyrus_login=RPT_LOGIN if RPT_LOGIN is not None else "",
     )
     return reminder_peyment_type.process_request()
 
@@ -148,8 +148,8 @@ def notify_date_shipment_page():
     create_notification_date = CreateNotificationDate(
         catalog_id,
         cache,
-        NDS_SECRET_KEY,
-        NDS_LOGIN,
+        NDS_SECRET_KEY if NDS_SECRET_KEY is not None else "",
+        NDS_LOGIN if NDS_LOGIN is not None else "",
         sentry_sdk,
     )
     return create_notification_date.process_request(request)

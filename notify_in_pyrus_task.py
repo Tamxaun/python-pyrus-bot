@@ -117,9 +117,9 @@ class Notification_in_pyrus_task:
             )
             response = self.pyrus_client.sync_catalog(self.catalog_id, request)
 
-            delted = response.deleted
-            if delted:
-                print("🔎 Notify: delted: ", delted)
+            deleted = response.deleted
+            if deleted:
+                print("🔎 Notify: deleted: ", deleted)
 
             updated = response.updated
             if updated:

@@ -9,7 +9,7 @@ from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 
 # from bot.remider_inactive_tasks import RemiderInactiveTasks
-from bot.create_notify_date import CreateNotificationComment
+from bot.reminder_create import CreateReminderComment
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 
@@ -142,8 +142,8 @@ def reminder_peyment_type_page():
 #     return remider_inactive_tasks.process_request()
 
 
-@app.route("/create-notification-date", methods=["GET", "POST"])
-def notify_date_shipment_page():
+@app.route("/webhook-reminder", methods=["GET", "POST"])
+def reminder_webhook():
     CATALOG_ID = "211552"
     TRACKED_FIELDS = {
         "text": {
@@ -151,7 +151,7 @@ def notify_date_shipment_page():
         },
         "date": ["Дата отгрузки", "Дата планируемой оплаты"],
     }
-    create_notification_date = CreateNotificationComment(
+    create_reminder_comment = CreateReminderComment(
         CATALOG_ID,
         CACHE,
         NDS_SECRET_KEY if NDS_SECRET_KEY is not None else "",
@@ -159,7 +159,7 @@ def notify_date_shipment_page():
         sentry_sdk,
         TRACKED_FIELDS,
     )
-    return create_notification_date.process_request(request)
+    return create_reminder_comment.process_request(request)
 
 
 # initialize scheduler

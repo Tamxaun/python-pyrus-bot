@@ -9,7 +9,7 @@ from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 
 # from bot.remider_inactive_tasks import RemiderInactiveTasks
-from bot.create_notify_date import CreateNotificationDate
+from bot.create_notify_date import CreateNotificationComment
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 
@@ -75,10 +75,10 @@ port = int(os.environ.get("PORT", 8000))
 
 
 # Initialize the cache
-cache = Cache(app)
+CACHE = Cache(app)
 
 # Initialize the Pyrus API
-pyrus_api = PyrusAPI(cache, RS_LOGIN, RS_SECRET_KEY)
+pyrus_api = PyrusAPI(CACHE, RS_LOGIN, RS_SECRET_KEY)
 
 
 @app.route("/", methods=["GET"])
@@ -111,7 +111,7 @@ def index_page():
 @app.route("/step-reminder", methods=["GET", "POST"])
 def reminder_step_page():
     reminder_step_page = ReminderStep(
-        cache=cache,
+        cache=CACHE,
         request=request,
         pyrus_secret_key=RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
         pyrus_login=RS_LOGIN if RS_LOGIN is not None else "",
@@ -122,10 +122,10 @@ def reminder_step_page():
 @app.route("/reminder-payment-type", methods=["GET", "POST"])
 def reminder_peyment_type_page():
     reminder_peyment_type = ReminderPaymentType(
-        cache=cache,
-        request=request,
-        pyrus_secret_key=RPT_SECRET_KEY if RPT_SECRET_KEY is not None else "",
-        pyrus_login=RPT_LOGIN if RPT_LOGIN is not None else "",
+        CACHE,
+        request,
+        RPT_SECRET_KEY if RPT_SECRET_KEY is not None else "",
+        RPT_LOGIN if RPT_LOGIN is not None else "",
     )
     return reminder_peyment_type.process_request()
 
@@ -144,13 +144,20 @@ def reminder_peyment_type_page():
 
 @app.route("/create-notification-date", methods=["GET", "POST"])
 def notify_date_shipment_page():
-    catalog_id = "211552"
-    create_notification_date = CreateNotificationDate(
-        catalog_id,
-        cache,
+    CATALOG_ID = "211552"
+    TRACKED_FIELDS = {
+        "text": {
+            "Тип оплаты / Статус": "✅Нал (чек)",
+        },
+        "date": ["Дата отгрузки", "Дата планируемой оплаты"],
+    }
+    create_notification_date = CreateNotificationComment(
+        CATALOG_ID,
+        CACHE,
         NDS_SECRET_KEY if NDS_SECRET_KEY is not None else "",
         NDS_LOGIN if NDS_LOGIN is not None else "",
         sentry_sdk,
+        TRACKED_FIELDS,
     )
     return create_notification_date.process_request(request)
 
@@ -166,7 +173,7 @@ scheduler.start()
 def notify_job():
     catalog_id = "211552"
     notification = Notification_in_pyrus_task(
-        catalog_id, NDS_LOGIN, NDS_SECRET_KEY, sentry_sdk, cache
+        catalog_id, NDS_LOGIN, NDS_SECRET_KEY, sentry_sdk, CACHE
     )
     notification.send()
 

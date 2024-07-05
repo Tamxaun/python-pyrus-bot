@@ -12,7 +12,7 @@ import uuid
 locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
 
-class CreateNotificationDate:
+class CreateNotificationComment:
     def __init__(
         self,
         catalog_id: str,
@@ -20,6 +20,7 @@ class CreateNotificationDate:
         pyrus_secret_key: str,
         pyrus_login: str,
         sentry_sdk,
+        traked_fields: Union[dict, None],
     ):
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
@@ -27,6 +28,7 @@ class CreateNotificationDate:
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
         self.catalog_id = int(catalog_id)
         self.sentry_sdk = sentry_sdk
+        self.tracked_fields = traked_fields
 
     def _validate_request(self, signature, body):
         # check if signature is set
@@ -102,6 +104,21 @@ class CreateNotificationDate:
         )
         formatted_text = f"{author_link_name}<br>❗Планируемый срок оплаты назначен на сегодня🗓️. Связаться с клиентом и согласовать оплату💵. В случае задержки обязательно указать новую дату оплаты."
         return formatted_text
+
+    def _create_payment_type_comment_data(self):
+        person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
+        text = f"Для данного заказа требуется оформить:<ul><li>Приходный кассовый ордер</li><li>Оформить подотчет на Бусырев А.А.</li></ul><br>После чего назначить статус '✅Нал (чек принят в 1С)' в поле 'Тип оплаты / Статус'"
+        formatted_text = f"<mark data-color='yellow'>{person}</mark><br>{text}<br>"
+        subscribers_added = [
+            {
+                "id": 486746,
+            }
+        ]
+
+        return {
+            "formatted_text": formatted_text,
+            "subscribers_added": subscribers_added,
+        }
 
     def _update_notification(
         self, task_id: str, task_date: str, type_message: str, remove: bool = False
@@ -185,8 +202,50 @@ class CreateNotificationDate:
             )
             print("❌ Catalog is not found")
 
-    def _create_notification_from_field(
-        self, field_name: str, task: dict, notification_type: str
+    def _create_notification_from_text_field(
+        self,
+        field_name: str,
+        field_value: str,
+        task: dict,
+        notification_type: str,
+        field_type: str = "text",
+    ):
+        print("🚚 Creating notification from text field...")
+        task_id = task["id"]
+        print(f"Task ID: {task_id}")
+        time_to_send = datetime.now().date()
+
+        updated_fields_in_task = task["comments"][0]["field_updates"]
+
+        updated_field = self._find_fields(
+            updated_fields_in_task, field_name, field_type
+        )
+
+        value_updated_field = (
+            str(updated_field["value"])
+            if updated_field is not None and "value" in updated_field
+            else None
+        )
+
+        date_now = datetime.now().date()
+        time_to_send_is_today = date_now == time_to_send
+        value_is_correct = field_value == value_updated_field
+
+        if time_to_send_is_today and value_is_correct:
+            if notification_type == "payment_type":
+                data = self._create_payment_type_comment_data()
+
+            self.pyrus_api.post_request(
+                url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
+                data=data,
+            )
+
+    def _create_notification_from_date_field(
+        self,
+        field_name: str,
+        task: dict,
+        notification_type: str,
+        field_type: str = "date",
     ):
         print("🚚 Creating notification from field...")
         task_id = task["id"]
@@ -194,14 +253,15 @@ class CreateNotificationDate:
         updated_value_date = None
         updated_date_in_task = None
 
-        #  Find field in task["comments"][0]["field_updates"] from task response
+        # We check if there any fields that was updated
+        # Find field in task["comments"][0]["field_updates"] from task response
         if "comments" in task and "field_updates" in task["comments"][0]:
             print("Debug message: ✅ This task has comments and field_updates")
 
-            fields_updated_in_task = task["comments"][0]["field_updates"]
+            updated_fields_in_task = task["comments"][0]["field_updates"]
 
             updated_field_date_in_task = self._find_fields(
-                fields_updated_in_task, field_name, "date"
+                updated_fields_in_task, field_name, field_type
             )
             updated_value_date: Union[str, None] = (
                 str(updated_field_date_in_task["value"])
@@ -214,6 +274,7 @@ class CreateNotificationDate:
                 if updated_value_date is not None
                 else None
             )
+
         else:
             print(
                 "Debug message: ❌ This task doesn't have any comments or field_updates"
@@ -221,7 +282,6 @@ class CreateNotificationDate:
 
         if updated_date_in_task is not None and updated_value_date is not None:
             date_now = datetime.now().date()
-
             field_date_is_today = date_now == updated_date_in_task
             field_date_is_passed = date_now > updated_date_in_task
             field_date_in_future = updated_date_in_task > date_now
@@ -234,14 +294,18 @@ class CreateNotificationDate:
                     formatted_text = self._create_shipment_date_formatted_text(
                         author=task["author"], date=updated_value_date
                     )
+                    data = {"formatted_text": formatted_text}
                 elif notification_type == "payment_date":
                     formatted_text = self._create_payment_date_formatted_text(
                         author=task["author"]
                     )
+                    data = {"formatted_text": formatted_text}
+
                 self.pyrus_api.post_request(
                     url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
-                    data={"formatted_text": formatted_text},
+                    data=data,
                 )
+
                 self._update_notification(
                     task_id=task["id"],
                     task_date=updated_value_date,
@@ -266,9 +330,14 @@ class CreateNotificationDate:
 
     def _prepare_response(self, task: dict):
         print("🚚 Preparing response...")
-        self._create_notification_from_field("Дата отгрузки", task, "shipment_date")
-        self._create_notification_from_field(
-            "Дата планируемой оплаты", task, "payment_date"
+        self._create_notification_from_date_field(
+            "Дата отгрузки", task, "shipment_date", field_type="date"
+        )
+        self._create_notification_from_date_field(
+            "Дата планируемой оплаты", task, "payment_date", field_type="date"
+        )
+        self._create_notification_from_text_field(
+            "Тип оплаты / Статус", "✅Нал (чек)", task, "payment_type", "text"
         )
 
         return "{}", 200

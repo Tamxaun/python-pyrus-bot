@@ -2,6 +2,7 @@ import json
 import hmac
 import hashlib
 from flask import Request
+from pyrus import client
 from pyrus_api_handler import PyrusAPI
 from datetime import datetime
 from typing import Union
@@ -12,7 +13,7 @@ import uuid
 locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
 
 
-class CreateNotificationComment:
+class CreateReminderComment:
     def __init__(
         self,
         catalog_id: str,
@@ -25,6 +26,7 @@ class CreateNotificationComment:
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
         self.cache = cache
+        self.pyrus_client = client.PyrusAPI(self.pyrus_login, self.pyrus_secret_key)
         self.pyrus_api = PyrusAPI(self.cache, self.pyrus_login, self.pyrus_secret_key)
         self.catalog_id = int(catalog_id)
         self.sentry_sdk = sentry_sdk
@@ -93,7 +95,7 @@ class CreateNotificationComment:
         formatted_text = "{}<br>Связаться с Клиентом и подтвердить дату забора заказа на сегодня! ({}{})<br>В случае изменение даты, обязательно изменить поле 'Дата отгрузки' в форме на актуальную дату, а также не забыть сменить даты реализации и ордера в 1С.".format(
             author_link_name, formatted_date, formated_time
         )
-        return formatted_text
+        return {"formatted_text": formatted_text}
 
     def _create_payment_date_formatted_text(self, author):
         id = author["id"]
@@ -103,7 +105,7 @@ class CreateNotificationComment:
             f"<a href='https://pyrus.com/t#{id}'>{first_name} {last_name}</a>"
         )
         formatted_text = f"{author_link_name}<br>❗Планируемый срок оплаты назначен на сегодня🗓️. Связаться с клиентом и согласовать оплату💵. В случае задержки обязательно указать новую дату оплаты."
-        return formatted_text
+        return {"formatted_text": formatted_text}
 
     def _create_payment_type_comment_data(self):
         person = f"<a href='https://pyrus.com/t#pp486746'>Татьяна Ивановна</a>"
@@ -114,11 +116,100 @@ class CreateNotificationComment:
                 "id": 486746,
             }
         ]
-
         return {
             "formatted_text": formatted_text,
             "subscribers_added": subscribers_added,
         }
+
+    def _delete_reminder(self, task_id: str, type_message: str):
+        catalog_id = self.catalog_id
+        catalog_response = self.pyrus_client.get_catalog(catalog_id)
+
+        if (
+            catalog_response
+            and hasattr(catalog_response, "items")
+            and catalog_response.items
+        ):
+            items = catalog_response.items
+            catalog_updated = {
+                "apply": "true",
+                "catalog_headers": ["id", "task_id", "timestamp", "message_type"],
+                "items": [],
+            }
+
+            for item in items:
+                item_id, item_task_id, item_timestamp, item_message_type = item[
+                    "values"
+                ]
+                if str(task_id) != str(item_task_id) and str(type_message) != str(
+                    item_message_type
+                ):
+                    catalog_updated["items"].append(item)
+
+            return self.pyrus_api.post_request(
+                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
+                catalog_updated,
+            )
+
+    def _save_or_update_reminder(self, task_id: str, task_date: str, type_message: str):
+        catalog_id = self.catalog_id
+        catalog_response = self.pyrus_client.get_catalog(catalog_id)
+        reminder_exists = False
+
+        if (
+            catalog_response
+            and hasattr(catalog_response, "items")
+            and catalog_response.items
+        ):
+            items = catalog_response.items
+            catalog_updated = {
+                "apply": "true",
+                "catalog_headers": ["id", "task_id", "timestamp", "message_type"],
+                "items": [],
+            }
+
+            # Filling catalog
+            for item in items:
+                item_id, item_task_id, item_timestamp, item_message_type = item[
+                    "values"
+                ]
+                # Find item with the same task_id and type_message to update it
+                if str(task_id) != str(item_task_id) and str(type_message) != str(
+                    item_message_type
+                ):
+                    reminder_exists = True
+                    catalog_updated["items"].append(
+                        {
+                            "values": [
+                                item_id,
+                                item_task_id,
+                                task_date,
+                                item_message_type,
+                            ],
+                        }
+                    )
+                else:
+                    # If item not found we adding this item to updated catalog
+                    catalog_updated["items"].append(item)
+
+            if not reminder_exists:
+                id = uuid.uuid4()
+                id_str = str(id)
+                catalog_updated["items"].append(
+                    {
+                        "values": [
+                            id_str,
+                            task_id,
+                            task_date,
+                            type_message,
+                        ],
+                    }
+                )
+
+            return self.pyrus_api.post_request(
+                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
+                catalog_updated,
+            )
 
     def _update_notification(
         self, task_id: str, task_date: str, type_message: str, remove: bool = False
@@ -291,15 +382,13 @@ class CreateNotificationComment:
                     "Debug message: 📅 This shipment date is today, Sending a message... A notification wouldn't be created."
                 )
                 if notification_type == "shipment_date":
-                    formatted_text = self._create_shipment_date_formatted_text(
+                    data = self._create_shipment_date_formatted_text(
                         author=task["author"], date=updated_value_date
                     )
-                    data = {"formatted_text": formatted_text}
                 elif notification_type == "payment_date":
-                    formatted_text = self._create_payment_date_formatted_text(
+                    data = self._create_payment_date_formatted_text(
                         author=task["author"]
                     )
-                    data = {"formatted_text": formatted_text}
 
                 self.pyrus_api.post_request(
                     url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
@@ -328,8 +417,8 @@ class CreateNotificationComment:
                 f"Debug message: ❌ The field '{field_name}' is not found in task['comments'][0]['field_updates']"
             )
 
-    def _prepare_response(self, task: dict):
-        print("🚚 Preparing response...")
+    def _handle_response(self, task: dict):
+        print("🚚 Hadling the response...")
         self._create_notification_from_date_field(
             "Дата отгрузки", task, "shipment_date", field_type="date"
         )
@@ -361,7 +450,7 @@ class CreateNotificationComment:
 
             if "task" in data:
                 task = data["task"]
-                return self._prepare_response(task)
+                return self._handle_response(task)
             else:
                 print("😢 Body does not contain 'task'")
                 self.sentry_sdk.capture_message(

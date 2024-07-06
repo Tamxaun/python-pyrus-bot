@@ -9,7 +9,7 @@ from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 
 # from bot.remider_inactive_tasks import RemiderInactiveTasks
-from bot.reminder_create import CreateReminderComment
+from bot.create_reminder_comment import CreateReminderComment
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 

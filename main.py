@@ -143,7 +143,7 @@ def reminder_peyment_type_page():
 
 
 @app.route("/webhook-reminder", methods=["GET", "POST"])
-def reminder_webhook():
+def webhook_reminder():
     CATALOG_ID = "211552"
     TRACKED_FIELDS = {
         "text": {

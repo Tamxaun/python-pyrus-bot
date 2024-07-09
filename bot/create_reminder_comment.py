@@ -217,7 +217,11 @@ class CreateReminderComment:
             )
 
     def _process_text_field(
-        self, task_id, task_field: dict, tracked_field_value: str, type_message: str
+        self,
+        task_id: str,
+        task_field: dict,
+        tracked_field_value: str,
+        type_message: str,
     ):
         print("🚚 Processing text field...")
 

@@ -119,15 +119,15 @@ def reminder_step_page():
     return reminder_step_page.process_request()
 
 
-@app.route("/reminder-payment-type", methods=["GET", "POST"])
-def reminder_peyment_type_page():
-    reminder_peyment_type = ReminderPaymentType(
-        CACHE,
-        request,
-        RPT_SECRET_KEY if RPT_SECRET_KEY is not None else "",
-        RPT_LOGIN if RPT_LOGIN is not None else "",
-    )
-    return reminder_peyment_type.process_request()
+# @app.route("/reminder-payment-type", methods=["GET", "POST"])
+# def reminder_peyment_type_page():
+#     reminder_peyment_type = ReminderPaymentType(
+#         CACHE,
+#         request,
+#         RPT_SECRET_KEY if RPT_SECRET_KEY is not None else "",
+#         RPT_LOGIN if RPT_LOGIN is not None else "",
+#     )
+#     return reminder_peyment_type.process_request()
 
 
 # @app.route("/remider-inactive-tasks", methods=["GET", "POST"])
@@ -140,8 +140,6 @@ def reminder_peyment_type_page():
 #         sentry_sdk=sentry_sdk,
 #     )
 #     return remider_inactive_tasks.process_request()
-
-from typing import Union, TypedDict, List, Dict
 
 
 @app.route("/webhook-reminder", methods=["GET", "POST"])

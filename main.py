@@ -9,7 +9,7 @@ from bot.reminder_step import ReminderStep
 from bot.reminder_payment_type import ReminderPaymentType
 
 # from bot.remider_inactive_tasks import RemiderInactiveTasks
-from bot.create_reminder_comment import CreateReminderComment
+from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 
@@ -141,11 +141,13 @@ def reminder_peyment_type_page():
 #     )
 #     return remider_inactive_tasks.process_request()
 
+from typing import Union, TypedDict, List, Dict
+
 
 @app.route("/webhook-reminder", methods=["GET", "POST"])
 def webhook_reminder():
     CATALOG_ID = "211552"
-    TRACKED_FIELDS = {
+    TRACKED_FIELDS: TrackedFieldsType = {
         "text": {
             "Тип оплаты / Статус": "✅Нал (чек)",
         },

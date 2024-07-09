@@ -5,12 +5,17 @@ from flask import Request
 from pyrus import client
 from pyrus_api_handler import PyrusAPI
 from datetime import datetime
-from typing import Union
+from typing import Union, TypedDict, List, Dict
 import locale
 import uuid
 
 
 locale.setlocale(locale.LC_TIME, "ru_RU.UTF-8")
+
+
+class TrackedFieldsType(TypedDict):
+    text: Dict[str, str]
+    date: List[str]
 
 
 class CreateReminderComment:
@@ -21,7 +26,7 @@ class CreateReminderComment:
         pyrus_secret_key: str,
         pyrus_login: str,
         sentry_sdk,
-        traked_fields: Union[dict, None],
+        traked_fields: TrackedFieldsType,
     ):
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
@@ -82,7 +87,7 @@ class CreateReminderComment:
             ):
                 return field
 
-    def _create_shipment_date_formatted_text(self, author, date: str, time: str = ""):
+    def _create_shipment_date_comment_data(self, author, date: str, time: str = ""):
         id = author["id"]
         first_name = author["first_name"]
         last_name = author["last_name"]
@@ -97,7 +102,7 @@ class CreateReminderComment:
         )
         return {"formatted_text": formatted_text}
 
-    def _create_payment_date_formatted_text(self, author):
+    def _create_payment_date_comment_data(self, author):
         id = author["id"]
         first_name = author["first_name"]
         last_name = author["last_name"]
@@ -211,223 +216,130 @@ class CreateReminderComment:
                 catalog_updated,
             )
 
-    def _update_notification(
-        self, task_id: str, task_date: str, type_message: str, remove: bool = False
+    def _process_text_field(
+        self, task_id, task_field: dict, tracked_field_value: str, type_message: str
     ):
-        catalog = self.pyrus_api.get_request(
-            f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}"
-        )
+        print("🚚 Processing text field...")
 
-        catalog_new = {
-            "apply": "true",
-            "catalog_headers": ["id", "task_id", "timestamp", "message_type"],
-            "items": [],
-        }
-
-        if catalog:
-            # Check if catalog contains items[]
-            # If not - add new items[] with new item
-            # If exist Loop over items
-            # Find item by task_id and item_message_type to update it
-            # Remove item if need it (not adding it to new catalog)
-            # Or leave/add item just as it is
-            # If item not found we adding this new item to the list catalog_new
-            # POST request to update catalog with new catalog
-            if "items" in catalog:
-                new_item = True
-                for item in catalog["items"]:
-                    item_id, item_task_id, item_timestamp, item_message_type = item[
-                        "values"
-                    ]
-                    if str(item_task_id) == str(task_id) and str(
-                        item_message_type
-                    ) == str(type_message):
-                        new_item = False
-                        if not remove:
-                            catalog_new["items"].append(
-                                {
-                                    "values": [
-                                        item_id,
-                                        item_task_id,
-                                        task_date,
-                                        item_message_type,
-                                    ]
-                                }
-                            )
-                        else:
-                            print("🚚 Removing the item by not adding to new catalog")
-                    else:
-                        catalog_new["items"].append(
-                            {
-                                "values": [
-                                    item_id,
-                                    item_task_id,
-                                    item_timestamp,
-                                    item_message_type,
-                                ]
-                            }
-                        )
-                if new_item:
-                    id = uuid.uuid4()
-                    id_str = str(id)
-                    catalog_new["items"].append(
-                        {"values": [id_str, task_id, task_date, type_message]}
-                    )
-                    print("🚚 Adding the item to new catalog")
-            else:
-                id = uuid.uuid4()
-                id_str = str(id)
-                catalog_new["items"].append(
-                    {"values": [id_str, task_id, task_date, type_message]}
-                )
-
-            self.pyrus_api.post_request(
-                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
-                catalog_new,
-            )
-
-        else:
-            self.sentry_sdk.capture_message(
-                "Debug message: ❌ Catalog is not found in _update_catalog",
-                level="debug",
-            )
-            print("❌ Catalog is not found")
-
-    def _create_notification_from_text_field(
-        self,
-        field_name: str,
-        field_value: str,
-        task: dict,
-        notification_type: str,
-        field_type: str = "text",
-    ):
-        print("🚚 Creating notification from text field...")
-        task_id = task["id"]
-        print(f"Task ID: {task_id}")
-        time_to_send = datetime.now().date()
-
-        updated_fields_in_task = task["comments"][0]["field_updates"]
-
-        updated_field = self._find_fields(
-            updated_fields_in_task, field_name, field_type
-        )
-
-        value_updated_field = (
-            str(updated_field["value"])
-            if updated_field is not None and "value" in updated_field
+        task_field_value = (
+            str(task_field["value"])
+            if task_field is not None and "value" in task_field
             else None
         )
 
-        date_now = datetime.now().date()
-        time_to_send_is_today = date_now == time_to_send
-        value_is_correct = field_value == value_updated_field
+        value_is_correct = task_field_value == tracked_field_value
 
-        if time_to_send_is_today and value_is_correct:
-            if notification_type == "payment_type":
-                data = self._create_payment_type_comment_data()
+        if type_message == "payment_type" and value_is_correct:
+            data = self._create_payment_type_comment_data()
 
             self.pyrus_api.post_request(
                 url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
                 data=data,
             )
 
-    def _create_notification_from_date_field(
+    def _process_data_field(
         self,
-        field_name: str,
-        task: dict,
-        notification_type: str,
-        field_type: str = "date",
+        task_id: str,
+        author: dict,
+        task_field: dict,
+        type_message: str,
     ):
-        print("🚚 Creating notification from field...")
-        task_id = task["id"]
-        print(f"Task ID: {task_id}")
-        updated_value_date = None
-        updated_date_in_task = None
+        print("🚚 Processing date field...")
 
-        # We check if there any fields that was updated
-        # Find field in task["comments"][0]["field_updates"] from task response
-        if "comments" in task and "field_updates" in task["comments"][0]:
-            print("Debug message: ✅ This task has comments and field_updates")
+        task_field_date_value: Union[str, None] = (
+            str(task_field["value"])
+            if task_field is not None and "value" in task_field
+            else None
+        )
+        task_field_date = (
+            datetime.strptime(task_field_date_value, "%Y-%m-%d").date()
+            if task_field_date_value is not None
+            else None
+        )
 
-            updated_fields_in_task = task["comments"][0]["field_updates"]
-
-            updated_field_date_in_task = self._find_fields(
-                updated_fields_in_task, field_name, field_type
-            )
-            updated_value_date: Union[str, None] = (
-                str(updated_field_date_in_task["value"])
-                if updated_field_date_in_task is not None
-                and "value" in updated_field_date_in_task
-                else None
-            )
-            updated_date_in_task = (
-                datetime.strptime(updated_value_date, "%Y-%m-%d").date()
-                if updated_value_date is not None
-                else None
-            )
-
-        else:
-            print(
-                "Debug message: ❌ This task doesn't have any comments or field_updates"
-            )
-
-        if updated_date_in_task is not None and updated_value_date is not None:
+        if task_field_date is not None and task_field_date_value is not None:
             date_now = datetime.now().date()
-            field_date_is_today = date_now == updated_date_in_task
-            field_date_is_passed = date_now > updated_date_in_task
-            field_date_in_future = updated_date_in_task > date_now
+            is_today = date_now == task_field_date
+            is_passed = date_now > task_field_date
+            in_future = task_field_date > date_now
 
-            if field_date_is_today:
+            if is_today:
                 print(
                     "Debug message: 📅 This shipment date is today, Sending a message... A notification wouldn't be created."
                 )
-                if notification_type == "shipment_date":
-                    data = self._create_shipment_date_formatted_text(
-                        author=task["author"], date=updated_value_date
+
+                if type_message == "shipment_date":
+                    data = self._create_shipment_date_comment_data(
+                        author=author, date=task_field_date_value
                     )
-                elif notification_type == "payment_date":
-                    data = self._create_payment_date_formatted_text(
-                        author=task["author"]
-                    )
+                elif type_message == "payment_date":
+                    data = self._create_payment_date_comment_data(author=author)
 
                 self.pyrus_api.post_request(
                     url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
                     data=data,
                 )
 
-                self._update_notification(
-                    task_id=task["id"],
-                    task_date=updated_value_date,
-                    type_message=notification_type,
-                    remove=True,
+                self._delete_reminder(
+                    task_id=task_id,
+                    type_message=type_message,
                 )
-            elif field_date_is_passed:
+            elif is_passed:
                 print("Debug message: 📅 This shipment date is passed")
-            elif field_date_in_future:
+            elif in_future:
                 print(
                     "Debug message: 📅 Current shipment date is not today, creating a notification..."
                 )
-                self._update_notification(
-                    task_id=task["id"],
-                    task_date=updated_value_date,
-                    type_message=notification_type,
+
+                self._save_or_update_reminder(
+                    task_id=task_id,
+                    task_date=task_field_date_value,
+                    type_message=type_message,
                 )
-        else:
-            print(
-                f"Debug message: ❌ The field '{field_name}' is not found in task['comments'][0]['field_updates']"
-            )
 
     def _handle_response(self, task: dict):
         print("🚚 Hadling the response...")
-        self._create_notification_from_date_field(
-            "Дата отгрузки", task, "shipment_date", field_type="date"
-        )
-        self._create_notification_from_date_field(
-            "Дата планируемой оплаты", task, "payment_date", field_type="date"
-        )
-        self._create_notification_from_text_field(
-            "Тип оплаты / Статус", "✅Нал (чек)", task, "payment_type", "text"
-        )
+
+        if hasattr(task, "comments") and hasattr(task["comments"][0], "field_updates"):
+            task_fields_updated = task["comments"][0]["field_updates"]
+
+            if isinstance(self.tracked_fields, dict):
+                for field_type, fields in self.tracked_fields.items():
+                    if field_type == "text" and isinstance(fields, dict):
+                        for field_name, field_value in fields.items():
+                            print(
+                                f"Field Name: {field_name}, Field Value: {field_value}"
+                            )  # Field Name: Тип оплаты / Статус, Field Value: ✅Нал (чек)
+                            task_field_found = self._find_fields(
+                                task_fields_updated, field_name, field_type
+                            )
+                            if task_field_found is not None:
+                                self._process_text_field(
+                                    task_id=task["id"],
+                                    task_field=task_field_found,
+                                    tracked_field_value=field_value,
+                                    type_message="payment_type",
+                                )
+                    elif field_type == "date" and isinstance(fields, dict):
+                        for field_name in fields:
+                            print(
+                                f"Field Name: {field_name}"
+                            )  # Field Name: Дата отгрузки, Field Name: Дата планируемой оплаты
+                            task_field_found = self._find_fields(
+                                task_fields_updated, field_name, field_type
+                            )
+                            if task_field_found is not None:
+                                type_message = (
+                                    "shipment_date"
+                                    if field_name == "Дата отгрузки"
+                                    else "payment_date"
+                                )
+                                self._process_data_field(
+                                    task_id=task["id"],
+                                    author=task["author"],
+                                    task_field=task_field_found,
+                                    type_message=type_message,
+                                )
 
         return "{}", 200
 

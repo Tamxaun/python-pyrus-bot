@@ -5,7 +5,8 @@ from flask import Request
 from pyrus import client
 from pyrus_api_handler import PyrusAPI
 from datetime import datetime
-from typing import Union, TypedDict, List, Dict
+from pyrus.models.entities import CatalogItem
+from typing import Union, TypedDict, List, Dict, Optional
 import locale
 import uuid
 
@@ -130,12 +131,8 @@ class CreateReminderComment:
         catalog_id = self.catalog_id
         catalog_response = self.pyrus_client.get_catalog(catalog_id)
 
-        if (
-            catalog_response
-            and hasattr(catalog_response, "items")
-            and catalog_response.items
-        ):
-            items = catalog_response.items
+        if catalog_response.items is not None:
+            items: Optional[List[CatalogItem]] = catalog_response.items
             catalog_updated = {
                 "apply": "true",
                 "catalog_headers": ["id", "task_id", "timestamp", "message_type"],
@@ -143,13 +140,15 @@ class CreateReminderComment:
             }
 
             for item in items:
-                item_id, item_task_id, item_timestamp, item_message_type = item[
-                    "values"
-                ]
-                if str(task_id) != str(item_task_id) and str(type_message) != str(
-                    item_message_type
-                ):
-                    catalog_updated["items"].append(item)
+                if item.values is not None:
+                    item_id, item_task_id, item_timestamp, item_message_type = (
+                        item.values
+                    )
+
+                    if str(task_id) != str(item_task_id) and str(type_message) != str(
+                        item_message_type
+                    ):
+                        catalog_updated["items"].append({"values": [item.values]})
 
             return self.pyrus_api.post_request(
                 f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
@@ -161,12 +160,8 @@ class CreateReminderComment:
         catalog_response = self.pyrus_client.get_catalog(catalog_id)
         reminder_exists = False
 
-        if (
-            catalog_response
-            and hasattr(catalog_response, "items")
-            and catalog_response.items
-        ):
-            items = catalog_response.items
+        if catalog_response.items is not None:
+            items: Optional[List[CatalogItem]] = catalog_response.items
             catalog_updated = {
                 "apply": "true",
                 "catalog_headers": ["id", "task_id", "timestamp", "message_type"],
@@ -175,27 +170,29 @@ class CreateReminderComment:
 
             # Filling catalog
             for item in items:
-                item_id, item_task_id, item_timestamp, item_message_type = item[
-                    "values"
-                ]
-                # Find item with the same task_id and type_message to update it
-                if str(task_id) != str(item_task_id) and str(type_message) != str(
-                    item_message_type
-                ):
-                    reminder_exists = True
-                    catalog_updated["items"].append(
-                        {
-                            "values": [
-                                item_id,
-                                item_task_id,
-                                task_date,
-                                item_message_type,
-                            ],
-                        }
+                if item.values is not None:
+                    item_id, item_task_id, item_timestamp, item_message_type = (
+                        item.values
                     )
-                else:
-                    # If item not found we adding this item to updated catalog
-                    catalog_updated["items"].append(item)
+
+                    # Find item with the same task_id and type_message to update it
+                    if str(task_id) == str(item_task_id) and str(type_message) == str(
+                        item_message_type
+                    ):
+                        reminder_exists = True
+                        catalog_updated["items"].append(
+                            {
+                                "values": [
+                                    item_id,
+                                    item_task_id,
+                                    task_date,
+                                    item_message_type,
+                                ],
+                            }
+                        )
+                    else:
+                        # If item not found we adding this item to updated catalog
+                        catalog_updated["items"].append({"values": [item.values]})
 
             if not reminder_exists:
                 id = uuid.uuid4()
@@ -236,6 +233,10 @@ class CreateReminderComment:
         if type_message == "payment_type" and value_is_correct:
             data = self._create_payment_type_comment_data()
 
+            print(
+                f"📅 Debug message _process_text_field, data: {data} Type message: {type_message}"
+            )
+
             self.pyrus_api.post_request(
                 url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
                 data=data,
@@ -268,16 +269,16 @@ class CreateReminderComment:
             in_future = task_field_date > date_now
 
             if is_today:
-                print(
-                    "Debug message: 📅 This shipment date is today, Sending a message... A notification wouldn't be created."
-                )
-
                 if type_message == "shipment_date":
                     data = self._create_shipment_date_comment_data(
                         author=author, date=task_field_date_value
                     )
                 elif type_message == "payment_date":
                     data = self._create_payment_date_comment_data(author=author)
+
+                print(
+                    f"📅 Debug message _process_data_field: This shipment date is today, Sending a message... A notification wouldn't be created. Type message: {type_message}. Data: {data}"
+                )
 
                 self.pyrus_api.post_request(
                     url=f"https://api.pyrus.com/v4/tasks/{task_id}/comments",
@@ -289,10 +290,12 @@ class CreateReminderComment:
                     type_message=type_message,
                 )
             elif is_passed:
-                print("Debug message: 📅 This shipment date is passed")
+                print(
+                    f"📅 Debug message: This shipment date is passed. Type message: {type_message}"
+                )
             elif in_future:
                 print(
-                    "Debug message: 📅 Current shipment date is not today, creating a notification..."
+                    f"📅 Debug message: Current shipment date is not today, creating a notification. Type message: {type_message}"
                 )
 
                 self._save_or_update_reminder(
@@ -304,16 +307,14 @@ class CreateReminderComment:
     def _handle_response(self, task: dict):
         print("🚚 Hadling the response...")
 
-        if hasattr(task, "comments") and hasattr(task["comments"][0], "field_updates"):
+        if "comments" in task and "field_updates" in task["comments"][0]:
+            print(f"✅ Task has comments and field_updates")
             task_fields_updated = task["comments"][0]["field_updates"]
 
             if isinstance(self.tracked_fields, dict):
                 for field_type, fields in self.tracked_fields.items():
                     if field_type == "text" and isinstance(fields, dict):
                         for field_name, field_value in fields.items():
-                            print(
-                                f"Field Name: {field_name}, Field Value: {field_value}"
-                            )  # Field Name: Тип оплаты / Статус, Field Value: ✅Нал (чек)
                             task_field_found = self._find_fields(
                                 task_fields_updated, field_name, field_type
                             )
@@ -324,11 +325,11 @@ class CreateReminderComment:
                                     tracked_field_value=field_value,
                                     type_message="payment_type",
                                 )
-                    elif field_type == "date" and isinstance(fields, dict):
-                        for field_name in fields:
                             print(
-                                f"Field Name: {field_name}"
-                            )  # Field Name: Дата отгрузки, Field Name: Дата планируемой оплаты
+                                f"✅ Field Type: {field_type}, Field Name: {field_name}, Field Value: {field_value}, Task Field Founed: {task_field_found}"
+                            )  # Field Name: Тип оплаты / Статус, Field Value: ✅Нал (чек)
+                    elif field_type == "date" and isinstance(fields, list):
+                        for field_name in fields:
                             task_field_found = self._find_fields(
                                 task_fields_updated, field_name, field_type
                             )
@@ -344,6 +345,9 @@ class CreateReminderComment:
                                     task_field=task_field_found,
                                     type_message=type_message,
                                 )
+                            print(
+                                f"✅ Field Type: {field_type}, Field Name: {field_name}, Task Field Founed: {task_field_found}"
+                            )  # Field Name: Дата отгрузки, Field Name: Дата планируемой оплаты
 
         return "{}", 200
 

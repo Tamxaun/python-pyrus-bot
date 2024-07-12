@@ -8,7 +8,7 @@ from pyrus.models.entities import FormField, Title
 from typing import Union, List
 
 
-class CopyInfoToTask:
+class SyncTaskData:
     def __init__(
         self,
         cache,

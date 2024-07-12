@@ -45,10 +45,10 @@ sentry_sdk.init(
 # Load environment variables
 RS_LOGIN = os.getenv("RS_LOGIN")
 RS_SECRET_KEY = os.getenv("RS_SECRET_KEY")
-SYNC_LOGIN = os.getenv("SYNC_LOGIN")
-SYNC_SECRET_KEY = os.getenv("SYNC_SECRET_KEY")
 REMINDER_LOGIN = os.getenv("REMINDER_LOGIN")
 REMINDER_SECRET_KEY = os.getenv("REMINDER_SECRET_KEY")
+SYNC_LOGIN = os.getenv("SYNC_LOGIN")
+SYNC_SECRET_KEY = os.getenv("SYNC_SECRET_KEY")
 
 if (
     RS_LOGIN is None

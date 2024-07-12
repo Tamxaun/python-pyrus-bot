@@ -6,7 +6,9 @@ from flask_caching import Cache
 from flask_apscheduler import APScheduler
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
-from bot.reminder_payment_type import ReminderPaymentType
+
+# from bot.reminder_payment_type import ReminderPaymentType
+from bot.copy_info_to_task import CopyInfoToTask
 
 # from bot.remider_inactive_tasks import RemiderInactiveTasks
 from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
@@ -46,22 +48,22 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 RS_LOGIN = os.getenv("RS_LOGIN")
 RS_SECRET_KEY = os.getenv("RS_SECRET_KEY")
-RPT_LOGIN = os.getenv("RPT_LOGIN")
-RPT_SECRET_KEY = os.getenv("RPT_SECRET_KEY")
+COPY_LOGIN = os.getenv("COPY_LOGIN")
+COPY_SECRET_KEY = os.getenv("COPY_SECRET_KEY")
 RIT_LOGIN = os.getenv("RIT_LOGIN")
 RIT_SECRET_KEY = os.getenv("RIT_SECRET_KEY")
-NDS_LOGIN = os.getenv("NDS_LOGIN")
-NDS_SECRET_KEY = os.getenv("NDS_SECRET_KEY")
+REMINDER_LOGIN = os.getenv("REMINDER_LOGIN")
+REMINDER_SECRET_KEY = os.getenv("REMINDER_SECRET_KEY")
 
 if (
     RS_LOGIN is None
     or RS_SECRET_KEY is None
-    or RPT_LOGIN is None
-    or RPT_SECRET_KEY is None
     or RIT_LOGIN is None
     or RIT_SECRET_KEY is None
-    or NDS_LOGIN is None
-    or NDS_SECRET_KEY is None
+    or REMINDER_LOGIN is None
+    or REMINDER_SECRET_KEY is None
+    or COPY_SECRET_KEY is None
+    or COPY_LOGIN is None
 ):
     print("❌ All required environment variables must be set")
     exit(1)  # Exit the application if any required environment variable is missing
@@ -140,6 +142,19 @@ def reminder_step_page():
 #         sentry_sdk=sentry_sdk,
 #     )
 #     return remider_inactive_tasks.process_request()
+@app.route("/webhook-copy-info-to-task", methods=["GET", "POST"])
+def webhook_copy_info_to_task():
+    TRACKED_FIELD = {
+        "Заказ в Pyrus": ["№ ордеров из 1С", "№ ордера"],
+    }
+    copy_info_to_task = CopyInfoToTask(
+        cache=CACHE,
+        pyrus_secret_key=COPY_SECRET_KEY if COPY_SECRET_KEY is not None else "",
+        pyrus_login=COPY_LOGIN if COPY_LOGIN is not None else "",
+        sentry_sdk=sentry_sdk,
+        traked_fields=TRACKED_FIELD,
+    )
+    return copy_info_to_task.process_request(request=request)
 
 
 @app.route("/webhook-reminder", methods=["GET", "POST"])
@@ -154,8 +169,8 @@ def webhook_reminder():
     create_reminder_comment = CreateReminderComment(
         CATALOG_ID,
         CACHE,
-        NDS_SECRET_KEY if NDS_SECRET_KEY is not None else "",
-        NDS_LOGIN if NDS_LOGIN is not None else "",
+        REMINDER_SECRET_KEY if REMINDER_SECRET_KEY is not None else "",
+        REMINDER_LOGIN if REMINDER_LOGIN is not None else "",
         sentry_sdk,
         TRACKED_FIELDS,
     )
@@ -173,7 +188,7 @@ scheduler.start()
 def notify_job():
     catalog_id = "211552"
     notification = Notification_in_pyrus_task(
-        catalog_id, NDS_LOGIN, NDS_SECRET_KEY, sentry_sdk, CACHE
+        catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
     )
     notification.send()
 

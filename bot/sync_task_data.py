@@ -5,6 +5,7 @@ from flask import Request
 from pyrus import client
 from pyrus_api_handler import PyrusAPI
 from pyrus.models.entities import FormField, Title
+from pyrus.models.requests import TaskCommentRequest
 from typing import Union, List
 
 
@@ -147,14 +148,16 @@ class SyncTaskData:
                                 fields=task_to_update.fields,
                             )
                             if isinstance(field_task_to_update, FormField):
-                                data_to_update_field_task = {
-                                    "field_updates": [
-                                        {
-                                            "id": field_task_to_update.id,
-                                            "value": value_field_to_update,
-                                        }
-                                    ]
-                                }
+                                data_to_update_field_task: TaskCommentRequest = (
+                                    TaskCommentRequest(
+                                        field_updates=[
+                                            {
+                                                "id": field_task_to_update.id,
+                                                "value": value_field_to_update,
+                                            }
+                                        ]
+                                    )
+                                )
                                 self.pyrus_client.comment_task(
                                     task_id=id_task_to_update,
                                     task_comment_request=data_to_update_field_task,

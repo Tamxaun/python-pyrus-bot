@@ -111,7 +111,9 @@ class SyncTaskData:
 
             if isinstance(self.tracked_fields, dict):
                 for field_traked, fields in self.tracked_fields.items():
-                    print(f"✅ Tracked fields {fields[0]}, {fields[1]}")
+                    print(
+                        f"🔎 Ищем поле для опрделения задачи где будем сихронизироваться значения, в текущей задачи поля 1 — '{fields[0]}' и между поля 2 — '{fields[1]}' в задаче из поля — '{field_traked}'"
+                    )
                     task_tracked_main_field_found = self._find_field_by_name(
                         task_fields_updated, field_traked, "form_link"
                     )
@@ -119,10 +121,10 @@ class SyncTaskData:
                         task_fields_updated, fields[0], "text"
                     )
                     print(
-                        f"✅task_tracked_main_field_found {task_tracked_main_field_found}"
+                        f"➡️  Значение поля для опрделения задачи — {f'✅ Найдено, поле: {task_tracked_main_field_found}' if task_tracked_main_field_found else f'❌ Не найдено, список обновленных полей: {task_fields_updated}'}"
                     )
                     print(
-                        f"✅task_tracked_field_one_found {task_tracked_field_one_found}"
+                        f"➡️  Значение поля для сихронизации значения в другую задачу — {f'✅ Найдено, поле: {task_tracked_field_one_found}' if task_tracked_field_one_found else f'❌ Не найдено'}"
                     )
                     if (
                         task_tracked_main_field_found is not None
@@ -130,6 +132,11 @@ class SyncTaskData:
                         and isinstance(task_tracked_field_one_found, dict)
                         and isinstance(task_tracked_main_field_found, dict)
                     ):
+                        if "value" not in task_tracked_field_one_found:
+                            print(
+                                "❌ Значение поля для сихронизации значения в другую задачу не найдено"
+                            )
+                            continue
                         value_field_to_update = task_tracked_field_one_found["value"]
                         id_task_to_update = task_tracked_main_field_found["value"][
                             "task_id"
@@ -143,31 +150,42 @@ class SyncTaskData:
                             task_to_update is not None
                             and task_to_update.fields is not None
                         ):
+                            print(
+                                f"➡️  Получаем задачу '{id_task_to_update}' и обновляем поле '{field_name_task_to_update}' со значением '{value_field_to_update}'"
+                            )
                             field_task_to_update = self._find_field_by_name(
                                 field_name=field_name_task_to_update,
                                 fields=task_to_update.fields,
                             )
                             if isinstance(field_task_to_update, FormField):
+                                print(
+                                    f"➡️  Находим поле задачи: {f'✅ Найдено, поле: {field_task_to_update.value}' if field_task_to_update and field_task_to_update.value is not None else f'❌ Не найдено'}"
+                                )
                                 data_to_update_field_task: TaskCommentRequest = (
                                     TaskCommentRequest(
+                                        text=f"Значение поля '{field_name_task_to_update}' было сихронизированно с после '{fields[0]}' из задачи '{task['text']}'",
                                         field_updates=[
                                             {
                                                 "id": field_task_to_update.id,
                                                 "value": value_field_to_update,
                                             }
-                                        ]
+                                        ],
                                     )
                                 )
-                                self.pyrus_client.comment_task(
+                                comment_task = self.pyrus_client.comment_task(
                                     task_id=id_task_to_update,
                                     task_comment_request=data_to_update_field_task,
                                 )
-                        print(
-                            f"✅ Tracked task_tracked_main_field_found {task_tracked_main_field_found}"
-                        )
-                        print(
-                            f"✅ Tracked task_tracked_field_one_found {task_tracked_field_one_found}, {fields}"
-                        )
+                                if comment_task.error is None:
+                                    print(f"➡️  Задача '{id_task_to_update}' обновлена")
+                                else:
+                                    print(
+                                        f"➡️  Ошибка обновления задачи '{id_task_to_update}': error '{comment_task.error}', error_code '{comment_task.error_code}', original_response '{comment_task.original_response}', task '{comment_task.task}'"
+                                    )
+                                    self.sentry_sdk.capture_message(
+                                        f"Webhook Sync Task Data Debug: Ошибка обновления задачи '{id_task_to_update}': '{comment_task.error}'",
+                                        level="error",
+                                    )
 
         return "{}", 200
 

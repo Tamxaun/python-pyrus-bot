@@ -192,7 +192,16 @@ class CreateReminderComment:
                         )
                     else:
                         # If item not found we adding this item to updated catalog
-                        catalog_updated["items"].append({"values": [item.values]})
+                        catalog_updated["items"].append(
+                            {
+                                "values": [
+                                    item_id,
+                                    item_task_id,
+                                    item_timestamp,
+                                    item_message_type,
+                                ]
+                            }
+                        )
 
             if not reminder_exists:
                 id = uuid.uuid4()

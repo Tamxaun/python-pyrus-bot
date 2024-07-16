@@ -192,7 +192,7 @@ class SyncTaskData:
                             )
                             data_to_update_field_task: TaskCommentRequest = (
                                 TaskCommentRequest(
-                                    text=f"Значение поля '{field_name_task_to_update}' было сихронизированно с после '{fields[0]}' из задачи '{task['text']}'",
+                                    text=f"Значение поля '{field_name_task_to_update}' было сихронизированно с полем '{fields[0]}' из связанной задачи '{task['text']}'",
                                     field_updates=[
                                         {
                                             "id": field_task_to_update.id,

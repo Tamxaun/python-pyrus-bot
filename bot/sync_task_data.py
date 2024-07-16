@@ -133,7 +133,7 @@ class SyncTaskData:
                         task_fields, field_traked, "form_link"
                     )
                 print(
-                    f"➡️  Значение поля для опрделения задачи — {f'✅ Найдено, поле: {task_tracked_main_updated_field_found}' if task_tracked_main_updated_field_found else f'❌ Не найдено, список обновленных полей: {task_fields_updated}'}"
+                    f"➡️ Значение поля для опрделения задачи — {f'✅ Найдено, поле: {task_tracked_main_updated_field_found}' if task_tracked_main_updated_field_found else f'❌ Не найдено, список обновленных полей: {task_fields_updated}'}"
                 )
 
                 print(
@@ -143,7 +143,7 @@ class SyncTaskData:
                     task_fields_updated, fields[0], "text"
                 )
                 print(
-                    f"➡️  Значение поля '{fields[0]}' для сихронизации значения c другой задачей — {f'✅ Найдено, поле: {task_tracked_updated_field_one_found}' if task_tracked_updated_field_one_found else f'❌ Не найдено'}"
+                    f"➡️ Значение поля '{fields[0]}' для сихронизации значения c другой задачей — {f'✅ Найдено, поле: {task_tracked_updated_field_one_found}' if task_tracked_updated_field_one_found else f'❌ Не найдено'}"
                 )
 
                 if (
@@ -165,16 +165,16 @@ class SyncTaskData:
                         "task_id"
                     ]
 
-                    print(f"➡️  Получаем связанную задачу, id:'{id_task_to_update}'")
+                    print(f"➡️ Получаем связанную задачу, id:'{id_task_to_update}'")
                     field_name_task_to_update: str = fields[1]
                     responce_task_to_update = self.pyrus_client.get_task(
                         id_task_to_update
                     )
-                    task_to_update = self.pyrus_client.get_task(id_task_to_update).task
+                    task_to_update = responce_task_to_update.task
 
                     if task_to_update is not None and task_to_update.fields is not None:
                         print(
-                            f"➡️  Задачу получили, id:'{id_task_to_update}'✅, находим в задаче поле '{field_name_task_to_update}'"
+                            f"➡️ Задачу получили, id:'{id_task_to_update}'✅, находим в задаче поле '{field_name_task_to_update}'"
                         )
                         field_task_to_update = self._find_field_by_name(
                             field_name=field_name_task_to_update,
@@ -183,10 +183,12 @@ class SyncTaskData:
                         if (
                             isinstance(field_task_to_update, FormField)
                             and field_task_to_update
-                            and field_task_to_update.value is not None
                         ):
                             print(
-                                f"➡️  Поле для обновления задаче в связанноей задачи: '✅ Найдено, поле: {field_task_to_update.value}'"
+                                f"➡️ Поле для обновления в связанноей задачи: '✅ Найдено, поле: {field_task_to_update.name}'"
+                            )
+                            print(
+                                f"➡️ Обновляняем поле '{field_name_task_to_update}' в задаче '{id_task_to_update}' и оставяем коментарий"
                             )
                             data_to_update_field_task: TaskCommentRequest = (
                                 TaskCommentRequest(
@@ -204,7 +206,7 @@ class SyncTaskData:
                                 task_comment_request=data_to_update_field_task,
                             )
                             if comment_task.error is None:
-                                print(f"➡️  Задача '{id_task_to_update}' обновлена ✅")
+                                print(f"➡️ Задача '{id_task_to_update}' обновлена ✅")
                             else:
                                 print(
                                     f"❌  Ошибка обновления задачи '{id_task_to_update}': error '{comment_task.error}', error_code '{comment_task.error_code}', original_response '{comment_task.original_response}', task '{comment_task.task}'"
@@ -215,7 +217,7 @@ class SyncTaskData:
                                 )
                         else:
                             print(
-                                f"➡️  Поле для обновления задаче в связанноей задачи: ❌ Не найдено"
+                                f"➡️ Поле для обновления задаче в связанноей задачи: ❌ Не найдено, поля связанной задачи: {task_to_update.fields}"
                             )
                     else:
                         print(

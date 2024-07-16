@@ -16,7 +16,7 @@ class SyncTaskData:
         pyrus_secret_key: str,
         pyrus_login: str,
         sentry_sdk,
-        traked_fields,
+        traked_fields: dict,
     ):
         self.pyrus_secret_key = pyrus_secret_key
         self.pyrus_login = pyrus_login
@@ -114,127 +114,117 @@ class SyncTaskData:
             task_fields_updated: dict = task["comments"][0]["field_updates"]
             task_fields: dict = task["fields"]
 
-            if isinstance(self.tracked_fields, dict):
-                for field_traked, fields in self.tracked_fields.items():
+            for field_traked, fields in self.tracked_fields.items():
 
+                print(
+                    f"🔎 Ищем в обновленных, поле, для опрделения номера задачи, где будем сихронизировать значения, в текущей задаче с полем — '{fields[0]}' и в найденой задаче с полем — '{fields[1]}'"
+                )
+                task_tracked_main_updated_field_found = self._find_field_by_name(
+                    task_fields_updated, field_traked, "form_link"
+                )
+                if task_tracked_main_updated_field_found is None:
                     print(
-                        f"🔎 Ищем в обновленных, поле, для опрделения номера задачи, где будем сихронизировать значения, в текущей задаче с полем — '{fields[0]}' и в найденой задаче с полем — '{fields[1]}'"
+                        f"❌ В списке обновленных полей, поле для определения задачи — '{field_traked}' не найдено"
+                    )
+                    print(
+                        f"🔎 Ищем в списке полей, поле, для опрделения номера задачи, где будем сихронизировать значения, в текущей задаче с полем — '{fields[0]}' и в найденой задаче с полем — '{fields[1]}'"
                     )
                     task_tracked_main_updated_field_found = self._find_field_by_name(
-                        task_fields_updated, field_traked, "form_link"
+                        task_fields, field_traked, "form_link"
                     )
-                    if task_tracked_main_updated_field_found is None:
+                print(
+                    f"➡️  Значение поля для опрделения задачи — {f'✅ Найдено, поле: {task_tracked_main_updated_field_found}' if task_tracked_main_updated_field_found else f'❌ Не найдено, список обновленных полей: {task_fields_updated}'}"
+                )
+
+                print(
+                    f"🔎 Ищем в обновленных, поле '{fields[0]}', для сихронизиции значения в текущей задаче."
+                )
+                task_tracked_updated_field_one_found = self._find_field_by_name(
+                    task_fields_updated, fields[0], "text"
+                )
+                print(
+                    f"➡️  Значение поля '{fields[0]}' для сихронизации значения c другой задачей — {f'✅ Найдено, поле: {task_tracked_updated_field_one_found}' if task_tracked_updated_field_one_found else f'❌ Не найдено'}"
+                )
+
+                if (
+                    task_tracked_main_updated_field_found is not None
+                    and task_tracked_updated_field_one_found is not None
+                    and isinstance(task_tracked_updated_field_one_found, dict)
+                    and isinstance(task_tracked_main_updated_field_found, dict)
+                ):
+                    if "value" not in task_tracked_updated_field_one_found:
                         print(
-                            f"❌ В списке обновленных полей, поле для определения задачи — '{field_traked}' не найдено"
+                            "❌ Значение (value) в поле для сихронизации значения c другой задачей не найдено"
                         )
+                        continue
+
+                    value_field_to_update = task_tracked_updated_field_one_found[
+                        "value"
+                    ]
+                    id_task_to_update = task_tracked_main_updated_field_found["value"][
+                        "task_id"
+                    ]
+
+                    print(f"➡️  Получаем связанную задачу, id:'{id_task_to_update}'")
+                    field_name_task_to_update: str = fields[1]
+                    responce_task_to_update = self.pyrus_client.get_task(
+                        id_task_to_update
+                    )
+                    task_to_update = self.pyrus_client.get_task(id_task_to_update).task
+
+                    if task_to_update is not None and task_to_update.fields is not None:
                         print(
-                            f"🔎 Ищем в списке полей, поле, для опрделения номера задачи, где будем сихронизировать значения, в текущей задаче с полем — '{fields[0]}' и в найденой задаче с полем — '{fields[1]}'"
+                            f"➡️  Задачу получили, id:'{id_task_to_update}'✅, находим в задаче поле '{field_name_task_to_update}'"
                         )
-                        task_tracked_main_updated_field_found = (
-                            self._find_field_by_name(
-                                task_fields, field_traked, "form_link"
-                            )
+                        field_task_to_update = self._find_field_by_name(
+                            field_name=field_name_task_to_update,
+                            fields=task_to_update.fields,
                         )
-                    print(
-                        f"➡️  Значение поля для опрделения задачи — {f'✅ Найдено, поле: {task_tracked_main_updated_field_found}' if task_tracked_main_updated_field_found else f'❌ Не найдено, список обновленных полей: {task_fields_updated}'}"
-                    )
-
-                    print(
-                        f"🔎 Ищем в обновленных, поле '{fields[0]}', для сихронизиции значения в текущей задаче."
-                    )
-                    task_tracked_updated_field_one_found = self._find_field_by_name(
-                        task_fields_updated, fields[0], "text"
-                    )
-                    print(
-                        f"➡️  Значение поля '{fields[0]}' для сихронизации значения c другой задачей — {f'✅ Найдено, поле: {task_tracked_updated_field_one_found}' if task_tracked_updated_field_one_found else f'❌ Не найдено'}"
-                    )
-
-                    if (
-                        task_tracked_main_updated_field_found is not None
-                        and task_tracked_updated_field_one_found is not None
-                        and isinstance(task_tracked_updated_field_one_found, dict)
-                        and isinstance(task_tracked_main_updated_field_found, dict)
-                    ):
-                        if "value" not in task_tracked_updated_field_one_found:
-                            print(
-                                "❌ Значение (value) в поле для сихронизации значения c другой задачей не найдено"
-                            )
-                            continue
-
-                        value_field_to_update = task_tracked_updated_field_one_found[
-                            "value"
-                        ]
-                        id_task_to_update = task_tracked_main_updated_field_found[
-                            "value"
-                        ]["task_id"]
-
-                        print(f"➡️  Получаем связанную задачу, id:'{id_task_to_update}'")
-                        field_name_task_to_update: str = fields[1]
-                        responce_task_to_update = self.pyrus_client.get_task(
-                            id_task_to_update
-                        )
-                        task_to_update = self.pyrus_client.get_task(
-                            id_task_to_update
-                        ).task
-
                         if (
-                            task_to_update is not None
-                            and task_to_update.fields is not None
+                            isinstance(field_task_to_update, FormField)
+                            and field_task_to_update
+                            and field_task_to_update.value is not None
                         ):
                             print(
-                                f"➡️  Задачу получили, id:'{id_task_to_update}'✅, находим в задаче поле '{field_name_task_to_update}'"
+                                f"➡️  Поле для обновления задаче в связанноей задачи: '✅ Найдено, поле: {field_task_to_update.value}'"
                             )
-                            field_task_to_update = self._find_field_by_name(
-                                field_name=field_name_task_to_update,
-                                fields=task_to_update.fields,
+                            data_to_update_field_task: TaskCommentRequest = (
+                                TaskCommentRequest(
+                                    text=f"Значение поля '{field_name_task_to_update}' было сихронизированно с после '{fields[0]}' из задачи '{task['text']}'",
+                                    field_updates=[
+                                        {
+                                            "id": field_task_to_update.id,
+                                            "value": value_field_to_update,
+                                        }
+                                    ],
+                                )
                             )
-                            if (
-                                isinstance(field_task_to_update, FormField)
-                                and field_task_to_update
-                                and field_task_to_update.value is not None
-                            ):
-                                print(
-                                    f"➡️  Поле для обновления задаче в связанноей задачи: '✅ Найдено, поле: {field_task_to_update.value}'"
-                                )
-                                data_to_update_field_task: TaskCommentRequest = (
-                                    TaskCommentRequest(
-                                        text=f"Значение поля '{field_name_task_to_update}' было сихронизированно с после '{fields[0]}' из задачи '{task['text']}'",
-                                        field_updates=[
-                                            {
-                                                "id": field_task_to_update.id,
-                                                "value": value_field_to_update,
-                                            }
-                                        ],
-                                    )
-                                )
-                                comment_task = self.pyrus_client.comment_task(
-                                    task_id=id_task_to_update,
-                                    task_comment_request=data_to_update_field_task,
-                                )
-                                if comment_task.error is None:
-                                    print(
-                                        f"➡️  Задача '{id_task_to_update}' обновлена ✅"
-                                    )
-                                else:
-                                    print(
-                                        f"❌  Ошибка обновления задачи '{id_task_to_update}': error '{comment_task.error}', error_code '{comment_task.error_code}', original_response '{comment_task.original_response}', task '{comment_task.task}'"
-                                    )
-                                    self.sentry_sdk.capture_message(
-                                        f"Webhook Sync Task Data Debug: Ошибка обновления задачи '{id_task_to_update}': '{comment_task.error}'",
-                                        level="error",
-                                    )
+                            comment_task = self.pyrus_client.comment_task(
+                                task_id=id_task_to_update,
+                                task_comment_request=data_to_update_field_task,
+                            )
+                            if comment_task.error is None:
+                                print(f"➡️  Задача '{id_task_to_update}' обновлена ✅")
                             else:
                                 print(
-                                    f"➡️  Поле для обновления задаче в связанноей задачи: ❌ Не найдено"
+                                    f"❌  Ошибка обновления задачи '{id_task_to_update}': error '{comment_task.error}', error_code '{comment_task.error_code}', original_response '{comment_task.original_response}', task '{comment_task.task}'"
+                                )
+                                self.sentry_sdk.capture_message(
+                                    f"Webhook Sync Task Data Debug: Ошибка обновления задачи '{id_task_to_update}': '{comment_task.error}'",
+                                    level="error",
                                 )
                         else:
                             print(
-                                f"❌  Не удалось получить задачу '{id_task_to_update}', error: {responce_task_to_update.error}, error_code: {responce_task_to_update.error_code}, original_response: {responce_task_to_update.original_response}, task: {responce_task_to_update.task}"
+                                f"➡️  Поле для обновления задаче в связанноей задачи: ❌ Не найдено"
                             )
-                            self.sentry_sdk.capture_message(
-                                f"Webhook Sync Task Data Debug: Ошибка палучения задачи '{id_task_to_update}': '{responce_task_to_update.error}'",
-                                level="error",
-                            )
+                    else:
+                        print(
+                            f"❌  Не удалось получить задачу '{id_task_to_update}', error: {responce_task_to_update.error}, error_code: {responce_task_to_update.error_code}, original_response: {responce_task_to_update.original_response}, task: {responce_task_to_update.task}"
+                        )
+                        self.sentry_sdk.capture_message(
+                            f"Webhook Sync Task Data Debug: Ошибка палучения задачи '{id_task_to_update}': '{responce_task_to_update.error}'",
+                            level="error",
+                        )
         return "{}", 200
 
     def process_request(self, request: Request):

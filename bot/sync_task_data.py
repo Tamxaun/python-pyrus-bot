@@ -225,6 +225,14 @@ class SyncTaskData:
                             f"Webhook Sync Task Data Debug: Ошибка палучения задачи '{id_task_to_update}': '{responce_task_to_update.error}'",
                             level="error",
                         )
+                else:
+                    print(
+                        f"❌  Ошибка обновления задачи. 'task_tracked_main_updated_field_found' или 'task_tracked_updated_field_one_found' нет или не являются словарями: '{task_tracked_main_updated_field_found}', '{task_tracked_updated_field_one_found}'"
+                    )
+                    self.sentry_sdk.capture_message(
+                        f"Webhook Sync Task Data Debug: Ошибка обновления задачи. 'task_tracked_main_updated_field_found' или 'task_tracked_updated_field_one_found' нет или не являются словарями: '{task_tracked_main_updated_field_found}', '{task_tracked_updated_field_one_found}'",
+                        level="error",
+                    )
         return "{}", 200
 
     def process_request(self, request: Request):

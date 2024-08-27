@@ -3,6 +3,8 @@ import hmac
 import hashlib
 from flask import Request
 from pyrus import client
+import pyrus.models
+import pyrus.models.requests
 from pyrus_api_handler import PyrusAPI
 from datetime import datetime
 from pyrus.models.entities import CatalogItem
@@ -150,10 +152,25 @@ class CreateReminderComment:
                     ):
                         catalog_updated["items"].append({"values": [item.values]})
 
-            return self.pyrus_api.post_request(
-                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
-                catalog_updated,
-            )
+            try:
+                request = pyrus.models.requests.SyncCatalogRequest(catalog_updated)
+                response = self.pyrus_client.sync_catalog(self.catalog_id, request)
+                delted = response.deleted
+                updated = response.updated
+                added = response.added
+                new_headers = response.catalog_headers
+
+                print(f"Delete Reminder: {task_id}")
+                print(f"🗑️ Deleted: {delted}")
+                print(f"✅ Updated: {updated}")
+                print(f"➕ Added: {added}")
+                print(f"📝 New headers: {new_headers}")
+            except Exception as e:
+                self.sentry_sdk.capture_message(e, level="error")
+            # return self.pyrus_api.post_request(
+            #     f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
+            #     catalog_updated,
+            # )
 
     def _save_or_update_reminder(self, task_id: str, task_date: str, type_message: str):
         catalog_id = self.catalog_id
@@ -217,10 +234,26 @@ class CreateReminderComment:
                     }
                 )
 
-            return self.pyrus_api.post_request(
-                f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
-                catalog_updated,
-            )
+            try:
+                request = pyrus.models.requests.SyncCatalogRequest(catalog_updated)
+                response = self.pyrus_client.sync_catalog(self.catalog_id, request)
+                delted = response.deleted
+                updated = response.updated
+                added = response.added
+                new_headers = response.catalog_headers
+
+                print(f"Save or Update Reminder: {task_id}")
+                print(f"🗑️ Deleted: {delted}")
+                print(f"✅ Updated: {updated}")
+                print(f"➕ Added: {added}")
+                print(f"📝 New headers: {new_headers}")
+            except Exception as e:
+                self.sentry_sdk.capture_message(e, level="error")
+
+            # return self.pyrus_api.post_request(
+            #     f"https://api.pyrus.com/v4/catalogs/{self.catalog_id}",
+            #     catalog_updated,
+            # )
 
     def _process_text_field(
         self,

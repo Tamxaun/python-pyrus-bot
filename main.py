@@ -1,6 +1,6 @@
 from flask import Flask
+import os
 
-# Initialize the Flask app
 app = Flask(__name__)
 
 
@@ -12,4 +12,3 @@ def index_page():
 if __name__ == "__main__":
     port = 8080
     app.run(debug=True, host="0.0.0.0", port=port)
-    print("✅ Server is ready")

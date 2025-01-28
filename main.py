@@ -190,13 +190,13 @@ def webhook_reminder():
     # return create_reminder_comment.process_request(request)
 
 
-# @scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
-# def notify_job():
-#     catalog_id = "211552"
-#     notification = Notification_in_pyrus_task(
-#         catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
-#     )
-#     notification.send()
+@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
+def notify_job():
+    catalog_id = "211552"
+    notification = Notification_in_pyrus_task(
+        catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
+    )
+    notification.send()
 
 
 if __name__ == "__main__":

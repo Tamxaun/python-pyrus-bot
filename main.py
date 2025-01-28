@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from flask import Flask
 from flask import request
 from flask_caching import Cache
@@ -15,17 +15,13 @@ from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 from notify_in_pyrus_task import Notification_in_pyrus_task
 import sentry_sdk
 
-
-# Initialize the Flask app
-app = Flask(__name__)
-
-# Check if the app is running in debug mode
-if app.debug:
-    print("Flask app is running in debug mode")
-    os.environ["APP_ENV"] = "development"
-    load_dotenv()
+# Attempt to load environment variables from .env file
+dotenv_path = find_dotenv()
+if dotenv_path:
+    load_dotenv(dotenv_path)
+    print("✅ Loaded environment variables from .env file")
 else:
-    os.environ["APP_ENV"] = "production"
+    print("⚠️ .env file not found, using server environment variables")
 
 # Set the locale
 # locale.setlocale(locale.LC_TIME)
@@ -64,9 +60,13 @@ else:
     print("✅ All required environment variables are set")
 
 # Configure the Flask app
-config = {"DEBUG": False, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
+# - Initialize the Flask app
+app = Flask(__name__)
+# - Set debug mode based on FLASK_ENV
+app.config["DEBUG"] = os.getenv("FLASK_ENV") or "development"
+# - Configure the cache
+config = {"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
 app.config.from_mapping(config)
-
 
 # Initialize the cache
 CACHE = Cache(app)
@@ -186,12 +186,11 @@ def notify_job():
 
 
 if __name__ == "__main__":
-    # port = int(os.environ.get("PORT", 5000))
-    port = 5000
+    port = int(os.getenv("DEFAULT_PORT", 4000))
+
     app.run(
-        debug=False,
+        debug=app.config["DEBUG"],
         use_reloader=False,
         host="0.0.0.0",
         port=port,
     )
-    print("✅ Server is ready")

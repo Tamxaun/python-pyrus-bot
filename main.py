@@ -4,9 +4,12 @@ from flask import Flask
 from flask import request
 from flask_caching import Cache
 from flask_apscheduler import APScheduler
+from tzdata import timezone
+
 
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
+
 
 # import sentry_sdk
 

@@ -46,15 +46,20 @@ REMINDER_SECRET_KEY = os.getenv("REMINDER_SECRET_KEY")
 SYNC_LOGIN = os.getenv("SYNC_LOGIN")
 SYNC_SECRET_KEY = os.getenv("SYNC_SECRET_KEY")
 
-if (
-    RS_LOGIN is None
-    or RS_SECRET_KEY is None
-    or REMINDER_LOGIN is None
-    or REMINDER_SECRET_KEY is None
-    or SYNC_SECRET_KEY is None
-    or SYNC_LOGIN is None
-):
-    print("❌ All required environment variables must be set")
+required_env_vars = {
+    "RS_LOGIN": RS_LOGIN,
+    "RS_SECRET_KEY": RS_SECRET_KEY,
+    "REMINDER_LOGIN": REMINDER_LOGIN,
+    "REMINDER_SECRET_KEY": REMINDER_SECRET_KEY,
+    "SYNC_LOGIN": SYNC_LOGIN,
+    "SYNC_SECRET_KEY": SYNC_SECRET_KEY,
+}
+
+missing_vars = [var for var, value in required_env_vars.items() if value is None]
+
+
+if missing_vars:
+    print(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
     exit(1)  # Exit the application if any required environment variable is missing
 else:
     print("✅ All required environment variables are set")
@@ -72,7 +77,11 @@ app.config.from_mapping(config)
 CACHE = Cache(app)
 
 # Initialize the Pyrus API
-pyrus_api = PyrusAPI(CACHE, RS_LOGIN, RS_SECRET_KEY)
+pyrus_api = PyrusAPI(
+    CACHE,
+    RS_LOGIN if RS_LOGIN is not None else "",
+    RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
+)
 
 
 @app.route("/", methods=["GET"])

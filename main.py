@@ -5,8 +5,8 @@ from flask import request
 from flask_caching import Cache
 from flask_apscheduler import APScheduler
 
-# from pyrus_api_handler import PyrusAPI
-# from bot.reminder_step import ReminderStep
+from pyrus_api_handler import PyrusAPI
+from bot.reminder_step import ReminderStep
 import sentry_sdk
 
 # from bot.reminder_payment_type import ReminderPaymentType
@@ -86,11 +86,11 @@ scheduler.init_app(app)
 scheduler.start()
 
 # Initialize the Pyrus API
-# pyrus_api = PyrusAPI(
-#     CACHE,
-#     RS_LOGIN if RS_LOGIN is not None else "",
-#     RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
-# )
+pyrus_api = PyrusAPI(
+    CACHE,
+    RS_LOGIN if RS_LOGIN is not None else "",
+    RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
+)
 
 
 @app.route("/", methods=["GET"])

@@ -45,6 +45,7 @@ REMINDER_LOGIN = os.getenv("REMINDER_LOGIN")
 REMINDER_SECRET_KEY = os.getenv("REMINDER_SECRET_KEY")
 SYNC_LOGIN = os.getenv("SYNC_LOGIN")
 SYNC_SECRET_KEY = os.getenv("SYNC_SECRET_KEY")
+DEFAULT_PORT = os.getenv("DEFAULT_PORT")
 
 required_env_vars = {
     "RS_LOGIN": RS_LOGIN,
@@ -195,7 +196,7 @@ def notify_job():
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("DEFAULT_PORT", 4000))
+    port = int(DEFAULT_PORT) if DEFAULT_PORT is not None else 5000
 
     app.run(
         debug=app.config["DEBUG"],

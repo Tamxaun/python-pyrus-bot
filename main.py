@@ -4,8 +4,9 @@ from flask import Flask
 from flask import request
 from flask_caching import Cache
 from flask_apscheduler import APScheduler
-from pyrus_api_handler import PyrusAPI
-from bot.reminder_step import ReminderStep
+
+# from pyrus_api_handler import PyrusAPI
+# from bot.reminder_step import ReminderStep
 import sentry_sdk
 
 # from bot.reminder_payment_type import ReminderPaymentType
@@ -78,12 +79,18 @@ app.config.from_mapping(config)
 # Initialize the cache
 CACHE = Cache(app)
 
+# initialize scheduler
+scheduler = APScheduler()
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
+
 # Initialize the Pyrus API
-pyrus_api = PyrusAPI(
-    CACHE,
-    RS_LOGIN if RS_LOGIN is not None else "",
-    RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
-)
+# pyrus_api = PyrusAPI(
+#     CACHE,
+#     RS_LOGIN if RS_LOGIN is not None else "",
+#     RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
+# )
 
 
 @app.route("/", methods=["GET"])
@@ -115,13 +122,14 @@ def index_page():
 
 @app.route("/step-reminder", methods=["GET", "POST"])
 def reminder_step_page():
-    reminder_step_page = ReminderStep(
-        cache=CACHE,
-        request=request,
-        pyrus_secret_key=RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
-        pyrus_login=RS_LOGIN if RS_LOGIN is not None else "",
-    )
-    return reminder_step_page.process_request()
+    # reminder_step_page = ReminderStep(
+    #     cache=CACHE,
+    #     request=request,
+    #     pyrus_secret_key=RS_SECRET_KEY if RS_SECRET_KEY is not None else "",
+    #     pyrus_login=RS_LOGIN if RS_LOGIN is not None else "",
+    # )
+    # return reminder_step_page.process_request()
+    return "✅ Server is ready ReminderStep"
 
 
 # @app.route("/reminder-payment-type", methods=["GET", "POST"])
@@ -147,53 +155,48 @@ def reminder_step_page():
 #     return remider_inactive_tasks.process_request()
 @app.route("/webhook-sync-task-data", methods=["GET", "POST"])
 def webhook_sync_task_data():
-    TRACKED_FIELD = {
-        "Заказ в Pyrus": ["№ ордеров из 1С", "№ ордера"],
-    }
-    sync_task_data = SyncTaskData(
-        cache=CACHE,
-        pyrus_secret_key=SYNC_SECRET_KEY if SYNC_SECRET_KEY is not None else "",
-        pyrus_login=SYNC_LOGIN if SYNC_LOGIN is not None else "",
-        sentry_sdk=sentry_sdk,
-        traked_fields=TRACKED_FIELD,
-    )
-    return sync_task_data.process_request(request=request)
+    # TRACKED_FIELD = {
+    #     "Заказ в Pyrus": ["№ ордеров из 1С", "№ ордера"],
+    # }
+    # sync_task_data = SyncTaskData(
+    #     cache=CACHE,
+    #     pyrus_secret_key=SYNC_SECRET_KEY if SYNC_SECRET_KEY is not None else "",
+    #     pyrus_login=SYNC_LOGIN if SYNC_LOGIN is not None else "",
+    #     sentry_sdk=sentry_sdk,
+    #     traked_fields=TRACKED_FIELD,
+    # )
+    return "✅ Server is ready webhook_sync_task_data"
+    # return sync_task_data.process_request(request=request)
 
 
-@app.route("/webhook-reminder", methods=["GET", "POST"])
+@app.route(rule="/webhook-reminder", methods=["GET", "POST"])
 def webhook_reminder():
-    CATALOG_ID = "211552"
-    TRACKED_FIELDS: TrackedFieldsType = {
-        "text": {
-            "Тип оплаты / Статус": "✅Нал (чек)",
-        },
-        "date": ["Дата отгрузки", "Дата планируемой оплаты"],
-    }
-    create_reminder_comment = CreateReminderComment(
-        CATALOG_ID,
-        CACHE,
-        REMINDER_SECRET_KEY if REMINDER_SECRET_KEY is not None else "",
-        REMINDER_LOGIN if REMINDER_LOGIN is not None else "",
-        sentry_sdk,
-        TRACKED_FIELDS,
-    )
-    return create_reminder_comment.process_request(request)
+    # CATALOG_ID = "211552"
+    # TRACKED_FIELDS: TrackedFieldsType = {
+    #     "text": {
+    #         "Тип оплаты / Статус": "✅Нал (чек)",
+    #     },
+    #     "date": ["Дата отгрузки", "Дата планируемой оплаты"],
+    # }
+    # create_reminder_comment = CreateReminderComment(
+    #     CATALOG_ID,
+    #     CACHE,
+    #     REMINDER_SECRET_KEY if REMINDER_SECRET_KEY is not None else "",
+    #     REMINDER_LOGIN if REMINDER_LOGIN is not None else "",
+    #     sentry_sdk,
+    #     TRACKED_FIELDS,
+    # )
+    return "✅ Server is ready webhook_reminder"
+    # return create_reminder_comment.process_request(request)
 
 
-# initialize scheduler
-scheduler = APScheduler()
-scheduler.api_enabled = True
-scheduler.init_app(app)
-scheduler.start()
-
-
-@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
-def notify_job():
-    catalog_id = "211552"
-    notification = Notification_in_pyrus_task(
-        catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
-    )
-    notification.send()
+# @scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
+# def notify_job():
+#     catalog_id = "211552"
+#     notification = Notification_in_pyrus_task(
+#         catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
+#     )
+#     notification.send()
 
 
 if __name__ == "__main__":

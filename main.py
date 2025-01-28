@@ -6,6 +6,7 @@ from flask_caching import Cache
 from flask_apscheduler import APScheduler
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
+import sentry_sdk
 
 # from bot.reminder_payment_type import ReminderPaymentType
 from bot.sync_task_data import SyncTaskData
@@ -13,7 +14,7 @@ from bot.sync_task_data import SyncTaskData
 # from bot.remider_inactive_tasks import RemiderInactiveTasks
 from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 from notify_in_pyrus_task import Notification_in_pyrus_task
-import sentry_sdk
+
 
 # Attempt to load environment variables from .env file
 dotenv_path = find_dotenv()
@@ -198,9 +199,12 @@ def notify_job():
 if __name__ == "__main__":
     port = int(DEFAULT_PORT) if DEFAULT_PORT is not None else 5000
 
-    app.run(
-        debug=app.config["DEBUG"],
-        use_reloader=False,
-        host="0.0.0.0",
-        port=port,
-    )
+    try:
+        app.run(
+            debug=app.config["DEBUG"],
+            use_reloader=False,
+            host="0.0.0.0",
+            port=port,
+        )
+    except Exception as e:
+        print(f"❌ Failed to start the server: {e}")

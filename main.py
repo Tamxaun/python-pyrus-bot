@@ -7,7 +7,8 @@ from flask_apscheduler import APScheduler
 
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
-import sentry_sdk
+
+# import sentry_sdk
 
 # from bot.reminder_payment_type import ReminderPaymentType
 from bot.sync_task_data import SyncTaskData
@@ -29,16 +30,16 @@ else:
 # locale.setlocale(locale.LC_TIME)
 
 # Initialize Sentry
-sentry_sdk.init(
-    dsn="https://4cc58ab824b087258eac2255dbfd9e99@o1295012.ingest.sentry.io/4506705877860352",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
-)
+# sentry_sdk.init(
+#     dsn="https://4cc58ab824b087258eac2255dbfd9e99@o1295012.ingest.sentry.io/4506705877860352",
+#     # Set traces_sample_rate to 1.0 to capture 100%
+#     # of transactions for performance monitoring.
+#     traces_sample_rate=1.0,
+#     # Set profiles_sample_rate to 1.0 to profile 100%
+#     # of sampled transactions.
+#     # We recommend adjusting this value in production.
+#     profiles_sample_rate=1.0,
+# )
 
 # Load environment variables
 RS_LOGIN = os.getenv("RS_LOGIN")
@@ -194,7 +195,7 @@ def webhook_reminder():
 def notify_job():
     catalog_id = "211552"
     notification = Notification_in_pyrus_task(
-        catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
+        catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, CACHE
     )
     notification.send()
 

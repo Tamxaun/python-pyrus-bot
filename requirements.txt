@@ -1,2 +1,7 @@
 flask
+flask_caching
+Flask-APScheduler
 load_dotenv
+requests
+sentry-sdk[flask]
+pyrus-api

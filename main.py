@@ -92,12 +92,7 @@ scheduler.init_app(app)
 scheduler.start()
 
 # Use pytz to ensure the timezone is valid
-try:
-    moscow_tz = pytz.timezone("Europe/Moscow")
-    moscow_tz_str = "Europe/Moscow"
-except pytz.UnknownTimeZoneError:
-    logger.error("Invalid timezone: Europe/Moscow")
-    exit(1)
+moscow_tz = pytz.timezone("Europe/Moscow")
 
 # Initialize the Pyrus API
 pyrus_api = PyrusAPI(
@@ -158,7 +153,7 @@ def webhook_sync_task_data():
 #     return create_reminder_comment.process_request(request)
 
 
-@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone=moscow_tz_str)
+@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone=moscow_tz)
 def notify_job():
     try:
         logger.info("Starting notify_job")

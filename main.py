@@ -4,17 +4,16 @@ from dotenv import load_dotenv, find_dotenv
 from flask import Flask
 from flask import request
 from flask_caching import Cache
-
 from flask_apscheduler import APScheduler
+import sentry_sdk
+from datetime import datetime
+import pytz
 
 from pyrus_api_handler import PyrusAPI
-
 from bot.reminder_step import ReminderStep
 from bot.sync_task_data import SyncTaskData
 from notify_in_pyrus_task import Notification_in_pyrus_task
 from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
-
-import sentry_sdk
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -151,6 +150,13 @@ def webhook_sync_task_data():
 #         TRACKED_FIELDS,
 #     )
 #     return create_reminder_comment.process_request(request)
+
+
+@app.route("/current-time", methods=["GET"])
+def current_time():
+    tz = pytz.timezone(app.config["SCHEDULER_TIMEZONE"])
+    current_time = datetime.now(tz)
+    return f"Current time in {app.config['SCHEDULER_TIMEZONE']}: {current_time}"
 
 
 @scheduler.task("cron", id="notify_job", hour=8, minute=5)

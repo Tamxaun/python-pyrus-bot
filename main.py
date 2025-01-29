@@ -12,10 +12,10 @@ from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 from bot.sync_task_data import SyncTaskData
 from notify_in_pyrus_task import Notification_in_pyrus_task
-
 from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 
 import sentry_sdk
+import pytz
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -91,6 +91,14 @@ scheduler.api_enabled = True
 scheduler.init_app(app)
 scheduler.start()
 
+# Use pytz to ensure the timezone is valid
+try:
+    moscow_tz = pytz.timezone("Europe/Moscow")
+    moscow_tz_str = "Europe/Moscow"
+except pytz.UnknownTimeZoneError:
+    logger.error("Invalid timezone: Europe/Moscow")
+    exit(1)
+
 # Initialize the Pyrus API
 pyrus_api = PyrusAPI(
     CACHE,
@@ -150,7 +158,7 @@ def webhook_sync_task_data():
 #     return create_reminder_comment.process_request(request)
 
 
-@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
+@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone=moscow_tz_str)
 def notify_job():
     try:
         logger.info("Starting notify_job")
@@ -162,21 +170,6 @@ def notify_job():
         logger.info("notify_job completed successfully")
     except Exception as e:
         logger.error(f"Error in notify_job: {e}")
-
-
-# Uncomment the following line to test with a different timezone
-# @scheduler.task("cron", id="notify_job_test", hour=8, minute=5, timezone="UTC")
-# def notify_job_test():
-#     try:
-#         logger.info("Starting notify_job_test")
-#         catalog_id = "211552"
-#         notification = Notification_in_pyrus_task(
-#             catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
-#         )
-#         notification.send()
-#         logger.info("notify_job_test completed successfully")
-#     except Exception as e:
-#         logger.error(f"Error in notify_job_test: {e}")
 
 
 if __name__ == "__main__":

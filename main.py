@@ -30,16 +30,16 @@ else:
 # locale.setlocale(locale.LC_TIME)
 
 # Initialize Sentry
-# sentry_sdk.init(
-#     dsn="https://4cc58ab824b087258eac2255dbfd9e99@o1295012.ingest.sentry.io/4506705877860352",
-#     # Set traces_sample_rate to 1.0 to capture 100%
-#     # of transactions for performance monitoring.
-#     traces_sample_rate=1.0,
-#     # Set profiles_sample_rate to 1.0 to profile 100%
-#     # of sampled transactions.
-#     # We recommend adjusting this value in production.
-#     profiles_sample_rate=1.0,
-# )
+sentry_sdk.init(
+    dsn="https://4cc58ab824b087258eac2255dbfd9e99@o1295012.ingest.sentry.io/4506705877860352",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 # Load environment variables
 RS_LOGIN = os.getenv("RS_LOGIN")
@@ -81,10 +81,10 @@ app.config.from_mapping(config)
 CACHE = Cache(app)
 
 # initialize scheduler
-# scheduler = APScheduler()
-# scheduler.api_enabled = True
-# scheduler.init_app(app)
-# scheduler.start()
+scheduler = APScheduler()
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
 
 # Initialize the Pyrus API
 pyrus_api = PyrusAPI(

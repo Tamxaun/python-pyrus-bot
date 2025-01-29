@@ -7,15 +7,14 @@ from flask_caching import Cache
 from flask_apscheduler import APScheduler
 
 from pyrus_api_handler import PyrusAPI
+
 from bot.reminder_step import ReminderStep
-
-import sentry_sdk
-
 from bot.sync_task_data import SyncTaskData
 
 # from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
-
 # from notify_in_pyrus_task import Notification_in_pyrus_task
+
+import sentry_sdk
 
 
 # Attempt to load environment variables from .env file
@@ -110,19 +109,19 @@ def reminder_step_page():
     return reminder_step_page.process_request()
 
 
-# @app.route("/webhook-sync-task-data", methods=["GET", "POST"])
-# def webhook_sync_task_data():
-#     TRACKED_FIELD = {
-#         "Заказ в Pyrus": ["№ ордеров из 1С", "№ ордера"],
-#     }
-#     sync_task_data = SyncTaskData(
-#         cache=CACHE,
-#         pyrus_secret_key=SYNC_SECRET_KEY if SYNC_SECRET_KEY is not None else "",
-#         pyrus_login=SYNC_LOGIN if SYNC_LOGIN is not None else "",
-#         sentry_sdk=sentry_sdk,
-#         traked_fields=TRACKED_FIELD,
-#     )
-#     return sync_task_data.process_request(request=request)
+@app.route("/webhook-sync-task-data", methods=["GET", "POST"])
+def webhook_sync_task_data():
+    TRACKED_FIELD = {
+        "Заказ в Pyrus": ["№ ордеров из 1С", "№ ордера"],
+    }
+    sync_task_data = SyncTaskData(
+        cache=CACHE,
+        pyrus_secret_key=SYNC_SECRET_KEY if SYNC_SECRET_KEY is not None else "",
+        pyrus_login=SYNC_LOGIN if SYNC_LOGIN is not None else "",
+        sentry_sdk=sentry_sdk,
+        traked_fields=TRACKED_FIELD,
+    )
+    return sync_task_data.process_request(request=request)
 
 
 # @app.route(rule="/webhook-reminder", methods=["GET", "POST"])

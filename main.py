@@ -4,14 +4,14 @@ from flask import Flask
 from flask import request
 from flask_caching import Cache
 
-# from flask_apscheduler import APScheduler
+from flask_apscheduler import APScheduler
 
 from pyrus_api_handler import PyrusAPI
 from bot.reminder_step import ReminderStep
 
-# import sentry_sdk
+import sentry_sdk
 
-# from bot.sync_task_data import SyncTaskData
+from bot.sync_task_data import SyncTaskData
 
 # from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 

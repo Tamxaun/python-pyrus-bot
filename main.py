@@ -15,7 +15,6 @@ from notify_in_pyrus_task import Notification_in_pyrus_task
 from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 
 import sentry_sdk
-import pytz
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -79,7 +78,11 @@ app = Flask(__name__)
 # - Set debug mode based on FLASK_ENV
 app.config["DEBUG"] = os.getenv("FLASK_ENV") or "development"
 # - Configure the cache
-config = {"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
+config = {
+    "CACHE_TYPE": "SimpleCache",
+    "CACHE_DEFAULT_TIMEOUT": 300,
+    "SCHEDULER_TIMEZONE": "Europe/Moscow",
+}
 app.config.from_mapping(config)
 
 # Initialize the cache
@@ -90,9 +93,6 @@ scheduler = APScheduler()
 scheduler.api_enabled = True
 scheduler.init_app(app)
 scheduler.start()
-
-# Use pytz to ensure the timezone is valid
-moscow_tz = pytz.timezone("Europe/Moscow")
 
 # Initialize the Pyrus API
 pyrus_api = PyrusAPI(
@@ -153,7 +153,7 @@ def webhook_sync_task_data():
 #     return create_reminder_comment.process_request(request)
 
 
-@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone=moscow_tz)
+@scheduler.task("cron", id="notify_job", hour=8, minute=5)
 def notify_job():
     try:
         logger.info("Starting notify_job")

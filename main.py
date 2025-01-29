@@ -135,24 +135,24 @@ def webhook_sync_task_data():
     return sync_task_data.process_request(request=request)
 
 
-# @app.route(rule="/webhook-reminder", methods=["GET", "POST"])
-# def webhook_reminder():
-#     CATALOG_ID = "211552"
-#     TRACKED_FIELDS: TrackedFieldsType = {
-#         "text": {
-#             "Тип оплаты / Статус": "✅Нал (чек)",
-#         },
-#         "date": ["Дата отгрузки", "Дата планируемой оплаты"],
-#     }
-#     create_reminder_comment = CreateReminderComment(
-#         CATALOG_ID,
-#         CACHE,
-#         REMINDER_SECRET_KEY if REMINDER_SECRET_KEY is not None else "",
-#         REMINDER_LOGIN if REMINDER_LOGIN is not None else "",
-#         sentry_sdk,
-#         TRACKED_FIELDS,
-#     )
-#     return create_reminder_comment.process_request(request)
+@app.route(rule="/webhook-reminder", methods=["GET", "POST"])
+def webhook_reminder():
+    CATALOG_ID = "211552"
+    TRACKED_FIELDS: TrackedFieldsType = {
+        "text": {
+            "Тип оплаты / Статус": "✅Нал (чек)",
+        },
+        "date": ["Дата отгрузки", "Дата планируемой оплаты"],
+    }
+    create_reminder_comment = CreateReminderComment(
+        CATALOG_ID,
+        CACHE,
+        REMINDER_SECRET_KEY if REMINDER_SECRET_KEY is not None else "",
+        REMINDER_LOGIN if REMINDER_LOGIN is not None else "",
+        sentry_sdk,
+        TRACKED_FIELDS,
+    )
+    return create_reminder_comment.process_request(request)
 
 
 @app.route("/current-time", methods=["GET"])

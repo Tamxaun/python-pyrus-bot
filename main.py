@@ -1,4 +1,5 @@
 import os
+import logging
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask
 from flask import request
@@ -16,14 +17,17 @@ from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 
 import sentry_sdk
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Attempt to load environment variables from .env file
 dotenv_path = find_dotenv()
 if dotenv_path:
     load_dotenv(dotenv_path)
-    print("✅ Loaded environment variables from .env file")
+    logger.info("✅ Loaded environment variables from .env file")
 else:
-    print("⚠️ .env file not found, using server environment variables")
+    logger.warning("⚠️ .env file not found, using server environment variables")
 
 # Set the locale
 # locale.setlocale(locale.LC_TIME)
@@ -62,10 +66,12 @@ missing_vars = [var for var, value in required_env_vars.items() if value is None
 
 
 if missing_vars:
-    print(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
+    logger.error(
+        f"❌ Missing required environment variables: {', '.join(missing_vars)}"
+    )
     exit(1)  # Exit the application if any required environment variable is missing
 else:
-    print("✅ All required environment variables are set")
+    logger.info("✅ All required environment variables are set")
 
 # Configure the Flask app
 # - Initialize the Flask app
@@ -144,13 +150,13 @@ def webhook_sync_task_data():
 #     return create_reminder_comment.process_request(request)
 
 
-# @scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
-# def notify_job():
-#     catalog_id = "211552"
-#     notification = Notification_in_pyrus_task(
-#         catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
-#     )
-#     notification.send()
+@scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
+def notify_job():
+    catalog_id = "211552"
+    notification = Notification_in_pyrus_task(
+        catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
+    )
+    notification.send()
 
 
 if __name__ == "__main__":
@@ -164,4 +170,4 @@ if __name__ == "__main__":
             port=port,
         )
     except Exception as e:
-        print(f"❌ Failed to start the server: {e}")
+        logger.error(f"❌ Failed to start the server: {e}")

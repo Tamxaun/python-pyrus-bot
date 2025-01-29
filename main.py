@@ -152,11 +152,31 @@ def webhook_sync_task_data():
 
 @scheduler.task("cron", id="notify_job", hour=8, minute=5, timezone="Europe/Moscow")
 def notify_job():
-    catalog_id = "211552"
-    notification = Notification_in_pyrus_task(
-        catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
-    )
-    notification.send()
+    try:
+        logger.info("Starting notify_job")
+        catalog_id = "211552"
+        notification = Notification_in_pyrus_task(
+            catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
+        )
+        notification.send()
+        logger.info("notify_job completed successfully")
+    except Exception as e:
+        logger.error(f"Error in notify_job: {e}")
+
+
+# Uncomment the following line to test with a different timezone
+# @scheduler.task("cron", id="notify_job_test", hour=8, minute=5, timezone="UTC")
+# def notify_job_test():
+#     try:
+#         logger.info("Starting notify_job_test")
+#         catalog_id = "211552"
+#         notification = Notification_in_pyrus_task(
+#             catalog_id, REMINDER_LOGIN, REMINDER_SECRET_KEY, sentry_sdk, CACHE
+#         )
+#         notification.send()
+#         logger.info("notify_job_test completed successfully")
+#     except Exception as e:
+#         logger.error(f"Error in notify_job_test: {e}")
 
 
 if __name__ == "__main__":

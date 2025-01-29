@@ -12,7 +12,7 @@ from bot.reminder_step import ReminderStep
 from bot.sync_task_data import SyncTaskData
 from notify_in_pyrus_task import Notification_in_pyrus_task
 
-# from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
+from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 
 import sentry_sdk
 

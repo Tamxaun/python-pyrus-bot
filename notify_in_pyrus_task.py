@@ -7,12 +7,15 @@ from typing import List, Optional
 
 
 class Notification_in_pyrus_task:
-    def __init__(self, catalog_id, pyrus_login, pyrus_security_key, cache=None):
+    def __init__(
+        self, catalog_id, pyrus_login, pyrus_security_key, sentry_sdk, cache=None
+    ):
         self.catalog_id = int(catalog_id)
         self.pyrus_client = client.PyrusAPI(pyrus_login, pyrus_security_key)
         self.pyrus_api = PyrusAPI(
             cache, pyrus_login, pyrus_security_key, self.pyrus_client.access_token
         )
+        self.sentry_sdk = sentry_sdk
 
     def _create_shipment_date_formatted_text(self, author, date: str, time: str = ""):
         author_link_name = f"<a href='https://pyrus.com/t#{author.id}'>{author.first_name} {author.last_name}</a>"
@@ -34,6 +37,10 @@ class Notification_in_pyrus_task:
         if auth_response.success:
             pass
         else:
+            self.sentry_sdk.set_context("Auth error", auth_response.original_response)
+            self.sentry_sdk.capture_message(
+                "Nonitification Debug message: error with auth", level="error"
+            )
             raise Exception(auth_response.original_response)
 
     def _get_catalog(self):

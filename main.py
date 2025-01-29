@@ -19,6 +19,9 @@ from bot.create_reminder_comment import CreateReminderComment, TrackedFieldsType
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Set the default timezone for tzdata
+os.environ["TZ"] = "Europe/Moscow"
+
 # Attempt to load environment variables from .env file
 dotenv_path = find_dotenv()
 if dotenv_path:
@@ -76,7 +79,7 @@ else:
 app = Flask(__name__)
 # - Set debug mode based on FLASK_ENV
 app.config["DEBUG"] = os.getenv("FLASK_ENV") or "development"
-# - Configure the cache
+# - Set up configuration for the cache and scheduler
 config = {
     "CACHE_TYPE": "SimpleCache",
     "CACHE_DEFAULT_TIMEOUT": 300,
